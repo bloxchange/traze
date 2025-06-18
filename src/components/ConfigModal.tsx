@@ -23,12 +23,12 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
   };
 
   return (
-    <Modal title={t('configuration')} open={open} onOk={handleOk} onCancel={onCancel}>
+    <Modal title={t('settings.configuration')} open={open} onOk={handleOk} onCancel={onCancel}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="rpcUrl"
-          label={t('rpcUrl')}
-          rules={[{ required: true, message: t('rpcUrlRequired') }]}
+          label={t('settings.rpcUrl')}
+          rules={[{ required: true, message: t('settings.rpcUrlRequired') }]}
         >
           <Input />
         </Form.Item>

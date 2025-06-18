@@ -35,7 +35,10 @@ export const darkTheme: ThemeConfig = {
       footerBg: '#0a0f1b',
       contentBg: '#0a0f1b',
       headerBg: '#0a0f1b',
-    }
+    },
+    Card: {
+      bodyPadding: 12,
+    },
   },
 };
 
