@@ -1,0 +1,55 @@
+.flexlayout__layout {
+  background: var(--color-bg-container) !important;
+}
+
+.flexlayout__tab {
+  background: var(--color-bg-container) !important;
+  border: none !important;
+}
+
+.flexlayout__tabset {
+  background: var(--color-bg-hover) !important;
+}
+
+.flexlayout__tabset_tabbar_outer {
+  background: var(--color-bg-container) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.flexlayout__tabset-selected {
+  background: var(--color-bg-container) !important;
+  color: var(--color-text) !important;
+}
+
+.flexlayout__splitter {
+  background-color: var(--color-border) !important;
+}
+
+.flexlayout__splitter:hover {
+  background-color: var(--color-primary) !important;
+}
+
+.flexlayout__tab_button {
+  color: var(--color-text) !important;
+}
+
+.flexlayout__tab_button--selected {
+  color: var(--color-primary) !important;
+  background: var(--color-bg-container) !important;
+}
+
+.flexlayout__tab_button:hover {
+  color: var(--color-primary) !important;
+}
+
+.flexlayout__popup_menu {
+  background: var(--color-bg-container) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--box-shadow) !important;
+  color: var(--color-text) !important;
+}
+
+.flexlayout__popup_menu_item:hover {
+  background: var(--color-bg-hover) !important;
+  color: var(--color-text) !important;
+}

@@ -1,0 +1,15 @@
+{
+  "dashboardTitle": "Bảng điều khiển",
+  "welcomeMessage": "Chào mừng đến với Bloxchange",
+  "themeLight": "Sáng",
+  "themeDark": "Tối",
+  "configuration": "Cấu hình",
+  "rpcUrl": "URL RPC",
+  "rpcUrlRequired": "Vui lòng nhập URL RPC",
+  "sendTip": "Gửi tiền tip",
+  "enterTipAmount": "Nhập số lượng SOL",
+  "tipSuccess": "Cảm ơn bạn đã gửi tiền tip!",
+  "tipError": "Giao dịch thất bại",
+  "installPhantom": "Vui lòng cài đặt ví Phantom",
+  "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
+}

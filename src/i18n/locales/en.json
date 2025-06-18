@@ -1,0 +1,15 @@
+{
+  "dashboardTitle": "Dashboard",
+  "welcomeMessage": "Welcome to Bloxchange",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "configuration": "Configuration",
+  "rpcUrl": "RPC URL",
+  "rpcUrlRequired": "Please enter RPC URL",
+  "sendTip": "Send a Tip",
+  "enterTipAmount": "Enter amount in SOL",
+  "tipSuccess": "Thank you for your tip!",
+  "tipError": "Transaction failed",
+  "installPhantom": "Please install Phantom wallet",
+  "invalidAmount": "Please enter a valid amount"
+}
