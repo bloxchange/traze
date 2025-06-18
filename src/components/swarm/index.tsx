@@ -6,7 +6,7 @@ import CreateSwarmModal from './CreateSwarmModal';
 import SwarmHeader from './SwarmHeader';
 import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
-import SwarmConfig from './SwarmConfig';
+import { SwarmConfig } from './config';
 import { Keypair } from '@solana/web3.js';
 
 interface WalletInfo {
@@ -122,7 +122,7 @@ const Swarm: React.FC<SwarmProps> = ({
           walletCount={walletList.length}
         />
         {showConfig ? (
-          <SwarmConfig onBack={() => setShowConfig(false)} />
+          <SwarmConfig />
         ) : (
           <>
             <SwarmWalletList
