@@ -1,0 +1,15 @@
+{
+  "dashboardTitle": "仪表板",
+  "welcomeMessage": "欢迎使用 Bloxchange",
+  "themeLight": "浅色",
+  "themeDark": "深色",
+  "configuration": "配置",
+  "rpcUrl": "RPC 地址",
+  "rpcUrlRequired": "请输入 RPC 地址",
+  "sendTip": "发送打赏",
+  "enterTipAmount": "输入 SOL 数量",
+  "tipSuccess": "感谢您的打赏！",
+  "tipError": "交易失败",
+  "installPhantom": "请安装 Phantom 钱包",
+  "invalidAmount": "请输入有效金额"
+}
