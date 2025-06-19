@@ -23,6 +23,15 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@hooks": [
+        "./src/hooks/*"
+      ],
+      "@domain": [
+        "./src/domain/*"
+      ],
+      "@commands": [
+        "./src/domain/commands/*"
       ]
     }
   },

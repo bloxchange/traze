@@ -1,34 +1,44 @@
 import React from 'react';
 import { Modal, Form, Input, InputNumber } from 'antd';
 import { useTranslation } from 'react-i18next';
+import type { CreateSwarmModalProps } from '@/models';
 
-interface CreateSwarmModalProps {
-  open: boolean;
-  onCancel: () => void;
-  onSubmit: (publicKeys: string[], generateCount: number) => void;
-}
+const { TextArea } = Input;
 
 const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
   open,
   onCancel,
-  onSubmit,
+  onSubmit
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      const publicKeys = values.publicKeys
-        ? values.publicKeys.split('\n').filter((key: string) => key.trim())
+    form.validateFields().then(values => {
+      const privateKeys = values.privateKeys
+        ? values.privateKeys
+          .split('\n')
+          .map((key: string) => key.trim())
+          .filter((key: string) => key.length > 0)
         : [];
-      onSubmit(publicKeys, values.generateCount || 0);
+      const generateCount = values.generateCount || 0;
+
+      if (privateKeys.length === 0 && generateCount === 0) {
+        form.setFields([{
+          name: 'generateCount',
+          errors: [t('swarm.createModal.atLeastOneRequired')]
+        }]);
+        return;
+      }
+
+      onSubmit(privateKeys, generateCount);
       form.resetFields();
     });
   };
 
   return (
     <Modal
-      title={t('swarm.createSwarm')}
+      title={t('swarm.createModal.title')}
       open={open}
       onCancel={onCancel}
       onOk={handleSubmit}
@@ -40,23 +50,24 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
         initialValues={{ generateCount: 0 }}
       >
         <Form.Item
-          name="publicKeys"
-          label={t('swarm.publicKeys')}
+          name="privateKeys"
+          label={t('swarm.createModal.privateKeys')}
         >
-          <Input.TextArea
+          <TextArea
             rows={4}
-            placeholder={t('swarm.enterPublicKeys')}
+            placeholder={t('swarm.createModal.privateKeysPlaceholder')}
           />
         </Form.Item>
+
         <Form.Item
           name="generateCount"
-          label={t('swarm.generateNewKeys')}
+          label={t('swarm.createModal.generateCount')}
+          rules={[{ type: 'number', min: 0 }]}
         >
           <InputNumber
             min={0}
-            max={100}
             style={{ width: '100%' }}
-            placeholder={t('swarm.generateKeysPlaceholder')}
+            placeholder={t('swarm.createModal.generateCountPlaceholder')}
           />
         </Form.Item>
       </Form>

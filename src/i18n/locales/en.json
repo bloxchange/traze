@@ -35,7 +35,32 @@
     "publicKeys": "Public Keys",
     "enterPublicKeys": "Enter one public key per line",
     "generateNewKeys": "Generate New Keys",
-    "generateKeysPlaceholder": "Number of new keys to generate"
+    "generateKeysPlaceholder": "Number of new keys to generate",
+    "createModal": {
+      "title": "Create Swarm",
+      "privateKeys": "Private Keys",
+      "privateKeysPlaceholder": "Enter one private key per line",
+      "privateKeysRequired": "Please input private keys!",
+      "invalidPrivateKey": "Invalid private key format",
+      "generateCount": "Generate Additional Keys",
+      "generateCountPlaceholder": "Number of additional keys to generate",
+      "atLeastOneRequired": "Please provide private keys or set number of keys to generate"
+    },
+    "returnModal": {
+      "title": "Return from Swarm",
+      "targetWallet": "Target Wallet"
+    },
+    "feedModal": {
+      "title": "Feed SOL",
+      "sourceWallet": "Source Wallet",
+      "phantomWallet": "Phantom Wallet",
+      "amount": "Amount",
+      "amountPlaceholder": "Enter amount to feed",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "success": "SOL transfer successful",
+      "error": "SOL transfer failed"
+    }
   },
   "search": {
     "title": "Search",
@@ -62,6 +87,7 @@
   },
   "common": {
     "installPhantom": "Please install Phantom wallet",
+    "clear": "Clear",
     "validationFailed": "Validation failed",
     "copySuccess": "Copied to clipboard",
     "copyFailed": "Failed to copy to clipboard",

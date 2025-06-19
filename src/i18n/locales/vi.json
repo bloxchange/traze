@@ -35,7 +35,32 @@
     "publicKeys": "Khóa công khai",
     "enterPublicKeys": "Nhập một khóa công khai mỗi dòng",
     "generateNewKeys": "Tạo khóa mới",
-    "generateKeysPlaceholder": "Số lượng khóa mới cần tạo"
+    "generateKeysPlaceholder": "Số lượng khóa mới cần tạo",
+    "createModal": {
+      "title": "Tạo bầy đàn",
+      "privateKeys": "Khóa riêng tư",
+      "privateKeysPlaceholder": "Nhập một khóa riêng tư mỗi dòng",
+      "privateKeysRequired": "Vui lòng nhập khóa riêng tư!",
+      "invalidPrivateKey": "Định dạng khóa riêng tư không hợp lệ",
+      "generateCount": "Tạo thêm khóa",
+      "generateCountPlaceholder": "Số lượng khóa bổ sung cần tạo",
+      "atLeastOneRequired": "Vui lòng cung cấp khóa riêng tư hoặc đặt số lượng khóa cần tạo"
+    },
+    "returnModal": {
+      "title": "Trả về từ Swarm",
+      "targetWallet": "Ví đích"
+    },
+    "feedModal": {
+      "title": "Nạp SOL",
+      "sourceWallet": "Ví nguồn",
+      "phantomWallet": "Ví Phantom",
+      "amount": "Số lượng",
+      "amountPlaceholder": "Nhập số lượng cần nạp",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận",
+      "success": "Chuyển SOL thành công",
+      "error": "Chuyển SOL thất bại"
+    }
   },
   "search": {
     "title": "Tìm kiếm",
@@ -62,6 +87,7 @@
   },
   "common": {
     "installPhantom": "Vui lòng cài đặt ví Phantom",
+    "clear": "Xóa",
     "validationFailed": "Xác thực thất bại",
     "copySuccess": "Đã sao chép vào bộ nhớ tạm",
     "copyFailed": "Sao chép vào bộ nhớ tạm thất bại",

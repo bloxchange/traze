@@ -35,7 +35,32 @@
     "publicKeys": "公钥列表",
     "enterPublicKeys": "每行输入一个公钥",
     "generateNewKeys": "生成新密钥",
-    "generateKeysPlaceholder": "输入要生成的新密钥数量"
+    "generateKeysPlaceholder": "输入要生成的新密钥数量",
+    "createModal": {
+      "title": "创建蜂群",
+      "privateKeys": "私钥",
+      "privateKeysPlaceholder": "每行输入一个私钥",
+      "privateKeysRequired": "请输入私钥！",
+      "invalidPrivateKey": "无效的私钥格式",
+      "generateCount": "生成额外密钥",
+      "generateCountPlaceholder": "输入要生成的额外密钥数量",
+      "atLeastOneRequired": "请提供私钥或设置要生成的密钥数量"
+    },
+    "returnModal": {
+      "title": "从蜂群返回",
+      "targetWallet": "目标钱包"
+    },
+    "feedModal": {
+      "title": "注资 SOL",
+      "sourceWallet": "源钱包",
+      "phantomWallet": "Phantom 钱包",
+      "amount": "数量",
+      "amountPlaceholder": "输入注资数量",
+      "cancel": "取消",
+      "confirm": "确认",
+      "success": "SOL 转账成功",
+      "error": "SOL 转账失败"
+    }
   },
   "search": {
     "title": "搜索",
@@ -62,6 +87,7 @@
   },
   "common": {
     "installPhantom": "请安装 Phantom 钱包",
+    "clear": "清除",
     "validationFailed": "验证失败",
     "copySuccess": "已复制到剪贴板",
     "copyFailed": "复制到剪贴板失败",

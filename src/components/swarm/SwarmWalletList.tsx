@@ -2,21 +2,10 @@ import React from 'react';
 import { Row, Col, Checkbox, Space, Typography, Button, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import type { SwarmWalletListProps } from '@/models';
 
 const { Text } = Typography;
 
-interface WalletInfo {
-  publicKey: string;
-  solBalance: number;
-  tokenBalance: number;
-  selected: boolean;
-}
-
-interface SwarmWalletListProps {
-  wallets: WalletInfo[];
-  onWalletSelection: (publicKey: string, checked: boolean) => void;
-  onSelectAll?: (checked: boolean) => void;
-}
 
 const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSelection, onSelectAll }) => {
   const { t } = useTranslation();
@@ -53,13 +42,14 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSele
         <Row key={wallet.publicKey} align="middle" style={{ marginBottom: 8 }}>
           <Col span={2}>
             <Checkbox
+              id={wallet.publicKey}
               checked={wallet.selected}
               onChange={(e) => onWalletSelection(wallet.publicKey, e.target.checked)}
             />
           </Col>
           <Col span={8}>
             <Space>
-              <Text>{wallet.publicKey.slice(0, 6)}...</Text>
+              <label htmlFor={wallet.publicKey} style={{ cursor: 'pointer' }}>{wallet.publicKey.slice(0, 6)}...</label>
               <Button
                 type="text"
                 icon={<CopyOutlined />}
