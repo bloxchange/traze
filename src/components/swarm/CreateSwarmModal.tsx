@@ -32,7 +32,7 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
       open={open}
       onCancel={onCancel}
       onOk={handleSubmit}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -59,7 +59,7 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
             placeholder={t('swarm.generateKeysPlaceholder')}
           />
         </Form.Item>
-        </Form>
+      </Form>
     </Modal>
   );
 };

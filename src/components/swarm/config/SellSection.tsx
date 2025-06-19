@@ -2,26 +2,16 @@ import React from 'react';
 import { Form, Input, Checkbox, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-export interface SellConfigValues {
-  sellPercentages: string[];
-  sellDelay: number;
-}
+import type { SellConfigProps } from '@/models';
 
-interface SellConfigProps {
-  defaultSellPercentages: string[];
-}
-
-const SellSection: React.FC<SellConfigProps> = ({ defaultSellPercentages }) => {
+const SellSection: React.FC<SellConfigProps> = ({ availablePercentages }) => {
   const { t } = useTranslation();
 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <Form.Item
-        label={t('swarm.percentageAmount')}
-        name="sellPercentages"
-      >
+      <Form.Item name="sellPercentages" label={t('swarm.percentageAmount')}>
         <Checkbox.Group
-          options={defaultSellPercentages.map((percentage: string) => ({
+          options={availablePercentages.map((percentage: string) => ({
             label: `${percentage}%`,
             value: percentage
           }))}

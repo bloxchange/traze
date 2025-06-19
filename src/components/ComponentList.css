@@ -12,7 +12,7 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  cursor: move;
+  cursor: grab;
   color: var(--color-text);
   transition: all 0.3s;
 }
@@ -25,4 +25,5 @@
 .draggable-icon:active {
   background-color: var(--color-bg-active);
   transform: scale(0.95);
+  cursor: grabbing;
 }

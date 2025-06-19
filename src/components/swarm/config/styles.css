@@ -1,0 +1,14 @@
+.swarm-config-tabs {
+  width: 100%;
+}
+
+.swarm-config-tabs .ant-tabs-nav-list {
+  width: 100%;
+  display: flex;
+}
+
+.swarm-config-tabs .ant-tabs-tab {
+  flex: 1;
+  justify-content: center;
+  margin: 0 !important;
+}
