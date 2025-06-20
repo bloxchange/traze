@@ -61,6 +61,9 @@ export class FeedSwarmCommand {
 
     await window.solana.signAndSendTransaction(transaction);
 
+    // Wait for transaction to settle
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     // Then distribute from first wallet to others
     const sender = this.wallets[0];
     const remainingWallets = this.wallets.slice(1);
