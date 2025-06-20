@@ -1,15 +1,96 @@
 {
-  "dashboardTitle": "仪表板",
-  "welcomeMessage": "欢迎使用 Bloxchange",
-  "themeLight": "浅色",
-  "themeDark": "深色",
-  "configuration": "配置",
-  "rpcUrl": "RPC 地址",
-  "rpcUrlRequired": "请输入 RPC 地址",
-  "sendTip": "发送打赏",
-  "enterTipAmount": "输入 SOL 数量",
-  "tipSuccess": "感谢您的打赏！",
-  "tipError": "交易失败",
-  "installPhantom": "请安装 Phantom 钱包",
-  "invalidAmount": "请输入有效金额"
+  "dashboard": {
+    "title": "仪表板",
+    "welcomeMessage": "欢迎使用 Bloxchange"
+  },
+  "swarm": {
+    "title": "蜂群",
+    "feed": "注资",
+    "return": "返还",
+    "clear": "清除",
+    "createWallets": "创建钱包",
+    "config": "配置",
+    "showList": "显示列表",
+    "buy": "买入",
+    "sell": "卖出",
+    "flush": "刷新",
+    "wallet": "钱包",
+    "sol": "SOL",
+    "token": "代币",
+    "walletsClearedSuccess": "钱包已成功清除",
+    "walletsCreatedSuccess": "钱包已成功创建",
+    "name": "蜂群名称",
+    "nameRequired": "请输入蜂群名称！",
+    "description": "描述",
+    "save": "保存",
+    "buyTab": "买入",
+    "sellTab": "卖出",
+    "amountInSol": "SOL 数量",
+    "delayInSeconds": "延迟（秒）",
+    "percentageAmount": "百分比数量",
+    "editAmounts": "编辑数量",
+    "enterAmounts": "输入数量（用逗号分隔）",
+    "back": "返回",
+    "createSwarm": "创建蜂群",
+    "publicKeys": "公钥列表",
+    "enterPublicKeys": "每行输入一个公钥",
+    "generateNewKeys": "生成新密钥",
+    "generateKeysPlaceholder": "输入要生成的新密钥数量",
+    "createModal": {
+      "title": "创建蜂群",
+      "privateKeys": "私钥",
+      "privateKeysPlaceholder": "每行输入一个私钥",
+      "privateKeysRequired": "请输入私钥！",
+      "invalidPrivateKey": "无效的私钥格式",
+      "generateCount": "生成额外密钥",
+      "generateCountPlaceholder": "输入要生成的额外密钥数量",
+      "atLeastOneRequired": "请提供私钥或设置要生成的密钥数量"
+    },
+    "returnModal": {
+      "title": "从蜂群返回",
+      "targetWallet": "目标钱包"
+    },
+    "feedModal": {
+      "title": "注资 SOL",
+      "sourceWallet": "源钱包",
+      "phantomWallet": "Phantom 钱包",
+      "amount": "数量",
+      "amountPlaceholder": "输入注资数量",
+      "cancel": "取消",
+      "confirm": "确认",
+      "success": "SOL 转账成功",
+      "error": "SOL 转账失败"
+    }
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "输入公钥或交易哈希",
+    "validationError": "无效的公钥格式"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "configuration": "配置",
+    "rpcUrl": "RPC 地址",
+    "rpcUrlRequired": "请输入 RPC 地址"
+  },
+  "tip": {
+    "title": "打赏",
+    "send": "发送打赏",
+    "enterAmount": "输入 SOL 数量",
+    "success": "感谢您的打赏！",
+    "error": "交易失败",
+    "invalidAmount": "请输入有效金额"
+  },
+  "common": {
+    "installPhantom": "请安装 Phantom 钱包",
+    "clear": "清除",
+    "validationFailed": "验证失败",
+    "copySuccess": "已复制到剪贴板",
+    "copyFailed": "复制到剪贴板失败",
+    "untitled": "未命名"
+  }
 }

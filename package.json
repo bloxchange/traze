@@ -11,9 +11,10 @@
     "format": "prettier --write 'src/**/*.{ts,tsx}'"
   },
   "dependencies": {
-    "@project-serum/anchor": "^0.26.0",
+    "@coral-xyz/anchor": "^0.31.1",
     "@solana/web3.js": "^1.87.6",
     "antd": "^5.11.5",
+    "bs58": "^6.0.0",
     "flexlayout-react": "^0.8.17",
     "i18next": "^23.7.7",
     "i18next-browser-languagedetector": "^7.2.0",

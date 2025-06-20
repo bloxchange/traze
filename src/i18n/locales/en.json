@@ -1,15 +1,96 @@
 {
-  "dashboardTitle": "Dashboard",
-  "welcomeMessage": "Welcome to Bloxchange",
-  "themeLight": "Light",
-  "themeDark": "Dark",
-  "configuration": "Configuration",
-  "rpcUrl": "RPC URL",
-  "rpcUrlRequired": "Please enter RPC URL",
-  "sendTip": "Send a Tip",
-  "enterTipAmount": "Enter amount in SOL",
-  "tipSuccess": "Thank you for your tip!",
-  "tipError": "Transaction failed",
-  "installPhantom": "Please install Phantom wallet",
-  "invalidAmount": "Please enter a valid amount"
+  "dashboard": {
+    "title": "Dashboard",
+    "welcomeMessage": "Welcome to Bloxchange"
+  },
+  "swarm": {
+    "title": "Swarm",
+    "feed": "Feed",
+    "return": "Return",
+    "clear": "Clear",
+    "createWallets": "Create Wallets",
+    "config": "Configuration",
+    "showList": "Show List",
+    "buy": "Buy",
+    "sell": "Sell",
+    "flush": "Flush",
+    "wallet": "Wallet",
+    "sol": "SOL",
+    "token": "Token",
+    "walletsClearedSuccess": "Wallets cleared successfully",
+    "walletsCreatedSuccess": "Wallets created successfully",
+    "name": "Swarm Name",
+    "nameRequired": "Please input swarm name!",
+    "description": "Description",
+    "save": "Save",
+    "buyTab": "Buy",
+    "sellTab": "Sell",
+    "amountInSol": "Amount in SOL",
+    "delayInSeconds": "Delay (seconds)",
+    "percentageAmount": "Percentage Amount",
+    "editAmounts": "Edit Amounts",
+    "enterAmounts": "Enter amounts (comma separated)",
+    "back": "Back",
+    "createSwarm": "Create Swarm",
+    "publicKeys": "Public Keys",
+    "enterPublicKeys": "Enter one public key per line",
+    "generateNewKeys": "Generate New Keys",
+    "generateKeysPlaceholder": "Number of new keys to generate",
+    "createModal": {
+      "title": "Create Swarm",
+      "privateKeys": "Private Keys",
+      "privateKeysPlaceholder": "Enter one private key per line",
+      "privateKeysRequired": "Please input private keys!",
+      "invalidPrivateKey": "Invalid private key format",
+      "generateCount": "Generate Additional Keys",
+      "generateCountPlaceholder": "Number of additional keys to generate",
+      "atLeastOneRequired": "Please provide private keys or set number of keys to generate"
+    },
+    "returnModal": {
+      "title": "Return from Swarm",
+      "targetWallet": "Target Wallet"
+    },
+    "feedModal": {
+      "title": "Feed SOL",
+      "sourceWallet": "Source Wallet",
+      "phantomWallet": "Phantom Wallet",
+      "amount": "Amount",
+      "amountPlaceholder": "Enter amount to feed",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "success": "SOL transfer successful",
+      "error": "SOL transfer failed"
+    }
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Enter public key or transaction hash",
+    "validationError": "Invalid public key format"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "configuration": "Configuration",
+    "rpcUrl": "RPC URL",
+    "rpcUrlRequired": "Please enter RPC URL"
+  },
+  "tip": {
+    "title": "Tip",
+    "send": "Send a Tip",
+    "enterAmount": "Enter amount in SOL",
+    "success": "Thank you for your tip!",
+    "error": "Transaction failed",
+    "invalidAmount": "Please enter a valid amount"
+  },
+  "common": {
+    "installPhantom": "Please install Phantom wallet",
+    "clear": "Clear",
+    "validationFailed": "Validation failed",
+    "copySuccess": "Copied to clipboard",
+    "copyFailed": "Failed to copy to clipboard",
+    "untitled": "Untitled"
+  }
 }

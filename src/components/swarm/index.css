@@ -9,12 +9,31 @@
 }
 
 .swarm-header {
-  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.swarm-header .ant-space {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.swarm-header .ant-btn {
+  font-size: 20px;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swarm-header .ant-space:last-child {
+  justify-content: flex-end;
+  gap: 8px !important;
 }
 
 .swarm-wallets {
-  margin-bottom: 16px;
-  max-height: 120px;
   overflow-y: auto;
 }
 

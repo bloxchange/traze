@@ -29,13 +29,13 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
     try {
       setLoading(true);
       if (!window.solana || !window.solana.isPhantom) {
-        message.error(t('installPhantom'));
+        message.error(t('common.installPhantom'));
         return;
       }
 
       const tipAmount = parseFloat(amount);
       if (isNaN(tipAmount) || tipAmount <= 0) {
-        message.error(t('invalidAmount'));
+        message.error(t('tip.invalidAmount'));
         return;
       }
 
@@ -53,13 +53,13 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
 
       await window.solana.signAndSendTransaction(transaction);
 
-      message.success(t('tipSuccess'));
+      message.success(t('tip.success'));
 
       setAmount('');
 
       onCancel();
     } catch (error) {
-      message.error(t('tipError') + ': ' + (error as Error)?.message);
+      message.error(t('tip.error') + ': ' + (error as Error)?.message);
     } finally {
       setLoading(false);
     }
@@ -67,12 +67,12 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
 
   return (
     <Modal
-      title={t('sendTip')}
+      title={t('tip.send')}
       open={open}
       onCancel={onCancel}
       footer={[
         <Button key="cancel" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>,
         <Button
           key="submit"
@@ -80,12 +80,12 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
           loading={loading}
           onClick={handleSubmit}
         >
-          {t('sendTip')}
+          {t('tip.send')}
         </Button>
       ]}
     >
       <Input
-        placeholder={t('enterTipAmount')}
+        placeholder={t('tip.enterAmount')}
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         type="number"

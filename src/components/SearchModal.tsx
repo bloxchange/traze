@@ -1,5 +1,6 @@
 import { Modal, Input } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PublicKey } from '@solana/web3.js';
 
 interface SearchModalProps {
@@ -8,6 +9,7 @@ interface SearchModalProps {
 }
 
 const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
+  const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
 
   const handleCancel = () => {
@@ -37,7 +39,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
       styles={{ content: { backgroundColor: 'transparent' } }}
     >
       <Input
-        placeholder="Enter Solana public key"
+        placeholder={t('search.placeholder')}
         value={searchInput}
         onChange={(e) => {
           setSearchInput(e.target.value);
