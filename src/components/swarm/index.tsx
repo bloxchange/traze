@@ -15,7 +15,7 @@ import bs58 from 'bs58';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
-  wallets,
+  wallets = [],
   onNameChange }) => {
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);

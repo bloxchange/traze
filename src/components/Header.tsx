@@ -1,6 +1,7 @@
 import { Space, Switch, Select, Button, Layout, theme } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SettingOutlined, SearchOutlined, GiftFilled } from '@ant-design/icons';
+import { Layout as FlexLayout } from 'flexlayout-react';
 import ComponentList from './ComponentList';
 import SearchModal from './SearchModal';
 import TipModal from './TipModal';
@@ -12,6 +13,7 @@ import type { Configuration } from '../models';
 
 interface HeaderProps {
   theme: ThemeMode;
+  flexLayoutRef: React.RefObject<FlexLayout>;
   onThemeChange: () => void;
 }
 
@@ -21,7 +23,7 @@ const languageOptions = [
   { value: 'vi', label: 'Tiếng Việt' },
 ];
 
-const Header: React.FC<HeaderProps> = ({ theme: themeMode, onThemeChange }) => {
+const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThemeChange }) => {
   const { i18n } = useTranslation();
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -48,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, onThemeChange }) => {
       }}
     >
       <img src="/traze.png" alt="Traze Logo" style={{ height: 32 }} />
-      <ComponentList />
+      <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
         <Button type="text" icon={<SearchOutlined />} onClick={() => setIsSearchModalOpen(true)} />
         <Button type="text" icon={<SettingOutlined />} onClick={() => setIsConfigModalOpen(true)} />

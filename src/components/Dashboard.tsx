@@ -3,6 +3,9 @@ import { Card, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Actions, Layout, Model, TabNode } from 'flexlayout-react';
 import Swarm from './swarm';
+import TokenInformation from './token-information';
+import LiquidityPools from './liquidity-pools';
+import Transactions from './transactions';
 import 'flexlayout-react/style/dark.css';
 import './Dashboard.css';
 
@@ -56,48 +59,44 @@ const createDefaultLayout = (t: (key: string) => string) => ({
   },
 });
 
-const Dashboard = () => {
+const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexLayoutRef }) => {
   const { t } = useTranslation();
   const layoutModel = React.useRef(Model.fromJson(createDefaultLayout(t)));
   const model = layoutModel.current;
-  const layoutRef = React.useRef<Layout>(null);
 
   const handleNameChange = (node: TabNode, newName: string) => {
-    node.getModel().doAction(Actions.renameTab(node.getId(), `${t('swarm.title')} - ${newName}`));
+    const component = node.getComponent();
+
+    if (component !== 'swarm') {
+      return;
+    }
+
+    const componentTitle = t('swarm.title');
+
+    node.getModel().doAction(Actions.renameTab(node.getId(), `${componentTitle} - ${newName}`));
   };
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();
-    if (component === 'swarm') {
-      const config = node.getConfig();
-      return (
-        <Swarm
-          name={config.name}
-          wallets={config.wallets}
-          onNameChange={(newName) => handleNameChange(node, newName)}
-        />
-      );
-    }
-    return node.getConfig().content;
-  };
+    const config = node.getConfig();
 
-  const onAddDragMouseDown = (e: React.DragEvent) => {
-    e.preventDefault();
-    const componentType = e.dataTransfer.getData('componentType');
-
-    if (componentType === 'swarm' && layoutRef.current) {
-      layoutRef.current.addTabWithDragAndDrop(
-        e as unknown as DragEvent,
-        {
-          type: 'tab',
-          name: `${t('swarm.title')} - ${t('common.untitled')}`,
-          component: 'swarm',
-          config: {
-            name: t('common.untitled'),
-            wallets: []
-          }
-        }
-      );
+    switch (component) {
+      case 'swarm':
+        return (
+          <Swarm
+            name={config.name}
+            wallets={config.wallets}
+            onNameChange={(newName) => handleNameChange(node, newName)}
+          />
+        );
+      case 'tokenInformation':
+        return <TokenInformation name={config.name} />;
+      case 'liquidityPools':
+        return <LiquidityPools name={config.name} />;
+      case 'transactions':
+        return <Transactions name={config.name} />;
+      default:
+        return config.content;
     }
   };
 
@@ -105,9 +104,8 @@ const Dashboard = () => {
     <div
       style={{ width: '100%', height: '100%' }}
       onDragOver={(e) => e.preventDefault()}
-      onDrop={onAddDragMouseDown}
     >
-      <Layout ref={layoutRef} model={model} factory={factory} />
+      <Layout ref={flexLayoutRef} model={model} factory={factory} />
     </div>
   );
 };

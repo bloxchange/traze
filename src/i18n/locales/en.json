@@ -64,6 +64,18 @@
       "error": "SOL transfer failed"
     }
   },
+  "tokenInformation": {
+    "title": "Token Information",
+    "description": "View detailed token information and statistics."
+  },
+  "liquidityPools": {
+    "title": "Liquidity Pools",
+    "description": "Monitor and manage liquidity pool positions."
+  },
+  "transactions": {
+    "title": "Transactions",
+    "description": "Track and analyze transaction history."
+  },
   "search": {
     "title": "Search",
     "placeholder": "Enter public key or transaction hash",

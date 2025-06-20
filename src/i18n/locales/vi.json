@@ -57,9 +57,16 @@
       "amount": "Số lượng",
       "amountPlaceholder": "Nhập số lượng cần nạp",
       "cancel": "Hủy",
-      "confirm": "Xác nhận",
-      "success": "Chuyển SOL thành công",
-      "error": "Chuyển SOL thất bại"
+      "clearConfirmTitle": "Xóa ví",
+      "clearConfirmContent": "Bạn có chắc chắn muốn xóa tất cả ví không? Hành động này không thể hoàn tác."
+    },
+    "common": {
+      "title": "Tiền boa",
+      "send": "Gửi tiền boa",
+      "enterAmount": "Nhập số lượng SOL",
+      "success": "Cảm ơn bạn đã gửi tiền boa!",
+      "error": "Giao dịch thất bại",
+      "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
     }
   },
   "search": {
@@ -92,5 +99,13 @@
     "copySuccess": "Đã sao chép vào bộ nhớ tạm",
     "copyFailed": "Sao chép vào bộ nhớ tạm thất bại",
     "untitled": "Chưa đặt tên"
+  },
+  "tokenInformation": {
+    "title": "Thông tin Token",
+    "description": "Xem thông tin chi tiết và thống kê về token."
+  },
+  "liquidityPools": {
+    "title": "Pool thanh khoản",
+    "description": "Theo dõi và quản lý vị thế trong pool thanh khoản."
   }
 }

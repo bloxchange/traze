@@ -57,40 +57,21 @@
       "amount": "数量",
       "amountPlaceholder": "输入注资数量",
       "cancel": "取消",
-      "confirm": "确认",
-      "success": "SOL 转账成功",
-      "error": "SOL 转账失败"
-    }
+      "clearConfirmTitle": "清除钱包",
+      "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤消。"
+    },
+    "common": {
+      "confirm": "确认"
+    },
+    "success": "SOL 转账成功",
+    "error": "SOL 转账失败"
   },
-  "search": {
-    "title": "搜索",
-    "placeholder": "输入公钥或交易哈希",
-    "validationError": "无效的公钥格式"
+  "tokenInformation": {
+    "title": "代币信息",
+    "description": "查看详细的代币信息和统计数据。"
   },
-  "settings": {
-    "title": "设置",
-    "language": "语言",
-    "theme": "主题",
-    "themeLight": "浅色",
-    "themeDark": "深色",
-    "configuration": "配置",
-    "rpcUrl": "RPC 地址",
-    "rpcUrlRequired": "请输入 RPC 地址"
-  },
-  "tip": {
-    "title": "打赏",
-    "send": "发送打赏",
-    "enterAmount": "输入 SOL 数量",
-    "success": "感谢您的打赏！",
-    "error": "交易失败",
-    "invalidAmount": "请输入有效金额"
-  },
-  "common": {
-    "installPhantom": "请安装 Phantom 钱包",
-    "clear": "清除",
-    "validationFailed": "验证失败",
-    "copySuccess": "已复制到剪贴板",
-    "copyFailed": "复制到剪贴板失败",
-    "untitled": "未命名"
+  "liquidityPools": {
+    "title": "流动性池",
+    "description": "监控和管理流动性池仓位。"
   }
 }
