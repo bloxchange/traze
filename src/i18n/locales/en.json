@@ -36,6 +36,8 @@
     "enterPublicKeys": "Enter one public key per line",
     "generateNewKeys": "Generate New Keys",
     "generateKeysPlaceholder": "Number of new keys to generate",
+    "clearConfirmTitle": "Clear Wallets",
+    "clearConfirmContent": "Are you sure you want to clear all wallets? This action cannot be undone.",
     "createModal": {
       "title": "Create Swarm",
       "privateKeys": "Private Keys",
@@ -88,6 +90,8 @@
   "common": {
     "installPhantom": "Please install Phantom wallet",
     "clear": "Clear",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
     "validationFailed": "Validation failed",
     "copySuccess": "Copied to clipboard",
     "copyFailed": "Failed to copy to clipboard",

@@ -11,6 +11,7 @@ import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
 import { CreateSwarmCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
+import bs58 from 'bs58';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
@@ -22,6 +23,7 @@ const Swarm: React.FC<SwarmProps> = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
+  const [name, setName] = useState(initialName);
 
   const handleFeed = () => {
     setIsFeedModalOpen(true);
@@ -57,6 +59,28 @@ const Swarm: React.FC<SwarmProps> = ({
     try {
       const createCommand = new CreateSwarmCommand(privateKeys, generateCount);
       const newWallets = createCommand.execute();
+
+      // Download wallet information if wallets were generated
+      if (generateCount > 0) {
+        const publicKeysString = newWallets
+          .map(wallet => wallet.publicKey)
+          .join('\n');
+        const privateKeysString = newWallets
+          .map(wallet => bs58.encode(wallet.keypair.secretKey))
+          .join('\n');
+
+        const content = `Public Keys:\n${publicKeysString}\n\nPrivate Keys:\n${privateKeysString}`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `wallets_${name}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
       setWalletList(newWallets);
       setIsCreateModalOpen(false);
       message.success(t('swarm.walletsCreatedSuccess'));
@@ -77,6 +101,12 @@ const Swarm: React.FC<SwarmProps> = ({
     setWalletList(prevList =>
       prevList.map(wallet => ({ ...wallet, selected: checked }))
     );
+  };
+
+  const handleNameChange = (newName: string) => {
+    setName(newName);
+
+    onNameChange(newName);
   };
 
   const handleBuy = () => {
@@ -104,8 +134,8 @@ const Swarm: React.FC<SwarmProps> = ({
       }}
     >
       <SwarmHeader
-        name={initialName}
-        onNameChange={onNameChange}
+        name={name}
+        onNameChange={handleNameChange}
         onFeed={handleFeed}
         onReturn={handleReturn}
         onClear={handleClear}

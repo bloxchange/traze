@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Space, Input, Typography, Button, Tooltip, theme } from 'antd';
+import { Space, Input, Typography, Button, Tooltip, theme, Popconfirm } from 'antd';
 import { ClearOutlined, PlusCircleOutlined, SettingOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
@@ -82,12 +82,27 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
           />
         </Tooltip>
         <Tooltip title={walletCount === 0 ? t('swarm.createWallets') : t('common.clear')}>
-          <Button
-            icon={walletCount === 0 ? <PlusCircleOutlined /> : <ClearOutlined />}
-            onClick={onClear}
-            type="text"
-            danger={walletCount > 0}
-          />
+          {walletCount === 0 ? (
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={onClear}
+              type="text"
+            />
+          ) : (
+            <Popconfirm
+              title={t('swarm.clearConfirmTitle')}
+              description={t('swarm.clearConfirmContent')}
+              okText={t('common.confirm')}
+              cancelText={t('common.cancel')}
+              onConfirm={onClear}
+            >
+              <Button
+                icon={<ClearOutlined />}
+                type="text"
+                danger
+              />
+            </Popconfirm>
+          )}
         </Tooltip>
         {showConfig ? (
           <Tooltip title={t('swarm.showList')}>
