@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { type Configuration, defaultConfiguration } from '../models/configuration';
-import { ConfigurationContext } from '../hooks/useConfiguration';
+import { ConfigurationContext } from '../hooks';
 
 
 export function ConfigurationProvider({ children }: { children: ReactNode }) {

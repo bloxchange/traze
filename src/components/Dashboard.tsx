@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Actions, Layout, Model, TabNode } from 'flexlayout-react';
 import Swarm from './swarm';
@@ -8,8 +7,6 @@ import LiquidityPools from './liquidity-pools';
 import Transactions from './transactions';
 import 'flexlayout-react/style/dark.css';
 import './Dashboard.css';
-
-const { Title } = Typography;
 
 const createDefaultLayout = (t: (key: string) => string) => ({
   global: {
@@ -27,15 +24,10 @@ const createDefaultLayout = (t: (key: string) => string) => ({
         children: [
           {
             type: 'tab',
-            name: t('dashboard.title'),
-            component: 'main',
+            name: t('tokenInformation.title'),
+            component: 'tokenInformation',
             config: {
-              content: (
-                <Card>
-                  <Title level={2}>{t('dashboard.title')}</Title>
-                  <Typography.Text>{t('dashboard.welcomeMessage')}</Typography.Text>
-                </Card>
-              ),
+              name: t('tokenInformation.title'),
             },
           },
         ],
@@ -61,6 +53,7 @@ const createDefaultLayout = (t: (key: string) => string) => ({
 
 const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexLayoutRef }) => {
   const { t } = useTranslation();
+
   const layoutModel = React.useRef(Model.fromJson(createDefaultLayout(t)));
   const model = layoutModel.current;
 
@@ -90,7 +83,7 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexL
           />
         );
       case 'tokenInformation':
-        return <TokenInformation name={config.name} />;
+        return <TokenInformation />;
       case 'liquidityPools':
         return <LiquidityPools name={config.name} />;
       case 'transactions':

@@ -102,7 +102,23 @@
   },
   "tokenInformation": {
     "title": "Thông tin Token",
-    "description": "Xem thông tin chi tiết và thống kê về token."
+    "description": "Xem thông tin chi tiết và thống kê token.",
+    "noToken": "Chưa chọn token",
+    "searchPrompt": "Sử dụng hộp tìm kiếm để tìm token bằng địa chỉ mint",
+    "mint": "Địa chỉ Mint",
+    "symbol": "Ký hiệu",
+    "decimals": "Số thập phân",
+    "holders": "Số người nắm giữ",
+    "price": "Giá",
+    "volume24h": "Khối lượng 24h",
+    "marketCap": "Vốn hóa thị trường",
+    "lastUpdated": "Cập nhật lần cuối"
+  },
+  "search": {
+    "title": "Tìm kiếm",
+    "placeholder": "Nhập địa chỉ mint của token",
+    "success": "Đã tải thông tin token",
+    "error": "Không thể tải thông tin token"
   },
   "liquidityPools": {
     "title": "Pool thanh khoản",

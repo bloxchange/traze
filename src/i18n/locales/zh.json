@@ -68,7 +68,23 @@
   },
   "tokenInformation": {
     "title": "代币信息",
-    "description": "查看详细的代币信息和统计数据。"
+    "description": "查看详细的代币信息和统计数据。",
+    "noToken": "未选择代币",
+    "searchPrompt": "使用搜索框通过铸币地址查找代币",
+    "mint": "铸币地址",
+    "symbol": "符号",
+    "decimals": "小数位数",
+    "holders": "持有人数",
+    "price": "价格",
+    "volume24h": "24小时交易量",
+    "marketCap": "市值",
+    "lastUpdated": "最后更新时间"
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "输入代币铸币地址",
+    "success": "代币信息已加载",
+    "error": "加载代币信息失败"
   },
   "liquidityPools": {
     "title": "流动性池",
