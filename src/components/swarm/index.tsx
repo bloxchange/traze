@@ -127,7 +127,7 @@ const Swarm: React.FC<SwarmProps> = ({
       styles={{
         body: {
           height: '100%',
-          padding: 6,
+          padding: '0 6px 6px 6px',
           display: 'flex',
           flexDirection: 'column'
         }

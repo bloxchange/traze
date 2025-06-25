@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Space, Input, Typography, Button, Tooltip, theme, Popconfirm } from 'antd';
-import { ClearOutlined, PlusCircleOutlined, SettingOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Space, Input, Button, Tooltip, theme, Popconfirm, Modal } from 'antd';
+import { ClearOutlined, PlusCircleOutlined, SettingOutlined, UnorderedListOutlined, EditOutlined } from '@ant-design/icons';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
 
@@ -31,42 +31,47 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(initialName);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newName, setNewName] = useState(initialName);
 
-  const handleNameClick = () => {
-    setIsEditing(true);
+  const showModal = () => {
+    setNewName(initialName);
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    if (onNameChange) {
+      onNameChange(newName);
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleNameBlur = () => {
-    setIsEditing(false);
-    if (onNameChange) {
-      onNameChange(name);
-    }
+    setNewName(e.target.value);
   };
 
   return (
-    <div className="swarm-header" style={{ borderBottom: '1px solid', borderBottomColor: token.colorPrimary }}>
+    <div
+      className="swarm-header"
+      style={{
+        borderBottom: '1px solid',
+        borderBottomColor: token.colorBorder,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
       <Space>
-        {isEditing ? (
-          <Input
-            value={name}
-            onChange={handleNameChange}
-            onBlur={handleNameBlur}
-            onPressEnter={handleNameBlur}
-            autoFocus
+        <Tooltip title={t('common.edit')}>
+          <Button
+            icon={<EditOutlined />}
+            onClick={showModal}
+            type="text"
           />
-        ) : (
-          <Typography.Title level={5} onClick={handleNameClick} style={{ cursor: 'pointer' }}>
-            {name}
-          </Typography.Title>
-        )}
-      </Space>
-      <Space>
+        </Tooltip>
         <Tooltip title={t('swarm.feed')}>
           <Button
             icon={<CoinOutlined style={{ color: token.colorPrimary }} />}
@@ -122,8 +127,27 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
           </Tooltip>
         )}
       </Space>
+
+      <Modal
+        title={t('common.edit')}
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Input
+          value={newName}
+          onChange={handleNameChange}
+          placeholder={t('common.enterName')}
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleOk();
+            }
+          }}
+        />
+      </Modal>
     </div>
-  );
+  )
 };
 
 export default SwarmHeader;
