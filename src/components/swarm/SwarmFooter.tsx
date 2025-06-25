@@ -14,7 +14,7 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({ onBuy, onSell, onFlush }) => 
   const { token } = theme.useToken();
 
   return (
-    <div className="swarm-footer" style={{ borderTop: '1px solid', borderTopColor: token.colorBorder }}>
+    <div className="swarm-footer" style={{ borderTop: '1px solid', borderTopColor: token.colorBorder, paddingTop: 6 }}>
       <Row gutter={8}>
         <Col span={8}>
           <Button
