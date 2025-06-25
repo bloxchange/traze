@@ -132,6 +132,7 @@ const Swarm: React.FC<SwarmProps> = ({
           flexDirection: 'column'
         }
       }}
+      variant='borderless'
     >
       <SwarmHeader
         name={name}

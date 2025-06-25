@@ -47,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        borderBottom: '1px solid var(--ant-color-border)',
       }}
     >
       <img src="/traze.png" alt="Traze Logo" style={{ height: 32 }} />

@@ -94,10 +94,7 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexL
   };
 
   return (
-    <div
-      style={{ width: '100%', height: '100%' }}
-      onDragOver={(e) => e.preventDefault()}
-    >
+    <div onDragOver={(e) => e.preventDefault()}>
       <Layout ref={flexLayoutRef} model={model} factory={factory} />
     </div>
   );

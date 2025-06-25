@@ -5,12 +5,18 @@ const { darkAlgorithm, compactAlgorithm } = theme;
 export const lightTheme: ThemeConfig = {
   token: {
     colorPrimary: '#1890ff',
-    colorBgContainer: '#ffffff',
+    colorBgContainer: '#fafaf9',
     colorText: '#000000',
-    colorBgLayout: '#f0f2f5',
+    colorBgLayout: '#fafaf9',
+    colorBorder: '#fcd34d',
   },
   algorithm: compactAlgorithm,
   cssVar: true,
+  components: {
+    Layout: {
+      headerBg: '#fafaf9'
+    }
+  }
 };
 
 export const darkTheme: ThemeConfig = {

@@ -29,9 +29,13 @@ function App() {
               theme={theme}
               onThemeChange={toggleTheme}
             />
-            <Content style={{ padding: '24px', maxWidth: '100%', position: 'relative' }}>
-              <Dashboard flexLayoutRef={flexLayoutRef} />
-            </Content>
+            <div
+              style={{ height: 'calc(100vh - var(--ant-layout-header-height))', padding: 6 }}
+            >
+              <Content style={{ padding: '24px', maxWidth: '100%', position: 'relative', height: '100%' }}>
+                <Dashboard flexLayoutRef={flexLayoutRef} />
+              </Content>
+            </div>
           </Layout>
         </ConfigProvider>
       </TokenProvider>
