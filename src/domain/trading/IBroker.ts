@@ -1,9 +1,10 @@
 import type { IBuyParameters } from "./IBuyParameters";
+import type { ISellParameters } from "./ISellParameters";
 
 export interface IBroker {
   transfer(amount: number, from: string, to: string): Promise<void>;
-  buy(buyParameters: IBuyParameters): Promise<void>;
-  sell(amount: number, from: string, to: string): Promise<void>;
+  buy(buyParameters: IBuyParameters): Promise<string | null>;
+  sell(sellParameters: ISellParameters): Promise<string | null>;
   getBalance(address: string): Promise<number>;
   getPrice(symbol: string): Promise<number>;
   getTokenBalance(address: string, token: string): Promise<number>;

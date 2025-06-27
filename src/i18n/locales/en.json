@@ -3,6 +3,7 @@
     "title": "Dashboard",
     "welcomeMessage": "Welcome to Bloxchange"
   },
+
   "swarm": {
     "title": "Swarm",
     "feed": "Feed",
@@ -21,6 +22,7 @@
     "walletsCreatedSuccess": "Wallets created successfully",
     "name": "Swarm Name",
     "nameRequired": "Please input swarm name!",
+    "editName": "Edit Swarm Name",
     "description": "Description",
     "save": "Save",
     "buyTab": "Buy",
@@ -76,14 +78,10 @@
     "price": "Price",
     "volume24h": "24h Volume",
     "marketCap": "Market Cap",
-    "lastUpdated": "Last Updated"
+    "lastUpdated": "Last Updated",
+    "totalSupply": "Total Supply"
   },
-  "search": {
-    "title": "Search",
-    "placeholder": "Enter token mint address",
-    "success": "Token information loaded",
-    "error": "Failed to load token information"
-  },
+
   "liquidityPools": {
     "title": "Liquidity Pools",
     "description": "Monitor and manage liquidity pool positions."
@@ -95,7 +93,10 @@
   "search": {
     "title": "Search",
     "placeholder": "Enter public key or transaction hash",
-    "validationError": "Invalid public key format"
+    "validationError": "Invalid public key format",
+    "invalidKey": "Invalid public key format",
+    "success": "Token information loaded",
+    "error": "Failed to load token information"
   },
   "settings": {
     "title": "Settings",

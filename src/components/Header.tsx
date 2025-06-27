@@ -50,7 +50,10 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         borderBottom: '1px solid var(--ant-color-border)',
       }}
     >
-      <img src="/traze.png" alt="Traze Logo" style={{ height: 32 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <img src="/traze.png" alt="Traze Logo" style={{ height: 48 }} />
+        <span style={{ color: token.colorText, fontSize: 32, fontWeight: 500, lineHeight: 1 }}>traze</span>
+      </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
         <Button type="text" icon={<SearchOutlined />} onClick={() => setIsSearchModalOpen(true)} />

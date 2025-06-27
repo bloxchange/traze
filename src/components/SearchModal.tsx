@@ -59,7 +59,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
       width={600}
       style={{ top: 64, backgroundColor: 'transparent' }}
       closable={false}
-      styles={{ content: { backgroundColor: 'transparent' } }}
+      styles={{ content: { backgroundColor: 'transparent', boxShadow: 'none' } }}
     >
       <Input
         placeholder={t('search.placeholder')}

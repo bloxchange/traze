@@ -5,7 +5,7 @@ import type { PriorityFee } from "./types";
 export interface PumpFunBuyParameters extends IBuyParameters {
   buyer: Keypair,
   tokenMint: string,
-  amount: number,
+  amountInSol: number,
   slippageBasisPoints: number,
   priorityFees?: PriorityFee,
   commitment: Commitment,

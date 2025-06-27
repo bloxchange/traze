@@ -13,7 +13,7 @@
     "showList": "Hiển thị danh sách",
     "buy": "Mua",
     "sell": "Bán",
-    "flush": "Làm mới",
+    "flush": "Bán sạch",
     "wallet": "Ví",
     "sol": "SOL",
     "token": "Token",
@@ -21,6 +21,7 @@
     "walletsCreatedSuccess": "Đã tạo ví thành công",
     "name": "Tên bầy đàn",
     "nameRequired": "Vui lòng nhập tên bầy đàn!",
+    "editName": "Sửa tên bầy đàn",
     "description": "Mô tả",
     "save": "Lưu",
     "buyTab": "Mua",
@@ -69,11 +70,6 @@
       "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
     }
   },
-  "search": {
-    "title": "Tìm kiếm",
-    "placeholder": "Nhập khóa công khai hoặc mã giao dịch",
-    "validationError": "Định dạng khóa công khai không hợp lệ"
-  },
   "settings": {
     "title": "Cài đặt",
     "language": "Ngôn ngữ",
@@ -112,11 +108,14 @@
     "price": "Giá",
     "volume24h": "Khối lượng 24h",
     "marketCap": "Vốn hóa thị trường",
-    "lastUpdated": "Cập nhật lần cuối"
+    "lastUpdated": "Cập nhật lần cuối",
+    "totalSupply": "Tổng cung"
   },
   "search": {
     "title": "Tìm kiếm",
     "placeholder": "Nhập địa chỉ mint của token",
+    "validationError": "Định dạng khóa công khai không hợp lệ",
+    "invalidKey": "Định dạng khóa công khai không hợp lệ",
     "success": "Đã tải thông tin token",
     "error": "Không thể tải thông tin token"
   },

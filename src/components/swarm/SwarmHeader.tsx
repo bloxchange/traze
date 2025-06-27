@@ -65,7 +65,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         justifyContent: 'center'
       }}>
       <Space>
-        <Tooltip title={t('common.edit')}>
+        <Tooltip title={t('swarm.editName')}>
           <Button
             icon={<EditOutlined />}
             onClick={showModal}
@@ -129,7 +129,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
       </Space>
 
       <Modal
-        title={t('common.edit')}
+        title={t('swarm.editName')}
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
