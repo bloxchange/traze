@@ -9,7 +9,6 @@
     "balanceUpdateModeRpc": "Sử dụng điểm cuối RPC",
     "balanceUpdateModeCalculate": "Tính toán không dùng RPC"
   },
-
   "dashboard": {
     "title": "Bảng điều khiển",
     "welcomeMessage": "Chào mừng đến với Bloxchange"
@@ -20,7 +19,7 @@
     "priorityFee": "Phí ưu tiên",
     "jitoTipAmount": "Số tiền tip Jito",
     "useJitoBundle": "Sử dụng gói Jito khi bán sạch",
-    "title": "Đàn",
+    "title": "Bầy",
     "feed": "Nạp",
     "return": "Trả lại",
     "clear": "Xóa",
@@ -84,6 +83,18 @@
       "success": "Chuyển SOL thành công",
       "error": "Chuyển SOL thất bại"
     }
+  },
+  "common": {
+    "clear": "Xóa",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "enterName": "Nhập tên",
+    "validationFailed": "Xác thực thất bại",
+    "required": "Trường này là bắt buộc",
+    "untitled": "Chưa đặt tên",
+    "copySuccess": "Đã sao chép vào clipboard",
+    "copyFailed": "Sao chép thất bại",
+    "installPhantom": "Vui lòng cài đặt ví Phantom"
   },
   "tokenInformation": {
     "title": "Thông tin Token",

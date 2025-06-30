@@ -86,6 +86,19 @@
       "error": "SOL transfer failed"
     }
   },
+  "common": {
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "enterName": "Enter name",
+    "validationFailed": "Validation failed",
+    "required": "This field is required",
+    "untitled": "Untitled",
+    "copySuccess": "Copied to clipboard",
+    "copyFailed": "Failed to copy",
+    "installPhantom": "Please install Phantom wallet"
+  },
+
   "tokenInformation": {
     "title": "Token Information",
     "description": "View detailed token information and statistics.",

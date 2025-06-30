@@ -4,7 +4,8 @@ import type { IBuyParameters } from '../trading/IBuyParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
 import { Connection } from '@solana/web3.js';
-import { AnchorProvider, Wallet } from '@coral-xyz/anchor';
+import { AnchorProvider } from '@coral-xyz/anchor';
+import { Wallet } from '@coral-xyz/anchor/dist/cjs';
 
 export class SwarmBuyCommand {
   private wallets: WalletInfo[];
