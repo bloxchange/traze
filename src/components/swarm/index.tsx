@@ -10,7 +10,7 @@ import SwarmFooter from './SwarmFooter';
 import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
 import type { SwarmConfigFormValues } from '../../models';
-import { CreateSwarmCommand, SwarmBuyCommand } from '../../domain/commands';
+import { CreateSwarmCommand, SwarmBuyCommand, SwarmSellCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
 import { useConfiguration, useToken } from '../../hooks';
@@ -145,8 +145,34 @@ const Swarm: React.FC<SwarmProps> = ({
     }
   };
 
-  const handleSell = () => {
-    // Implement sell logic
+  const handleSell = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    const config = configFormRef.current;
+    if (!config) {
+      message.error(t('swarm.noConfigSet'));
+      return;
+    }
+
+    try {
+      const sellCommand = new SwarmSellCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        config.sellPercentages,
+        config.sellDelay,
+        config.slippageBasisPoints,
+        configuration
+      );
+
+      await sellCommand.execute();
+      message.success(t('swarm.sellSuccess'));
+    } catch (error) {
+      message.error(t('swarm.sellError'));
+      console.error('Sell error:', error);
+    }
   };
 
   const handleFlush = () => {
