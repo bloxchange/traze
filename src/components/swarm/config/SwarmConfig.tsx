@@ -40,7 +40,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
   };
 
   return (
-    <Card className="swarm-config" style={{ height: '100%' }}>
+    <Card className="swarm-config" style={{ height: '100%', border: 'none' }}>
       <Form
         form={form}
         layout="vertical"

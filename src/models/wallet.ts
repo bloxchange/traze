@@ -1,4 +1,5 @@
 import { Keypair } from '@solana/web3.js';
+import type { SwarmConfigFormValues } from './swarm-config';
 
 export interface WalletInfo {
   publicKey: string;
@@ -18,6 +19,9 @@ export interface SwarmWalletListProps {
   wallets: WalletInfo[];
   onWalletSelection: (publicKey: string, checked: boolean) => void;
   onSelectAll: (checked: boolean) => void;
+  showConfig: boolean;
+  swarmConfig: SwarmConfigFormValues;
+  onConfigChange: (values: SwarmConfigFormValues) => void;
 }
 
 export interface CreateSwarmModalProps {

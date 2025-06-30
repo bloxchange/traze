@@ -7,7 +7,6 @@ import FeedSwarmModal from './FeedSwarmModal';
 import SwarmHeader from './SwarmHeader';
 import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
-import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
 import type { SwarmConfigFormValues } from '../../models';
 import { CreateSwarmCommand, SwarmBuyCommand, SwarmSellCommand } from '../../domain/commands';
@@ -210,18 +209,14 @@ const Swarm: React.FC<SwarmProps> = ({
         showConfig={showConfig}
         walletCount={walletList.length}
       />
-      {showConfig ? (
-        <SwarmConfig
-          initialConfig={swarmConfig}
-          onConfigChange={setSwarmConfig}
-        />
-      ) : (
-        <SwarmWalletList
-          wallets={walletList}
-          onWalletSelection={handleWalletSelection}
-          onSelectAll={handleSelectAll}
-        />
-      )}
+      <SwarmWalletList
+        wallets={walletList}
+        onWalletSelection={handleWalletSelection}
+        onSelectAll={handleSelectAll}
+        showConfig={showConfig}
+        swarmConfig={swarmConfig}
+        onConfigChange={setSwarmConfig}
+      />
       <SwarmFooter
         onBuy={handleBuy}
         onSell={handleSell}
