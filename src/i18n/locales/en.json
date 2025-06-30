@@ -1,10 +1,26 @@
 {
+  "settings": {
+    "configuration": "Configuration",
+    "rpcUrl": "RPC URL",
+    "rpcUrlRequired": "Please input RPC URL!",
+    "jitoEndpoint": "Jito Endpoint",
+    "jitoEndpointRequired": "Please input Jito endpoint!",
+    "balanceUpdateMode": "Balance Update Mode",
+    "balanceUpdateModeRpc": "Use RPC endpoint",
+    "balanceUpdateModeCalculate": "Calculate without RPC"
+  },
+
   "dashboard": {
     "title": "Dashboard",
     "welcomeMessage": "Welcome to Bloxchange"
   },
 
   "swarm": {
+    "generalTab": "General",
+    "slippage": "Slippage",
+    "priorityFee": "Priority Fee",
+    "jitoTipAmount": "Jito Tip Amount",
+    "useJitoBundle": "Use Jito Bundle when flush",
     "title": "Swarm",
     "feed": "Feed",
     "return": "Return",
@@ -40,6 +56,10 @@
     "generateKeysPlaceholder": "Number of new keys to generate",
     "clearConfirmTitle": "Clear Wallets",
     "clearConfirmContent": "Are you sure you want to clear all wallets? This action cannot be undone.",
+    "noTokenSelected": "Please select a token first",
+    "noConfigSet": "Please configure swarm settings first",
+    "buySuccess": "Buy orders executed successfully",
+    "buyError": "Failed to execute buy orders",
     "createModal": {
       "title": "Create Swarm",
       "privateKeys": "Private Keys",
@@ -92,38 +112,6 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Enter public key or transaction hash",
-    "validationError": "Invalid public key format",
-    "invalidKey": "Invalid public key format",
-    "success": "Token information loaded",
-    "error": "Failed to load token information"
-  },
-  "settings": {
-    "title": "Settings",
-    "language": "Language",
-    "theme": "Theme",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "configuration": "Configuration",
-    "rpcUrl": "RPC URL",
-    "rpcUrlRequired": "Please enter RPC URL"
-  },
-  "tip": {
-    "title": "Tip",
-    "send": "Send a Tip",
-    "enterAmount": "Enter amount in SOL",
-    "success": "Thank you for your tip!",
-    "error": "Transaction failed",
-    "invalidAmount": "Please enter a valid amount"
-  },
-  "common": {
-    "installPhantom": "Please install Phantom wallet",
-    "clear": "Clear",
-    "confirm": "Confirm",
-    "cancel": "Cancel",
-    "validationFailed": "Validation failed",
-    "copySuccess": "Copied to clipboard",
-    "copyFailed": "Failed to copy to clipboard",
-    "untitled": "Untitled"
+    "placeholder": "Enter public key or transaction hash"
   }
 }

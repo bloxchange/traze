@@ -1,4 +1,5 @@
 export * from './FeedSwarmCommand';
-export * from './CreateSwarmCommand';
+export { CreateSwarmCommand } from './CreateSwarmCommand';
+export { SwarmBuyCommand } from './SwarmBuyCommand';
 export * from './ReturnFromSwarmCommand';
 export * from './GetTokenInformationCommand';

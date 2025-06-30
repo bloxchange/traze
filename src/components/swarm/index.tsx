@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -9,9 +9,11 @@ import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
 import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
-import { CreateSwarmCommand } from '../../domain/commands';
+import type { SwarmConfigFormValues } from '../../models';
+import { CreateSwarmCommand, SwarmBuyCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
+import { useConfiguration, useToken } from '../../hooks';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
@@ -109,8 +111,38 @@ const Swarm: React.FC<SwarmProps> = ({
     onNameChange(newName);
   };
 
-  const handleBuy = () => {
-    // Implement buy logic
+  const { configuration } = useConfiguration();
+  const { tokenState } = useToken();
+  const configFormRef = useRef<SwarmConfigFormValues>();
+
+  const handleBuy = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    const config = configFormRef.current;
+    if (!config) {
+      message.error(t('swarm.noConfigSet'));
+      return;
+    }
+
+    try {
+      const buyCommand = new SwarmBuyCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        config.buyAmounts,
+        config.buyDelay,
+        config.slippageBasisPoints,
+        configuration
+      );
+
+      await buyCommand.execute();
+      message.success(t('swarm.buySuccess'));
+    } catch (error) {
+      message.error(t('swarm.buyError'));
+      console.error('Buy error:', error);
+    }
   };
 
   const handleSell = () => {
@@ -146,7 +178,11 @@ const Swarm: React.FC<SwarmProps> = ({
         walletCount={walletList.length}
       />
       {showConfig ? (
-        <SwarmConfig />
+        <SwarmConfig
+          onConfigChange={(values) => {
+            configFormRef.current = values;
+          }}
+        />
       ) : (
         <>
           <SwarmWalletList

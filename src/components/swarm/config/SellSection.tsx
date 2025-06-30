@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { SellConfigProps } from '@/models';
 
-const SellSection: React.FC<SellConfigProps> = ({ availablePercentages }) => {
+const SellSection: React.FC<SellConfigProps> = ({ availablePercentages, defaultUseJitoBundle = false }) => {
   const { t } = useTranslation();
 
   return (
@@ -22,6 +22,13 @@ const SellSection: React.FC<SellConfigProps> = ({ availablePercentages }) => {
         name="sellDelay"
       >
         <Input type="number" min={0} />
+      </Form.Item>
+      <Form.Item
+        name="useJitoBundle"
+        valuePropName="checked"
+        initialValue={defaultUseJitoBundle}
+      >
+        <Checkbox>{t('swarm.useJitoBundle')}</Checkbox>
       </Form.Item>
     </Space>
   );

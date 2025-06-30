@@ -1,9 +1,25 @@
 {
+  "settings": {
+    "configuration": "Cấu hình",
+    "rpcUrl": "URL RPC",
+    "rpcUrlRequired": "Vui lòng nhập URL RPC!",
+    "jitoEndpoint": "Điểm cuối Jito",
+    "jitoEndpointRequired": "Vui lòng nhập điểm cuối Jito!",
+    "balanceUpdateMode": "Chế độ cập nhật số dư",
+    "balanceUpdateModeRpc": "Sử dụng điểm cuối RPC",
+    "balanceUpdateModeCalculate": "Tính toán không dùng RPC"
+  },
+
   "dashboard": {
     "title": "Bảng điều khiển",
     "welcomeMessage": "Chào mừng đến với Bloxchange"
   },
   "swarm": {
+    "generalTab": "Chung",
+    "slippage": "Trượt giá",
+    "priorityFee": "Phí ưu tiên",
+    "jitoTipAmount": "Số tiền tip Jito",
+    "useJitoBundle": "Sử dụng gói Jito khi bán sạch",
     "title": "Đàn",
     "feed": "Nạp",
     "return": "Trả lại",
@@ -37,6 +53,12 @@
     "enterPublicKeys": "Nhập một khóa công khai mỗi dòng",
     "generateNewKeys": "Tạo khóa mới",
     "generateKeysPlaceholder": "Số lượng khóa mới cần tạo",
+    "clearConfirmTitle": "Xóa ví",
+    "clearConfirmContent": "Bạn có chắc chắn muốn xóa tất cả ví không? Hành động này không thể hoàn tác.",
+    "noTokenSelected": "Vui lòng chọn token trước",
+    "noConfigSet": "Vui lòng cấu hình cài đặt bầy đàn trước",
+    "buySuccess": "Thực hiện lệnh mua thành công",
+    "buyError": "Thực hiện lệnh mua thất bại",
     "createModal": {
       "title": "Tạo bầy đàn",
       "privateKeys": "Khóa riêng tư",
@@ -58,49 +80,16 @@
       "amount": "Số lượng",
       "amountPlaceholder": "Nhập số lượng cần nạp",
       "cancel": "Hủy",
-      "clearConfirmTitle": "Xóa ví",
-      "clearConfirmContent": "Bạn có chắc chắn muốn xóa tất cả ví không? Hành động này không thể hoàn tác."
-    },
-    "common": {
-      "title": "Tiền boa",
-      "send": "Gửi tiền boa",
-      "enterAmount": "Nhập số lượng SOL",
-      "success": "Cảm ơn bạn đã gửi tiền boa!",
-      "error": "Giao dịch thất bại",
-      "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
+      "confirm": "Xác nhận",
+      "success": "Chuyển SOL thành công",
+      "error": "Chuyển SOL thất bại"
     }
-  },
-  "settings": {
-    "title": "Cài đặt",
-    "language": "Ngôn ngữ",
-    "theme": "Giao diện",
-    "themeLight": "Sáng",
-    "themeDark": "Tối",
-    "configuration": "Cấu hình",
-    "rpcUrl": "URL RPC",
-    "rpcUrlRequired": "Vui lòng nhập URL RPC"
-  },
-  "tip": {
-    "title": "Tiền boa",
-    "send": "Gửi tiền boa",
-    "enterAmount": "Nhập số lượng SOL",
-    "success": "Cảm ơn bạn đã gửi tiền boa!",
-    "error": "Giao dịch thất bại",
-    "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
-  },
-  "common": {
-    "installPhantom": "Vui lòng cài đặt ví Phantom",
-    "clear": "Xóa",
-    "validationFailed": "Xác thực thất bại",
-    "copySuccess": "Đã sao chép vào bộ nhớ tạm",
-    "copyFailed": "Sao chép vào bộ nhớ tạm thất bại",
-    "untitled": "Chưa đặt tên"
   },
   "tokenInformation": {
     "title": "Thông tin Token",
-    "description": "Xem thông tin chi tiết và thống kê token.",
+    "description": "Xem thông tin và thống kê chi tiết về token.",
     "noToken": "Chưa chọn token",
-    "searchPrompt": "Sử dụng hộp tìm kiếm để tìm token bằng địa chỉ mint",
+    "searchPrompt": "Sử dụng hộp tìm kiếm để tìm token theo địa chỉ mint",
     "mint": "Địa chỉ Mint",
     "symbol": "Ký hiệu",
     "decimals": "Số thập phân",
@@ -111,16 +100,16 @@
     "lastUpdated": "Cập nhật lần cuối",
     "totalSupply": "Tổng cung"
   },
-  "search": {
-    "title": "Tìm kiếm",
-    "placeholder": "Nhập địa chỉ mint của token",
-    "validationError": "Định dạng khóa công khai không hợp lệ",
-    "invalidKey": "Định dạng khóa công khai không hợp lệ",
-    "success": "Đã tải thông tin token",
-    "error": "Không thể tải thông tin token"
-  },
   "liquidityPools": {
     "title": "Pool thanh khoản",
     "description": "Theo dõi và quản lý vị thế trong pool thanh khoản."
+  },
+  "transactions": {
+    "title": "Giao dịch",
+    "description": "Theo dõi và phân tích lịch sử giao dịch."
+  },
+  "search": {
+    "title": "Tìm kiếm",
+    "placeholder": "Nhập khóa công khai hoặc mã giao dịch"
   }
 }

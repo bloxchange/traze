@@ -1,9 +1,25 @@
 {
+  "settings": {
+    "configuration": "配置",
+    "rpcUrl": "RPC 地址",
+    "rpcUrlRequired": "请输入 RPC 地址！",
+    "jitoEndpoint": "Jito 终端",
+    "jitoEndpointRequired": "请输入 Jito 终端地址！",
+    "balanceUpdateMode": "余额更新模式",
+    "balanceUpdateModeRpc": "使用 RPC 终端",
+    "balanceUpdateModeCalculate": "不使用 RPC 计算"
+  },
+
   "dashboard": {
     "title": "仪表板",
     "welcomeMessage": "欢迎使用 Bloxchange"
   },
   "swarm": {
+    "generalTab": "通用",
+    "slippage": "滑点",
+    "priorityFee": "优先费",
+    "jitoTipAmount": "Jito 小费金额",
+    "useJitoBundle": "售罄时使用 Jito 捆绑",
     "title": "蜂群",
     "feed": "注资",
     "return": "返还",
@@ -37,6 +53,12 @@
     "enterPublicKeys": "每行输入一个公钥",
     "generateNewKeys": "生成新密钥",
     "generateKeysPlaceholder": "输入要生成的新密钥数量",
+    "clearConfirmTitle": "清除钱包",
+    "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤消。",
+    "noTokenSelected": "请先选择代币",
+    "noConfigSet": "请先配置蜂群设置",
+    "buySuccess": "买入订单执行成功",
+    "buyError": "买入订单执行失败",
     "createModal": {
       "title": "创建蜂群",
       "privateKeys": "私钥",
@@ -58,14 +80,10 @@
       "amount": "数量",
       "amountPlaceholder": "输入注资数量",
       "cancel": "取消",
-      "clearConfirmTitle": "清除钱包",
-      "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤消。"
-    },
-    "common": {
-      "confirm": "确认"
-    },
-    "success": "SOL 转账成功",
-    "error": "SOL 转账失败"
+      "confirm": "确认",
+      "success": "SOL 转账成功",
+      "error": "SOL 转账失败"
+    }
   },
   "tokenInformation": {
     "title": "代币信息",
@@ -82,16 +100,16 @@
     "lastUpdated": "最后更新时间",
     "totalSupply": "总供应量"
   },
-  "search": {
-    "title": "搜索",
-    "placeholder": "输入代币铸币地址",
-    "validationError": "无效的公钥格式",
-    "invalidKey": "无效的公钥格式",
-    "success": "代币信息已加载",
-    "error": "加载代币信息失败"
-  },
   "liquidityPools": {
     "title": "流动性池",
     "description": "监控和管理流动性池仓位。"
+  },
+  "transactions": {
+    "title": "交易",
+    "description": "追踪和分析交易历史。"
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "输入公钥或交易哈希"
   }
 }

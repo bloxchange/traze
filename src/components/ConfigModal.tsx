@@ -1,4 +1,4 @@
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { type Configuration } from '../models';
 
@@ -31,6 +31,22 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
           rules={[{ required: true, message: t('settings.rpcUrlRequired') }]}
         >
           <Input />
+        </Form.Item>
+        <Form.Item
+          name="jitoEndpoint"
+          label={t('settings.jitoEndpoint')}
+          rules={[{ required: true, message: t('settings.jitoEndpointRequired') }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="balanceUpdateMode"
+          label={t('settings.balanceUpdateMode')}
+        >
+          <Radio.Group>
+            <Radio value="rpc">{t('settings.balanceUpdateModeRpc')}</Radio>
+            <Radio value="calculate">{t('settings.balanceUpdateModeCalculate')}</Radio>
+          </Radio.Group>
         </Form.Item>
       </Form>
     </Modal>
