@@ -10,10 +10,11 @@ import GeneralSection from './GeneralSection';
 
 interface SwarmConfigProps {
   onConfigChange?: (values: SwarmConfigFormValues) => void;
+  initialConfig?: SwarmConfigFormValues;
 }
 
-const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
-  const initialValues: SwarmConfigFormValues = {
+const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig }) => {
+  const defaultValues: SwarmConfigFormValues = {
     buyAmounts: ['0.1', '0.5'],
     sellPercentages: ['50', '100'],
     buyDelay: 0,
@@ -46,14 +47,12 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
   };
 
   const handleValuesChange = (_: Record<string, unknown>, values: SwarmConfigFormValues) => {
-    if (values.buyAmounts?.length || values.sellPercentages?.length) {
-      onConfigChange?.(values);
-    }
+    onConfigChange?.(values);
   };
 
   React.useEffect(() => {
-    onConfigChange?.(initialValues);
-  }, [onConfigChange, initialValues]);
+    onConfigChange?.(initialConfig || defaultValues);
+  }, [onConfigChange, initialConfig, defaultValues]);
 
   return (
     <Card className="swarm-config" style={{ height: '100%' }}>
@@ -61,7 +60,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
         form={form}
         layout="vertical"
         onValuesChange={handleValuesChange}
-        initialValues={initialValues}
+        initialValues={initialConfig || defaultValues}
       >
         <Tabs
           defaultActiveKey="buy"

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -113,7 +113,7 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const { configuration } = useConfiguration();
   const { tokenState } = useToken();
-  const configFormRef = useRef<SwarmConfigFormValues>();
+  const [swarmConfig, setSwarmConfig] = useState<SwarmConfigFormValues>();
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -121,8 +121,7 @@ const Swarm: React.FC<SwarmProps> = ({
       return;
     }
 
-    const config = configFormRef.current;
-    if (!config) {
+    if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
       return;
     }
@@ -131,9 +130,9 @@ const Swarm: React.FC<SwarmProps> = ({
       const buyCommand = new SwarmBuyCommand(
         walletList,
         tokenState.currentToken.mint,
-        config.buyAmounts,
-        config.buyDelay,
-        config.slippageBasisPoints,
+        swarmConfig.buyAmounts,
+        swarmConfig.buyDelay,
+        swarmConfig.slippageBasisPoints,
         configuration
       );
 
@@ -151,8 +150,7 @@ const Swarm: React.FC<SwarmProps> = ({
       return;
     }
 
-    const config = configFormRef.current;
-    if (!config) {
+    if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
       return;
     }
@@ -161,9 +159,9 @@ const Swarm: React.FC<SwarmProps> = ({
       const sellCommand = new SwarmSellCommand(
         walletList,
         tokenState.currentToken.mint,
-        config.sellPercentages,
-        config.sellDelay,
-        config.slippageBasisPoints,
+        swarmConfig.sellPercentages,
+        swarmConfig.sellDelay,
+        swarmConfig.slippageBasisPoints,
         configuration
       );
 
@@ -205,8 +203,9 @@ const Swarm: React.FC<SwarmProps> = ({
       />
       {showConfig ? (
         <SwarmConfig
+          initialConfig={swarmConfig}
           onConfigChange={(values) => {
-            configFormRef.current = values;
+            setSwarmConfig(values);
           }}
         />
       ) : (

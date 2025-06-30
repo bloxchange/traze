@@ -19,7 +19,6 @@ const GeneralSection: React.FC<GeneralConfigProps> = ({
       >
         <InputNumber
           min={0}
-          max={1000}
           step={10}
           style={{ width: '100%' }}
         />
