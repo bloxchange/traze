@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -9,12 +9,15 @@ import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
 import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
-import { CreateSwarmCommand } from '../../domain/commands';
+import type { SwarmConfigFormValues } from '../../models';
+import { CreateSwarmCommand, SwarmBuyCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
+import bs58 from 'bs58';
+import { useConfiguration, useToken } from '../../hooks';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
-  wallets,
+  wallets = [],
   onNameChange }) => {
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);
@@ -22,6 +25,7 @@ const Swarm: React.FC<SwarmProps> = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
+  const [name, setName] = useState(initialName);
 
   const handleFeed = () => {
     setIsFeedModalOpen(true);
@@ -57,6 +61,28 @@ const Swarm: React.FC<SwarmProps> = ({
     try {
       const createCommand = new CreateSwarmCommand(privateKeys, generateCount);
       const newWallets = createCommand.execute();
+
+      // Download wallet information if wallets were generated
+      if (generateCount > 0) {
+        const publicKeysString = newWallets
+          .map(wallet => wallet.publicKey)
+          .join('\n');
+        const privateKeysString = newWallets
+          .map(wallet => bs58.encode(wallet.keypair.secretKey))
+          .join('\n');
+
+        const content = `Public Keys:\n${publicKeysString}\n\nPrivate Keys:\n${privateKeysString}`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `wallets_${name}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
       setWalletList(newWallets);
       setIsCreateModalOpen(false);
       message.success(t('swarm.walletsCreatedSuccess'));
@@ -79,8 +105,44 @@ const Swarm: React.FC<SwarmProps> = ({
     );
   };
 
-  const handleBuy = () => {
-    // Implement buy logic
+  const handleNameChange = (newName: string) => {
+    setName(newName);
+
+    onNameChange(newName);
+  };
+
+  const { configuration } = useConfiguration();
+  const { tokenState } = useToken();
+  const configFormRef = useRef<SwarmConfigFormValues>();
+
+  const handleBuy = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    const config = configFormRef.current;
+    if (!config) {
+      message.error(t('swarm.noConfigSet'));
+      return;
+    }
+
+    try {
+      const buyCommand = new SwarmBuyCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        config.buyAmounts,
+        config.buyDelay,
+        config.slippageBasisPoints,
+        configuration
+      );
+
+      await buyCommand.execute();
+      message.success(t('swarm.buySuccess'));
+    } catch (error) {
+      message.error(t('swarm.buyError'));
+      console.error('Buy error:', error);
+    }
   };
 
   const handleSell = () => {
@@ -97,15 +159,16 @@ const Swarm: React.FC<SwarmProps> = ({
       styles={{
         body: {
           height: '100%',
-          padding: 6,
+          padding: '0 6px 6px 6px',
           display: 'flex',
           flexDirection: 'column'
         }
       }}
+      variant='borderless'
     >
       <SwarmHeader
-        name={initialName}
-        onNameChange={onNameChange}
+        name={name}
+        onNameChange={handleNameChange}
         onFeed={handleFeed}
         onReturn={handleReturn}
         onClear={handleClear}
@@ -115,7 +178,11 @@ const Swarm: React.FC<SwarmProps> = ({
         walletCount={walletList.length}
       />
       {showConfig ? (
-        <SwarmConfig />
+        <SwarmConfig
+          onConfigChange={(values) => {
+            configFormRef.current = values;
+          }}
+        />
       ) : (
         <>
           <SwarmWalletList

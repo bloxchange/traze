@@ -6,8 +6,13 @@ import './styles.css';
 import type { SwarmConfigFormValues } from '@/models';
 import BuySection from './BuySection';
 import SellSection from './SellSection';
+import GeneralSection from './GeneralSection';
 
-const SwarmConfig: React.FC = () => {
+interface SwarmConfigProps {
+  onConfigChange?: (values: SwarmConfigFormValues) => void;
+}
+
+const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
@@ -31,8 +36,7 @@ const SwarmConfig: React.FC = () => {
   };
 
   const handleValuesChange = (_: Record<string, unknown>, values: SwarmConfigFormValues) => {
-    console.log('Form values:', values);
-    // Implement config save logic
+    onConfigChange?.(values);
   };
 
   return (
@@ -45,7 +49,11 @@ const SwarmConfig: React.FC = () => {
           buyAmounts: defaultBuyAmounts,
           sellPercentages: defaultSellPercentages,
           buyDelay: 0,
-          sellDelay: 0
+          sellDelay: 0,
+          slippageBasisPoints: 100,
+          priorityFeeUnitPrice: 1000,
+          priorityFeeUnitLimit: 0,
+          jitoTipAmount: 0.0001
         }}
       >
         <Tabs
@@ -57,6 +65,11 @@ const SwarmConfig: React.FC = () => {
           }}
           tabBarGutter={0}
           items={[
+            {
+              key: 'general',
+              label: t('swarm.generalTab'),
+              children: <GeneralSection />
+            },
             {
               key: 'buy',
               label: t('swarm.buyTab'),

@@ -2,13 +2,25 @@
   background: var(--color-bg-container) !important;
 }
 
+.flexlayout__row {
+  overflow: visible;
+}
+
 .flexlayout__tab {
   background: var(--color-bg-container) !important;
   border: none !important;
 }
 
 .flexlayout__tabset {
-  background: var(--color-bg-hover) !important;
+  background: var(--ant-color-bg-container) !important;
+  border: 1px solid var(--ant-color-border) !important;
+  border-radius: var(--ant-border-radius) !important;
+}
+
+.flexlayout__tabset_container {
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 6px 12px -6px,
+    rgba(0, 0, 0, 0.1) 0px 6px 12px -6px;
 }
 
 .flexlayout__tabset_tabbar_outer {

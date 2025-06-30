@@ -1,9 +1,25 @@
 {
+  "settings": {
+    "configuration": "配置",
+    "rpcUrl": "RPC 地址",
+    "rpcUrlRequired": "请输入 RPC 地址！",
+    "jitoEndpoint": "Jito 终端",
+    "jitoEndpointRequired": "请输入 Jito 终端地址！",
+    "balanceUpdateMode": "余额更新模式",
+    "balanceUpdateModeRpc": "使用 RPC 终端",
+    "balanceUpdateModeCalculate": "不使用 RPC 计算"
+  },
+
   "dashboard": {
     "title": "仪表板",
     "welcomeMessage": "欢迎使用 Bloxchange"
   },
   "swarm": {
+    "generalTab": "通用",
+    "slippage": "滑点",
+    "priorityFee": "优先费",
+    "jitoTipAmount": "Jito 小费金额",
+    "useJitoBundle": "售罄时使用 Jito 捆绑",
     "title": "蜂群",
     "feed": "注资",
     "return": "返还",
@@ -13,7 +29,7 @@
     "showList": "显示列表",
     "buy": "买入",
     "sell": "卖出",
-    "flush": "刷新",
+    "flush": "售罄",
     "wallet": "钱包",
     "sol": "SOL",
     "token": "代币",
@@ -21,6 +37,7 @@
     "walletsCreatedSuccess": "钱包已成功创建",
     "name": "蜂群名称",
     "nameRequired": "请输入蜂群名称！",
+    "editName": "编辑蜂群名称",
     "description": "描述",
     "save": "保存",
     "buyTab": "买入",
@@ -36,6 +53,12 @@
     "enterPublicKeys": "每行输入一个公钥",
     "generateNewKeys": "生成新密钥",
     "generateKeysPlaceholder": "输入要生成的新密钥数量",
+    "clearConfirmTitle": "清除钱包",
+    "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤消。",
+    "noTokenSelected": "请先选择代币",
+    "noConfigSet": "请先配置蜂群设置",
+    "buySuccess": "买入订单执行成功",
+    "buyError": "买入订单执行失败",
     "createModal": {
       "title": "创建蜂群",
       "privateKeys": "私钥",
@@ -62,35 +85,44 @@
       "error": "SOL 转账失败"
     }
   },
+  "common": {
+    "clear": "清除",
+    "confirm": "确认",
+    "cancel": "取消",
+    "enterName": "输入名称",
+    "validationFailed": "验证失败",
+    "required": "此字段为必填项",
+    "untitled": "未命名",
+    "copySuccess": "已复制到剪贴板",
+    "copyFailed": "复制失败",
+    "installPhantom": "请安装 Phantom 钱包"
+  },
+
+  "tokenInformation": {
+    "title": "代币信息",
+    "description": "查看详细的代币信息和统计数据。",
+    "noToken": "未选择代币",
+    "searchPrompt": "使用搜索框通过铸币地址查找代币",
+    "mint": "铸币地址",
+    "symbol": "符号",
+    "decimals": "小数位数",
+    "holders": "持有人数",
+    "price": "价格",
+    "volume24h": "24小时交易量",
+    "marketCap": "市值",
+    "lastUpdated": "最后更新时间",
+    "totalSupply": "总供应量"
+  },
+  "liquidityPools": {
+    "title": "流动性池",
+    "description": "监控和管理流动性池仓位。"
+  },
+  "transactions": {
+    "title": "交易",
+    "description": "追踪和分析交易历史。"
+  },
   "search": {
     "title": "搜索",
-    "placeholder": "输入公钥或交易哈希",
-    "validationError": "无效的公钥格式"
-  },
-  "settings": {
-    "title": "设置",
-    "language": "语言",
-    "theme": "主题",
-    "themeLight": "浅色",
-    "themeDark": "深色",
-    "configuration": "配置",
-    "rpcUrl": "RPC 地址",
-    "rpcUrlRequired": "请输入 RPC 地址"
-  },
-  "tip": {
-    "title": "打赏",
-    "send": "发送打赏",
-    "enterAmount": "输入 SOL 数量",
-    "success": "感谢您的打赏！",
-    "error": "交易失败",
-    "invalidAmount": "请输入有效金额"
-  },
-  "common": {
-    "installPhantom": "请安装 Phantom 钱包",
-    "clear": "清除",
-    "validationFailed": "验证失败",
-    "copySuccess": "已复制到剪贴板",
-    "copyFailed": "复制到剪贴板失败",
-    "untitled": "未命名"
+    "placeholder": "输入公钥或交易哈希"
   }
 }

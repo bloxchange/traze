@@ -1,9 +1,26 @@
 {
+  "settings": {
+    "configuration": "Configuration",
+    "rpcUrl": "RPC URL",
+    "rpcUrlRequired": "Please input RPC URL!",
+    "jitoEndpoint": "Jito Endpoint",
+    "jitoEndpointRequired": "Please input Jito endpoint!",
+    "balanceUpdateMode": "Balance Update Mode",
+    "balanceUpdateModeRpc": "Use RPC endpoint",
+    "balanceUpdateModeCalculate": "Calculate without RPC"
+  },
+
   "dashboard": {
     "title": "Dashboard",
     "welcomeMessage": "Welcome to Bloxchange"
   },
+
   "swarm": {
+    "generalTab": "General",
+    "slippage": "Slippage",
+    "priorityFee": "Priority Fee",
+    "jitoTipAmount": "Jito Tip Amount",
+    "useJitoBundle": "Use Jito Bundle when flush",
     "title": "Swarm",
     "feed": "Feed",
     "return": "Return",
@@ -21,6 +38,7 @@
     "walletsCreatedSuccess": "Wallets created successfully",
     "name": "Swarm Name",
     "nameRequired": "Please input swarm name!",
+    "editName": "Edit Swarm Name",
     "description": "Description",
     "save": "Save",
     "buyTab": "Buy",
@@ -36,6 +54,12 @@
     "enterPublicKeys": "Enter one public key per line",
     "generateNewKeys": "Generate New Keys",
     "generateKeysPlaceholder": "Number of new keys to generate",
+    "clearConfirmTitle": "Clear Wallets",
+    "clearConfirmContent": "Are you sure you want to clear all wallets? This action cannot be undone.",
+    "noTokenSelected": "Please select a token first",
+    "noConfigSet": "Please configure swarm settings first",
+    "buySuccess": "Buy orders executed successfully",
+    "buyError": "Failed to execute buy orders",
     "createModal": {
       "title": "Create Swarm",
       "privateKeys": "Private Keys",
@@ -62,35 +86,45 @@
       "error": "SOL transfer failed"
     }
   },
+  "common": {
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "enterName": "Enter name",
+    "validationFailed": "Validation failed",
+    "required": "This field is required",
+    "untitled": "Untitled",
+    "copySuccess": "Copied to clipboard",
+    "copyFailed": "Failed to copy",
+    "installPhantom": "Please install Phantom wallet"
+  },
+
+  "tokenInformation": {
+    "title": "Token Information",
+    "description": "View detailed token information and statistics.",
+    "noToken": "No token selected",
+    "searchPrompt": "Use the search box to find a token by its mint address",
+    "mint": "Mint Address",
+    "symbol": "Symbol",
+    "decimals": "Decimals",
+    "holders": "Holders",
+    "price": "Price",
+    "volume24h": "24h Volume",
+    "marketCap": "Market Cap",
+    "lastUpdated": "Last Updated",
+    "totalSupply": "Total Supply"
+  },
+
+  "liquidityPools": {
+    "title": "Liquidity Pools",
+    "description": "Monitor and manage liquidity pool positions."
+  },
+  "transactions": {
+    "title": "Transactions",
+    "description": "Track and analyze transaction history."
+  },
   "search": {
     "title": "Search",
-    "placeholder": "Enter public key or transaction hash",
-    "validationError": "Invalid public key format"
-  },
-  "settings": {
-    "title": "Settings",
-    "language": "Language",
-    "theme": "Theme",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "configuration": "Configuration",
-    "rpcUrl": "RPC URL",
-    "rpcUrlRequired": "Please enter RPC URL"
-  },
-  "tip": {
-    "title": "Tip",
-    "send": "Send a Tip",
-    "enterAmount": "Enter amount in SOL",
-    "success": "Thank you for your tip!",
-    "error": "Transaction failed",
-    "invalidAmount": "Please enter a valid amount"
-  },
-  "common": {
-    "installPhantom": "Please install Phantom wallet",
-    "clear": "Clear",
-    "validationFailed": "Validation failed",
-    "copySuccess": "Copied to clipboard",
-    "copyFailed": "Failed to copy to clipboard",
-    "untitled": "Untitled"
+    "placeholder": "Enter public key or transaction hash"
   }
 }

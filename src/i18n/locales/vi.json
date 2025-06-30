@@ -1,10 +1,25 @@
 {
+  "settings": {
+    "configuration": "Cấu hình",
+    "rpcUrl": "URL RPC",
+    "rpcUrlRequired": "Vui lòng nhập URL RPC!",
+    "jitoEndpoint": "Điểm cuối Jito",
+    "jitoEndpointRequired": "Vui lòng nhập điểm cuối Jito!",
+    "balanceUpdateMode": "Chế độ cập nhật số dư",
+    "balanceUpdateModeRpc": "Sử dụng điểm cuối RPC",
+    "balanceUpdateModeCalculate": "Tính toán không dùng RPC"
+  },
   "dashboard": {
     "title": "Bảng điều khiển",
     "welcomeMessage": "Chào mừng đến với Bloxchange"
   },
   "swarm": {
-    "title": "Bầy đàn",
+    "generalTab": "Chung",
+    "slippage": "Trượt giá",
+    "priorityFee": "Phí ưu tiên",
+    "jitoTipAmount": "Số tiền tip Jito",
+    "useJitoBundle": "Sử dụng gói Jito khi bán sạch",
+    "title": "Bầy",
     "feed": "Nạp",
     "return": "Trả lại",
     "clear": "Xóa",
@@ -13,7 +28,7 @@
     "showList": "Hiển thị danh sách",
     "buy": "Mua",
     "sell": "Bán",
-    "flush": "Làm mới",
+    "flush": "Bán sạch",
     "wallet": "Ví",
     "sol": "SOL",
     "token": "Token",
@@ -21,6 +36,7 @@
     "walletsCreatedSuccess": "Đã tạo ví thành công",
     "name": "Tên bầy đàn",
     "nameRequired": "Vui lòng nhập tên bầy đàn!",
+    "editName": "Sửa tên bầy đàn",
     "description": "Mô tả",
     "save": "Lưu",
     "buyTab": "Mua",
@@ -36,6 +52,12 @@
     "enterPublicKeys": "Nhập một khóa công khai mỗi dòng",
     "generateNewKeys": "Tạo khóa mới",
     "generateKeysPlaceholder": "Số lượng khóa mới cần tạo",
+    "clearConfirmTitle": "Xóa ví",
+    "clearConfirmContent": "Bạn có chắc chắn muốn xóa tất cả ví không? Hành động này không thể hoàn tác.",
+    "noTokenSelected": "Vui lòng chọn token trước",
+    "noConfigSet": "Vui lòng cấu hình cài đặt bầy đàn trước",
+    "buySuccess": "Thực hiện lệnh mua thành công",
+    "buyError": "Thực hiện lệnh mua thất bại",
     "createModal": {
       "title": "Tạo bầy đàn",
       "privateKeys": "Khóa riêng tư",
@@ -62,35 +84,43 @@
       "error": "Chuyển SOL thất bại"
     }
   },
+  "common": {
+    "clear": "Xóa",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "enterName": "Nhập tên",
+    "validationFailed": "Xác thực thất bại",
+    "required": "Trường này là bắt buộc",
+    "untitled": "Chưa đặt tên",
+    "copySuccess": "Đã sao chép vào clipboard",
+    "copyFailed": "Sao chép thất bại",
+    "installPhantom": "Vui lòng cài đặt ví Phantom"
+  },
+  "tokenInformation": {
+    "title": "Thông tin Token",
+    "description": "Xem thông tin và thống kê chi tiết về token.",
+    "noToken": "Chưa chọn token",
+    "searchPrompt": "Sử dụng hộp tìm kiếm để tìm token theo địa chỉ mint",
+    "mint": "Địa chỉ Mint",
+    "symbol": "Ký hiệu",
+    "decimals": "Số thập phân",
+    "holders": "Số người nắm giữ",
+    "price": "Giá",
+    "volume24h": "Khối lượng 24h",
+    "marketCap": "Vốn hóa thị trường",
+    "lastUpdated": "Cập nhật lần cuối",
+    "totalSupply": "Tổng cung"
+  },
+  "liquidityPools": {
+    "title": "Pool thanh khoản",
+    "description": "Theo dõi và quản lý vị thế trong pool thanh khoản."
+  },
+  "transactions": {
+    "title": "Giao dịch",
+    "description": "Theo dõi và phân tích lịch sử giao dịch."
+  },
   "search": {
     "title": "Tìm kiếm",
-    "placeholder": "Nhập khóa công khai hoặc mã giao dịch",
-    "validationError": "Định dạng khóa công khai không hợp lệ"
-  },
-  "settings": {
-    "title": "Cài đặt",
-    "language": "Ngôn ngữ",
-    "theme": "Giao diện",
-    "themeLight": "Sáng",
-    "themeDark": "Tối",
-    "configuration": "Cấu hình",
-    "rpcUrl": "URL RPC",
-    "rpcUrlRequired": "Vui lòng nhập URL RPC"
-  },
-  "tip": {
-    "title": "Tiền boa",
-    "send": "Gửi tiền boa",
-    "enterAmount": "Nhập số lượng SOL",
-    "success": "Cảm ơn bạn đã gửi tiền boa!",
-    "error": "Giao dịch thất bại",
-    "invalidAmount": "Vui lòng nhập số tiền hợp lệ"
-  },
-  "common": {
-    "installPhantom": "Vui lòng cài đặt ví Phantom",
-    "clear": "Xóa",
-    "validationFailed": "Xác thực thất bại",
-    "copySuccess": "Đã sao chép vào bộ nhớ tạm",
-    "copyFailed": "Sao chép vào bộ nhớ tạm thất bại",
-    "untitled": "Chưa đặt tên"
+    "placeholder": "Nhập khóa công khai hoặc mã giao dịch"
   }
 }

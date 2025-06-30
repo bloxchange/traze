@@ -3,12 +3,14 @@ import { Row, Col, Checkbox, Space, Typography, Button, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { SwarmWalletListProps } from '@/models';
+import { useToken } from '@/hooks';
 
 const { Text } = Typography;
 
 
 const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSelection, onSelectAll }) => {
   const { t } = useTranslation();
+  const { tokenState } = useToken();
 
   const handleCopyPublicKey = (publicKey: string) => {
     navigator.clipboard.writeText(publicKey)
@@ -35,7 +37,7 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSele
           <Text strong>{t('swarm.sol')}</Text>
         </Col>
         <Col span={7}>
-          <Text strong>{t('swarm.token')}</Text>
+          <Text strong>{tokenState.currentToken?.symbol || '-'}</Text>
         </Col>
       </Row>
       {wallets.map((wallet) => (
@@ -49,7 +51,7 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSele
           </Col>
           <Col span={8}>
             <Space>
-              <label htmlFor={wallet.publicKey} style={{ cursor: 'pointer' }}>{wallet.publicKey.slice(0, 6)}...</label>
+              <label htmlFor={wallet.publicKey} style={{ cursor: 'pointer', fontFamily: 'monospace' }}>{wallet.publicKey.slice(0, 6)}...</label>
               <Button
                 type="text"
                 icon={<CopyOutlined />}
@@ -58,10 +60,10 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({ wallets, onWalletSele
             </Space>
           </Col>
           <Col span={7}>
-            <Text>{wallet.solBalance.toFixed(2)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>{wallet.solBalance.toFixed(2)}</Text>
           </Col>
           <Col span={7}>
-            <Text>{wallet.tokenBalance.toFixed(2)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>{wallet.tokenBalance.toFixed(2)}</Text>
           </Col>
         </Row>
       ))}
