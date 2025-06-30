@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import type { GeneralConfigProps } from '@/models';
 
 const GeneralSection: React.FC<GeneralConfigProps> = ({
-  defaultSlippage = 490,
-  defaultPriorityFee = 0.001,
-  defaultJitoTipAmount = 0.001
+  defaultSlippage,
+  defaultPriorityFee,
+  defaultJitoTipAmount
 }) => {
   const { t } = useTranslation();
 

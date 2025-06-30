@@ -24,6 +24,16 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [swarmConfig, setSwarmConfig] = useState<SwarmConfigFormValues>({
+    buyAmounts: [],
+    sellPercentages: [],
+    buyDelay: 0,
+    sellDelay: 0,
+    slippageBasisPoints: 4900,
+    priorityFee: 0.0001,
+    jitoTipAmount: 0.0001,
+    useJitoBundle: false
+  });
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
 
@@ -113,7 +123,6 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const { configuration } = useConfiguration();
   const { tokenState } = useToken();
-  const [swarmConfig, setSwarmConfig] = useState<SwarmConfigFormValues>();
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -204,24 +213,20 @@ const Swarm: React.FC<SwarmProps> = ({
       {showConfig ? (
         <SwarmConfig
           initialConfig={swarmConfig}
-          onConfigChange={(values) => {
-            setSwarmConfig(values);
-          }}
+          onConfigChange={setSwarmConfig}
         />
       ) : (
-        <>
-          <SwarmWalletList
-            wallets={walletList}
-            onWalletSelection={handleWalletSelection}
-            onSelectAll={handleSelectAll}
-          />
-          <SwarmFooter
-            onBuy={handleBuy}
-            onSell={handleSell}
-            onFlush={handleFlush}
-          />
-        </>
+        <SwarmWalletList
+          wallets={walletList}
+          onWalletSelection={handleWalletSelection}
+          onSelectAll={handleSelectAll}
+        />
       )}
+      <SwarmFooter
+        onBuy={handleBuy}
+        onSell={handleSell}
+        onFlush={handleFlush}
+      />
       <CreateSwarmModal
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}

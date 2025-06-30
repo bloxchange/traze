@@ -9,21 +9,11 @@ import SellSection from './SellSection';
 import GeneralSection from './GeneralSection';
 
 interface SwarmConfigProps {
-  onConfigChange?: (values: SwarmConfigFormValues) => void;
-  initialConfig?: SwarmConfigFormValues;
+  onConfigChange: (values: SwarmConfigFormValues) => void;
+  initialConfig: SwarmConfigFormValues;
 }
 
 const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig }) => {
-  const defaultValues: SwarmConfigFormValues = {
-    buyAmounts: ['0.1', '0.5'],
-    sellPercentages: ['50', '100'],
-    buyDelay: 0,
-    sellDelay: 0,
-    slippageBasisPoints: 100,
-    priorityFee: 1000,
-    jitoTipAmount: 0.0001,
-    useJitoBundle: false
-  };
 
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -31,8 +21,6 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
   const [amountInput, setAmountInput] = useState('');
   const [availableBuyAmounts, setAvailableBuyAmounts] = useState(['0.1', '0.5', '1', '2', '5']);
   const availableSellPercentages = ['25', '50', '75', '100'];
-
-
 
   const handleAmountEdit = () => {
     setAmountInput(form.getFieldValue('buyAmounts')?.join(', ') || '');
@@ -46,13 +34,10 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
     setIsAmountModalVisible(false);
   };
 
-  const handleValuesChange = (_: Record<string, unknown>, values: SwarmConfigFormValues) => {
-    onConfigChange?.(values);
+  const handleValuesChange = (_: Record<string, unknown>, changedValues: SwarmConfigFormValues) => {
+    const allValues = { ...initialConfig };
+    onConfigChange({ ...allValues, ...changedValues });
   };
-
-  React.useEffect(() => {
-    onConfigChange?.(initialConfig || defaultValues);
-  }, [onConfigChange, initialConfig, defaultValues]);
 
   return (
     <Card className="swarm-config" style={{ height: '100%' }}>
@@ -60,7 +45,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
         form={form}
         layout="vertical"
         onValuesChange={handleValuesChange}
-        initialValues={initialConfig || defaultValues}
+        initialValues={initialConfig}
       >
         <Tabs
           defaultActiveKey="buy"
