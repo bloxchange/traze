@@ -5,7 +5,8 @@ import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
 import { Connection } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
-import { Wallet } from '@coral-xyz/anchor/dist/cjs';
+//import { Wallet } from '@coral-xyz/anchor/dist/cjs';
+import NodeWallet from '../infrastructure/NodeWallet';
 
 export class SwarmBuyCommand {
   private wallets: WalletInfo[];
@@ -32,7 +33,7 @@ export class SwarmBuyCommand {
     const connection = new Connection(configuration.rpcUrl);
     const provider: AnchorProvider = new AnchorProvider(
       connection,
-      new Wallet(this.wallets[0].keypair),
+      new NodeWallet(this.wallets[0].keypair),
       {
         commitment: "finalized",
       });
