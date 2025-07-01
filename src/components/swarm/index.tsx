@@ -12,7 +12,9 @@ import type { SwarmConfigFormValues } from '../../models';
 import { CreateSwarmCommand, SwarmBuyCommand, SwarmSellCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
-import { useConfiguration, useToken } from '../../hooks';
+import { useConfiguration, useToken } from '@/hooks';
+import { SwarmJitoFlushCommand } from '@/domain/commands/SwarmJitoFlushCommand';
+import { SwarmFlushCommand } from '@/domain/commands/SwarmFlushCommand';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
@@ -181,8 +183,36 @@ const Swarm: React.FC<SwarmProps> = ({
     }
   };
 
-  const handleFlush = () => {
-    // Implement flush logic
+  const handleFlush = async () => {
+    if (!tokenState.currentToken?.mint) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    try {
+      if (swarmConfig.useJitoBundle) {
+        const command = new SwarmJitoFlushCommand(
+          walletList,
+          tokenState.currentToken.mint,
+          BigInt(swarmConfig.slippageBasisPoints),
+          swarmConfig.jitoTipAmount,
+          configuration
+        );
+        await command.execute();
+      } else {
+        const command = new SwarmFlushCommand(
+          walletList,
+          tokenState.currentToken.mint,
+          BigInt(swarmConfig.slippageBasisPoints),
+          configuration
+        );
+        await command.execute();
+      }
+      message.success(t('swarm.flushSuccess'));
+    } catch (error) {
+      message.error(t('swarm.flushError'));
+      console.error('Flush error:', error);
+    }
   };
 
   return (
