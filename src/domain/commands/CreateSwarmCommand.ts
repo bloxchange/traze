@@ -15,7 +15,7 @@ export class CreateSwarmCommand {
     const newWallets: WalletInfo[] = [];
 
     // Create wallets from provided private keys
-    this.privateKeys.forEach(privateKey => {
+    this.privateKeys.forEach((privateKey) => {
       try {
         const keypair = Keypair.fromSecretKey(bs58.decode(privateKey));
         newWallets.push({
@@ -23,7 +23,7 @@ export class CreateSwarmCommand {
           keypair,
           solBalance: 0,
           tokenBalance: 0,
-          selected: false
+          selected: false,
         });
       } catch {
         throw new Error('Invalid private key format');
@@ -38,7 +38,7 @@ export class CreateSwarmCommand {
         keypair,
         solBalance: 0,
         tokenBalance: 0,
-        selected: false
+        selected: false,
       });
     }
 

@@ -3,7 +3,8 @@ import {
   SystemProgram,
   Connection,
   TransactionMessage,
-  VersionedTransaction, type TransactionConfirmationStrategy
+  VersionedTransaction,
+  type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
 import type { WalletInfo } from '../../models';
 
@@ -38,7 +39,7 @@ export class ReturnFromSwarmCommand {
     await this.executeSwarmTransfer(this.wallets[0].publicKey);
 
     // Wait for transaction to settle
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Now transfer consolidated balance from distributor to Phantom
     const distributor = this.wallets[0];
@@ -63,9 +64,9 @@ export class ReturnFromSwarmCommand {
         SystemProgram.transfer({
           fromPubkey: distributor.keypair.publicKey,
           toPubkey: window.solana.publicKey,
-          lamports: transferAmount
-        })
-      ]
+          lamports: transferAmount,
+        }),
+      ],
     }).compileToV0Message();
 
     const tx = new VersionedTransaction(txMessage);
@@ -83,7 +84,7 @@ export class ReturnFromSwarmCommand {
   }
 
   private async executeSwarmTransfer(selectedWallet: string): Promise<void> {
-    const destinationWallet = this.wallets.find(x => x.publicKey == selectedWallet);
+    const destinationWallet = this.wallets.find((x) => x.publicKey == selectedWallet);
 
     if (!destinationWallet) {
       throw new Error('Destination wallet not found');
@@ -94,26 +95,28 @@ export class ReturnFromSwarmCommand {
     const txMsg = new TransactionMessage({
       payerKey: destinationWallet.keypair.publicKey,
       recentBlockhash: blockhash,
-      instructions: []
+      instructions: [],
     });
 
-    txMsg.instructions = await Promise.all(this.wallets
-      .filter(x => x.publicKey !== selectedWallet)
-      .map(async wallet => {
-        const balance = await this.connection.getBalance(new PublicKey(wallet.publicKey));
+    txMsg.instructions = await Promise.all(
+      this.wallets
+        .filter((x) => x.publicKey !== selectedWallet)
+        .map(async (wallet) => {
+          const balance = await this.connection.getBalance(new PublicKey(wallet.publicKey));
 
-        return SystemProgram.transfer({
-          fromPubkey: wallet.keypair.publicKey,
-          toPubkey: destinationWallet.keypair.publicKey,
-          lamports: balance
-        });
-      }));
+          return SystemProgram.transfer({
+            fromPubkey: wallet.keypair.publicKey,
+            toPubkey: destinationWallet.keypair.publicKey,
+            lamports: balance,
+          });
+        })
+    );
 
     const compiledMsg = txMsg.compileToLegacyMessage();
 
     const tx = new VersionedTransaction(compiledMsg);
 
-    tx.sign(this.wallets.map(x => x.keypair));
+    tx.sign(this.wallets.map((x) => x.keypair));
 
     const signature = await this.connection.sendTransaction(tx);
 

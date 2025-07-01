@@ -61,7 +61,7 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
         >
           <Select>
             <Select.Option value="phantom">{t('swarm.feedModal.phantomWallet')}</Select.Option>
-            {wallets.map(wallet => (
+            {wallets.map((wallet) => (
               <Select.Option key={wallet.publicKey} value={wallet.publicKey}>
                 {wallet.publicKey}
               </Select.Option>

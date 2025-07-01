@@ -41,9 +41,30 @@ export interface TokenAccount {
 }
 
 export interface AssetResponsePayload {
-  id: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  totalSupply: string;
+  mint_extensions?: unknown;
+  content?: {
+    metadata: {
+      name: string;
+      symbol: string;
+    };
+    json_uri: string;
+  };
+  token_info: {
+    decimals: number;
+    supply: string;
+  };
+  result?: {
+    mint_extensions?: unknown;
+    content?: {
+      metadata: {
+        name: string;
+        symbol: string;
+      };
+      json_uri: string;
+    };
+    token_info: {
+      decimals: number;
+      supply: string;
+    };
+  };
 }

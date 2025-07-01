@@ -14,9 +14,9 @@ export const lightTheme: ThemeConfig = {
   cssVar: true,
   components: {
     Layout: {
-      headerBg: '#fafaf9'
-    }
-  }
+      headerBg: '#fafaf9',
+    },
+  },
 };
 
 export const darkTheme: ThemeConfig = {

@@ -1,6 +1,10 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
-export async function getTokenBalance(connection: Connection, address: string, token: string): Promise<number> {
+export async function getTokenBalance(
+  connection: Connection,
+  address: string,
+  token: string
+): Promise<number> {
   const accounts = await connection.getParsedTokenAccountsByOwner(
     new PublicKey(address),
     { mint: new PublicKey(token) },

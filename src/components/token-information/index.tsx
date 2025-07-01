@@ -29,7 +29,7 @@ const TokenInformation: React.FC = () => {
   }
 
   return (
-    <Card variant='borderless'>
+    <Card variant="borderless">
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
         {currentToken.icon && (
           <img

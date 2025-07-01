@@ -1,5 +1,5 @@
-import { createContext, useContext } from "react";
-import type { Configuration } from "../models";
+import { createContext, useContext } from 'react';
+import type { Configuration } from '../models';
 
 export interface ConfigurationContextType {
   configuration: Configuration;

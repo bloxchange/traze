@@ -1,5 +1,5 @@
-import { PublicKey } from "@solana/web3.js";
-import { struct, bool, u64, publicKey, type Layout } from "@coral-xyz/borsh";
+import { PublicKey } from '@solana/web3.js';
+import { struct, bool, u64, publicKey, type Layout } from '@coral-xyz/borsh';
 
 export class GlobalAccount {
   public discriminator: bigint;
@@ -40,28 +40,31 @@ export class GlobalAccount {
     }
 
     const n = this.initialVirtualSolReserves * this.initialVirtualTokenReserves;
+
     const i = this.initialVirtualSolReserves + amount;
+
     const r = n / i + 1n;
+
     const s = this.initialVirtualTokenReserves - r;
-    return s < this.initialRealTokenReserves
-      ? s
-      : this.initialRealTokenReserves;
+
+    return s < this.initialRealTokenReserves ? s : this.initialRealTokenReserves;
   }
 
   public static fromBuffer(buffer: Buffer): GlobalAccount {
     const structure: Layout<GlobalAccount> = struct([
-      u64("discriminator"),
-      bool("initialized"),
-      publicKey("authority"),
-      publicKey("feeRecipient"),
-      u64("initialVirtualTokenReserves"),
-      u64("initialVirtualSolReserves"),
-      u64("initialRealTokenReserves"),
-      u64("tokenTotalSupply"),
-      u64("feeBasisPoints"),
+      u64('discriminator'),
+      bool('initialized'),
+      publicKey('authority'),
+      publicKey('feeRecipient'),
+      u64('initialVirtualTokenReserves'),
+      u64('initialVirtualSolReserves'),
+      u64('initialRealTokenReserves'),
+      u64('tokenTotalSupply'),
+      u64('feeBasisPoints'),
     ]);
 
     const value = structure.decode(buffer);
+
     return new GlobalAccount(
       BigInt(value.discriminator),
       value.initialized,

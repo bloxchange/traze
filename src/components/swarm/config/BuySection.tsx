@@ -23,14 +23,11 @@ const BuySection: React.FC<BuyConfigProps> = ({ availableAmounts, onAmountEdit }
         <Checkbox.Group
           options={availableAmounts.map((amount: string) => ({
             label: `${amount} SOL`,
-            value: amount
+            value: amount,
           }))}
         />
       </Form.Item>
-      <Form.Item
-        label={t('swarm.delayInSeconds')}
-        name="buyDelay"
-      >
+      <Form.Item label={t('swarm.delayInSeconds')} name="buyDelay">
         <Input type="number" min={0} />
       </Form.Item>
     </Space>

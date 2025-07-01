@@ -1,4 +1,4 @@
-import type { AssetResponsePayload, RpcResponse } from "../models/rpc";
+import type { AssetResponsePayload, RpcResponse } from '../models/rpc';
 
 export async function getAsset(rpcUrl: string, tokenMint: string) {
   const response = await fetch(rpcUrl, {
@@ -11,10 +11,10 @@ export async function getAsset(rpcUrl: string, tokenMint: string) {
       id: 1,
       method: 'getAsset',
       params: {
-        id: tokenMint
+        id: tokenMint,
       },
     }),
   });
 
-  return await response.json() as RpcResponse<AssetResponsePayload>;
+  return (await response.json()) as RpcResponse<AssetResponsePayload>;
 }

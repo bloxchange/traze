@@ -3,12 +3,24 @@ import {
   DEFAULT_COMMITMENT,
   DEFAULT_FINALITY,
   GLOBAL_ACCOUNT_SEED,
-  PUMPFUN_PROGRAM_ID
-} from "@/domain/infrastructure/consts";
-import { ComputeBudgetProgram, Connection, Keypair, PublicKey, SendTransactionError, Transaction, TransactionMessage, VersionedTransaction, type Commitment, type Finality, type VersionedTransactionResponse } from "@solana/web3.js";
-import { BondingCurveAccount } from "./BondingCurveAccount";
-import { GlobalAccount } from "./GlobalAccount";
-import type { PriorityFee, TransactionResult } from "./types";
+  PUMPFUN_PROGRAM_ID,
+} from '@/domain/infrastructure/consts';
+import {
+  ComputeBudgetProgram,
+  Connection,
+  Keypair,
+  PublicKey,
+  SendTransactionError,
+  Transaction,
+  TransactionMessage,
+  VersionedTransaction,
+  type Commitment,
+  type Finality,
+  type VersionedTransactionResponse,
+} from '@solana/web3.js';
+import { BondingCurveAccount } from './BondingCurveAccount';
+import { GlobalAccount } from './GlobalAccount';
+import type { PriorityFee, TransactionResult } from './types';
 
 export function getBondingCurvePDA(mint: PublicKey, programId: PublicKey): PublicKey {
   return PublicKey.findProgramAddressSync(
@@ -22,13 +34,12 @@ export async function getBondingCurveAccount(
   bondingCurvePda: PublicKey,
   commitment: Commitment = DEFAULT_COMMITMENT
 ) {
-  const tokenAccount = await connection.getAccountInfo(
-    bondingCurvePda,
-    commitment
-  );
+  const tokenAccount = await connection.getAccountInfo(bondingCurvePda, commitment);
+
   if (!tokenAccount) {
     return null;
   }
+
   return BondingCurveAccount.fromBuffer(tokenAccount!.data);
 }
 
@@ -38,30 +49,22 @@ export async function getGlobalAccount(connection: Connection, commitment: Commi
     new PublicKey(PUMPFUN_PROGRAM_ID)
   );
 
-  const tokenAccount = await connection.getAccountInfo(
-    globalAccountPDA,
-    commitment
-  );
+  const tokenAccount = await connection.getAccountInfo(globalAccountPDA, commitment);
 
   return GlobalAccount.fromBuffer(tokenAccount!.data);
 }
 
-export const calculateWithSlippageBuy = (
-  amount: bigint,
-  basisPoints: bigint
-) => {
+export const calculateWithSlippageBuy = (amount: bigint, basisPoints: bigint) => {
   return amount + (amount * basisPoints) / 10000n;
 };
 
 export function calculateWithSlippageSell(
   amount: bigint,
-  slippageBasisPoints: bigint = 500n,
+  slippageBasisPoints: bigint = 500n
 ): bigint {
   // Actually use the slippage basis points for calculation
-  const reduction = Math.max(
-    1,
-    Number((amount * slippageBasisPoints) / 10000n)
-  );
+  const reduction = Math.max(1, Number((amount * slippageBasisPoints) / 10000n));
+
   return amount - BigInt(reduction);
 }
 
@@ -83,13 +86,16 @@ export async function sendTransaction(
     const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
       microLamports: priorityFees.unitPrice,
     });
+
     newTx.add(modifyComputeUnits);
+
     newTx.add(addPriorityFee);
   }
 
   newTx.add(tx);
 
   const versionedTx = await buildVersionedTx(connection, payer, newTx, commitment);
+
   versionedTx.sign(signers);
 
   try {
@@ -112,7 +118,8 @@ export async function sendTransaction(
   } catch (e) {
     if (e instanceof SendTransactionError) {
       const ste = e as SendTransactionError;
-      console.log("SendTransactionError" + ste.logs);
+
+      console.log('SendTransactionError' + ste.logs);
     } else {
       console.error(e);
     }
@@ -147,21 +154,23 @@ export async function sendTx(
   newTx.add(tx);
 
   const versionedTx = await buildVersionedTx(connection, payer, newTx, commitment);
+
   versionedTx.sign(signers);
 
   try {
     const sig = await connection.sendTransaction(versionedTx, {
       skipPreflight: false,
     });
-    console.log("sig:", `https://solscan.io/tx/${sig}`);
+    console.log('sig:', `https://solscan.io/tx/${sig}`);
 
     const txResult = await getTxDetails(connection, sig, commitment, finality);
     if (!txResult) {
       return {
         success: false,
-        error: "Transaction failed",
+        error: 'Transaction failed',
       };
     }
+
     return {
       success: true,
       signature: sig,
@@ -170,10 +179,12 @@ export async function sendTx(
   } catch (e) {
     if (e instanceof SendTransactionError) {
       const ste = e as SendTransactionError;
-      console.log("SendTransactionError" + ste.logs);
+
+      console.log('SendTransactionError' + ste.logs);
     } else {
       console.error(e);
     }
+
     return {
       error: e,
       success: false,
@@ -187,8 +198,7 @@ export const buildVersionedTx = async (
   tx: Transaction,
   commitment: Commitment = DEFAULT_COMMITMENT
 ): Promise<VersionedTransaction> => {
-  const blockHash = (await connection.getLatestBlockhash(commitment))
-    .blockhash;
+  const blockHash = (await connection.getLatestBlockhash(commitment)).blockhash;
 
   const messageV0 = new TransactionMessage({
     payerKey: payer,
@@ -206,6 +216,7 @@ export const getTxDetails = async (
   finality: Finality = DEFAULT_FINALITY
 ): Promise<VersionedTransactionResponse | null> => {
   const latestBlockHash = await connection.getLatestBlockhash();
+
   await connection.confirmTransaction(
     {
       blockhash: latestBlockHash.blockhash,

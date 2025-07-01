@@ -5,5 +5,5 @@ export interface RpcResponse<T> {
   error?: {
     message: string;
     code: number;
-  }
+  };
 }

@@ -15,7 +15,10 @@ export interface GeneralConfigValues {
   jitoTipAmount: number;
 }
 
-export interface SwarmConfigFormValues extends BuyConfigValues, SellConfigValues, GeneralConfigValues {}
+export interface SwarmConfigFormValues
+  extends BuyConfigValues,
+    SellConfigValues,
+    GeneralConfigValues {}
 
 export interface GeneralConfigProps {
   defaultSlippage?: number;
