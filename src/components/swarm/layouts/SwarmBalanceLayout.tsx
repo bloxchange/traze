@@ -2,10 +2,25 @@ import React from 'react';
 import { Row, Col, Checkbox, Space, Typography, Button, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import type { WalletInfo } from '@/models';
 import { useToken } from '@/hooks';
 
 const { Text } = Typography;
+
+const formatBalance = (balance: number, isSOL: boolean = false): string => {
+  const decimals = isSOL ? 3 : 2;
+  if (balance >= 1_000_000_000) {
+    return `${(balance / 1_000_000_000).toFixed(decimals)}B`;
+  }
+  if (balance >= 1_000_000) {
+    return `${(balance / 1_000_000).toFixed(decimals)}M`;
+  }
+  if (balance >= 1_000) {
+    return `${(balance / 1_000).toFixed(decimals)}K`;
+  }
+  return balance.toFixed(decimals);
+};
 
 interface SwarmBalanceLayoutProps {
   wallets: WalletInfo[];
@@ -75,10 +90,10 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             </Space>
           </Col>
           <Col span={7}>
-            <Text style={{ fontFamily: 'monospace' }}>{wallet.solBalance.toFixed(2)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>{formatBalance(wallet.solBalance / LAMPORTS_PER_SOL, true)}</Text>
           </Col>
           <Col span={7}>
-            <Text style={{ fontFamily: 'monospace' }}>{wallet.tokenBalance.toFixed(2)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>{formatBalance(wallet.tokenBalance)}</Text>
           </Col>
         </Row>
       ))}

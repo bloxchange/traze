@@ -27,7 +27,7 @@ export interface SwarmWalletListProps {
 export interface CreateSwarmModalProps {
   open: boolean;
   onCancel: () => void;
-  onSubmit: (privateKeys: string[], generateCount: number) => void;
+  onSubmit: (privateKeys: string[], generateCount: number) => Promise<void>;
 }
 
 export interface FeedSwarmModalProps {

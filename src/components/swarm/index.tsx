@@ -67,11 +67,16 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
     }
   };
 
-  const handleCreateModalSubmit = (privateKeys: string[], generateCount: number) => {
+  const handleCreateModalSubmit = async (privateKeys: string[], generateCount: number) => {
     try {
-      const createCommand = new CreateSwarmCommand(privateKeys, generateCount);
+      const createCommand = new CreateSwarmCommand(
+        privateKeys,
+        generateCount,
+        configuration.rpcUrl,
+        tokenState.currentToken?.mint
+      );
 
-      const newWallets = createCommand.execute();
+      const newWallets = await createCommand.execute();
 
       // Download wallet information if wallets were generated
       if (generateCount > 0) {
