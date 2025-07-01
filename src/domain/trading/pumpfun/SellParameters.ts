@@ -8,6 +8,7 @@ export interface PumpFunSellParameters extends ISellParameters {
   sellTokenAmount: bigint;
   slippageBasisPoints: bigint;
   priorityFees?: PriorityFee;
+  maxCurrentPriorityFee: number;
   commitment: Commitment;
   finality: Finality;
 }

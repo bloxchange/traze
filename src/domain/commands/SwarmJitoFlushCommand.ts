@@ -14,6 +14,7 @@ export class SwarmJitoFlushCommand {
   private tokenMint: string;
   private slippageBasisPoints: bigint;
   private jitoTipAmount: number;
+  private priorityFeeInSol: number;
   private broker: IBroker;
   private connection: Connection;
   private jitoEndpoint: string;
@@ -24,12 +25,14 @@ export class SwarmJitoFlushCommand {
     tokenMint: string,
     slippageBasisPoints: bigint,
     jitoTipAmount: number,
+    priorityFeeInSol: number,
     configuration: Configuration
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
     this.slippageBasisPoints = slippageBasisPoints;
     this.jitoTipAmount = jitoTipAmount;
+    this.priorityFeeInSol = priorityFeeInSol;
 
     this.jitoEndpoint = configuration.jitoEndpoint;
     this.connection = new Connection(this.jitoEndpoint);
@@ -60,6 +63,18 @@ export class SwarmJitoFlushCommand {
       throw new Error('No wallets selected');
     }
 
+    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+    });
+
+    let maxCurrentPriorityUnitPrice = 0;
+
+    prioritizationFees.forEach(({ prioritizationFee }) => {
+      if (prioritizationFee > maxCurrentPriorityUnitPrice) {
+        maxCurrentPriorityUnitPrice = prioritizationFee;
+      }
+    });
+
     const sellParametersArray: PumpFunSellParameters[] = [];
 
     for (const wallet of selectedWallets) {
@@ -69,6 +84,8 @@ export class SwarmJitoFlushCommand {
         mint: new PublicKey(this.tokenMint),
         sellTokenAmount: sellAmount,
         slippageBasisPoints: this.slippageBasisPoints,
+        priorityFeeInSol: this.priorityFeeInSol,
+        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
         commitment: "finalized",
         finality: "finalized"
       });

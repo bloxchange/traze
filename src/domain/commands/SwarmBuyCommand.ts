@@ -3,7 +3,7 @@ import type { IBroker } from '../trading/IBroker';
 import type { IBuyParameters } from '../trading/IBuyParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
 //import { Wallet } from '@coral-xyz/anchor/dist/cjs';
 import NodeWallet from '../infrastructure/NodeWallet';
@@ -14,6 +14,8 @@ export class SwarmBuyCommand {
   private buyAmounts: string[];
   private buyDelay: number;
   private slippageBasisPoints: number;
+  private priorityFeeInSol: number;
+  private connection: Connection;
   private broker: IBroker;
 
   constructor(
@@ -22,6 +24,7 @@ export class SwarmBuyCommand {
     buyAmounts: string[],
     buyDelay: number,
     slippageBasisPoints: number,
+    priorityFeeInSol: number,
     configuration: Configuration
   ) {
     this.wallets = wallets;
@@ -29,13 +32,17 @@ export class SwarmBuyCommand {
     this.buyAmounts = buyAmounts;
     this.buyDelay = buyDelay;
     this.slippageBasisPoints = slippageBasisPoints;
+    this.priorityFeeInSol = priorityFeeInSol;
 
     const connection = new Connection(configuration.rpcUrl);
+
+    this.connection = connection;
+
     const provider: AnchorProvider = new AnchorProvider(
       connection,
       new NodeWallet(this.wallets[0].keypair),
       {
-        commitment: "finalized",
+        commitment: 'confirmed',
       });
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
@@ -64,12 +71,26 @@ export class SwarmBuyCommand {
       throw new Error('No wallets selected');
     }
 
+    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+    });
+
+    let maxCurrentPriorityUnitPrice = 0;
+
+    prioritizationFees.forEach(({ prioritizationFee }) => {
+      if (prioritizationFee > maxCurrentPriorityUnitPrice) {
+        maxCurrentPriorityUnitPrice = prioritizationFee;
+      }
+    });
+
     for (const wallet of selectedWallets) {
       const buyParameters: IBuyParameters = {
         buyer: wallet.keypair,
         tokenMint: this.tokenMint,
         amountInSol: this.getRandomAmount(),
         slippageBasisPoints: this.slippageBasisPoints,
+        priorityFeeInSol: this.priorityFeeInSol,
+        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice
       };
 
       await this.broker.buy(buyParameters);

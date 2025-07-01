@@ -5,4 +5,6 @@ export interface IBuyParameters {
   amountInSol: number;
   tokenMint: string;
   slippageBasisPoints: number;
+  priorityFeeInSol: number;
+  maxCurrentPriorityFee: number;
 }
