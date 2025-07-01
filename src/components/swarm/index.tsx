@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -7,10 +7,9 @@ import FeedSwarmModal from './FeedSwarmModal';
 import SwarmHeader from './SwarmHeader';
 import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
-import { SwarmConfig } from './config';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
 import type { SwarmConfigFormValues } from '../../models';
-import { CreateSwarmCommand, SwarmBuyCommand } from '../../domain/commands';
+import { CreateSwarmCommand, SwarmBuyCommand, SwarmSellCommand } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
 import { useConfiguration, useToken } from '../../hooks';
@@ -24,6 +23,16 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [swarmConfig, setSwarmConfig] = useState<SwarmConfigFormValues>({
+    buyAmounts: [],
+    sellPercentages: [],
+    buyDelay: 0,
+    sellDelay: 0,
+    slippageBasisPoints: 4900,
+    priorityFee: 0.0001,
+    jitoTipAmount: 0.0001,
+    useJitoBundle: false
+  });
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
 
@@ -113,7 +122,6 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const { configuration } = useConfiguration();
   const { tokenState } = useToken();
-  const configFormRef = useRef<SwarmConfigFormValues>();
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -121,8 +129,7 @@ const Swarm: React.FC<SwarmProps> = ({
       return;
     }
 
-    const config = configFormRef.current;
-    if (!config) {
+    if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
       return;
     }
@@ -131,9 +138,9 @@ const Swarm: React.FC<SwarmProps> = ({
       const buyCommand = new SwarmBuyCommand(
         walletList,
         tokenState.currentToken.mint,
-        config.buyAmounts,
-        config.buyDelay,
-        config.slippageBasisPoints,
+        swarmConfig.buyAmounts,
+        swarmConfig.buyDelay,
+        swarmConfig.slippageBasisPoints,
         configuration
       );
 
@@ -145,8 +152,33 @@ const Swarm: React.FC<SwarmProps> = ({
     }
   };
 
-  const handleSell = () => {
-    // Implement sell logic
+  const handleSell = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    if (!swarmConfig) {
+      message.error(t('swarm.noConfigSet'));
+      return;
+    }
+
+    try {
+      const sellCommand = new SwarmSellCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        swarmConfig.sellPercentages,
+        swarmConfig.sellDelay,
+        swarmConfig.slippageBasisPoints,
+        configuration
+      );
+
+      await sellCommand.execute();
+      message.success(t('swarm.sellSuccess'));
+    } catch (error) {
+      message.error(t('swarm.sellError'));
+      console.error('Sell error:', error);
+    }
   };
 
   const handleFlush = () => {
@@ -177,26 +209,19 @@ const Swarm: React.FC<SwarmProps> = ({
         showConfig={showConfig}
         walletCount={walletList.length}
       />
-      {showConfig ? (
-        <SwarmConfig
-          onConfigChange={(values) => {
-            configFormRef.current = values;
-          }}
-        />
-      ) : (
-        <>
-          <SwarmWalletList
-            wallets={walletList}
-            onWalletSelection={handleWalletSelection}
-            onSelectAll={handleSelectAll}
-          />
-          <SwarmFooter
-            onBuy={handleBuy}
-            onSell={handleSell}
-            onFlush={handleFlush}
-          />
-        </>
-      )}
+      <SwarmWalletList
+        wallets={walletList}
+        onWalletSelection={handleWalletSelection}
+        onSelectAll={handleSelectAll}
+        showConfig={showConfig}
+        swarmConfig={swarmConfig}
+        onConfigChange={setSwarmConfig}
+      />
+      <SwarmFooter
+        onBuy={handleBuy}
+        onSell={handleSell}
+        onFlush={handleFlush}
+      />
       <CreateSwarmModal
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}

@@ -1,6 +1,6 @@
 import type { IBroker } from "../IBroker";
 import { BN, Program, type Provider } from "@coral-xyz/anchor";
-import { Keypair, PublicKey, Transaction, type Commitment, type Connection } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, Transaction, type Commitment, type Connection } from "@solana/web3.js";
 import { IDL, type PumpFun } from "./idl";
 import type { PumpFunBuyParameters } from "./BuyParameters";
 import {
@@ -55,12 +55,14 @@ export class PumpFunBroker implements IBroker {
 
     const globalAccount = await getGlobalAccount(this.connection, parameters.commitment);
 
+    const amountInLamports = BigInt(parameters.amountInSol * LAMPORTS_PER_SOL);
+
     // Calculate buy amount
-    const buyAmount = bondingAccount.getBuyPrice(new BN(parameters.amountInSol));
+    const buyAmount = bondingAccount.getBuyPrice(amountInLamports);
 
     const buyAmountWithSlippage = calculateWithSlippageBuy(
-      new BN(parameters.amountInSol),
-      new BN(parameters.slippageBasisPoints)
+      BigInt(amountInLamports),
+      BigInt(parameters.slippageBasisPoints)
     );
 
     // Get the associated token accounts

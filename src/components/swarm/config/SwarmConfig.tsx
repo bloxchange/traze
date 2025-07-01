@@ -9,19 +9,18 @@ import SellSection from './SellSection';
 import GeneralSection from './GeneralSection';
 
 interface SwarmConfigProps {
-  onConfigChange?: (values: SwarmConfigFormValues) => void;
+  onConfigChange: (values: SwarmConfigFormValues) => void;
+  initialConfig: SwarmConfigFormValues;
 }
 
-const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
+const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig }) => {
+
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState('');
   const [availableBuyAmounts, setAvailableBuyAmounts] = useState(['0.1', '0.5', '1', '2', '5']);
   const availableSellPercentages = ['25', '50', '75', '100'];
-
-  const defaultBuyAmounts: string[] = [];
-  const defaultSellPercentages: string[] = [];
 
   const handleAmountEdit = () => {
     setAmountInput(form.getFieldValue('buyAmounts')?.join(', ') || '');
@@ -35,26 +34,18 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange }) => {
     setIsAmountModalVisible(false);
   };
 
-  const handleValuesChange = (_: Record<string, unknown>, values: SwarmConfigFormValues) => {
-    onConfigChange?.(values);
+  const handleValuesChange = (_: Record<string, unknown>, changedValues: SwarmConfigFormValues) => {
+    const allValues = { ...initialConfig };
+    onConfigChange({ ...allValues, ...changedValues });
   };
 
   return (
-    <Card className="swarm-config" style={{ height: '100%' }}>
+    <Card className="swarm-config" style={{ height: '100%', border: 'none' }}>
       <Form
         form={form}
         layout="vertical"
         onValuesChange={handleValuesChange}
-        initialValues={{
-          buyAmounts: defaultBuyAmounts,
-          sellPercentages: defaultSellPercentages,
-          buyDelay: 0,
-          sellDelay: 0,
-          slippageBasisPoints: 100,
-          priorityFeeUnitPrice: 1000,
-          priorityFeeUnitLimit: 0,
-          jitoTipAmount: 0.0001
-        }}
+        initialValues={initialConfig}
       >
         <Tabs
           defaultActiveKey="buy"
