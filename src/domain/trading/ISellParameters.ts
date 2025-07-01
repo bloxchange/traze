@@ -1,4 +1,4 @@
-import type { Keypair, PublicKey } from "@solana/web3.js";
+import type { Keypair, PublicKey } from '@solana/web3.js';
 
 export interface ISellParameters {
   seller: Keypair;

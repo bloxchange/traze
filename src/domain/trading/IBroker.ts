@@ -1,5 +1,5 @@
-import type { IBuyParameters } from "./IBuyParameters";
-import type { ISellParameters } from "./ISellParameters";
+import type { IBuyParameters } from './IBuyParameters';
+import type { ISellParameters } from './ISellParameters';
 
 export interface IBroker {
   transfer(amount: number, from: string, to: string): Promise<void>;
@@ -16,5 +16,9 @@ export interface IBroker {
     walletAddress: string
   ): Promise<void>;
   withdraw(amount: number, token: string, to: string): Promise<void>;
-  jitoSell(sellParameters: ISellParameters[], jitoTipAmount: number, jitoUrl: string): Promise<string | null>;
+  jitoSell(
+    sellParameters: ISellParameters[],
+    jitoTipAmount: number,
+    jitoUrl: string
+  ): Promise<string | null>;
 }

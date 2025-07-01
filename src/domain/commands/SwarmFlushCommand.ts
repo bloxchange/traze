@@ -33,8 +33,9 @@ export class SwarmFlushCommand {
       this.connection,
       new NodeWallet(this.wallets[0].keypair),
       {
-        commitment: "finalized",
-      });
+        commitment: 'finalized',
+      }
+    );
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
     if (!broker) {
@@ -49,14 +50,14 @@ export class SwarmFlushCommand {
   }
 
   async execute(): Promise<void> {
-    const selectedWallets = this.wallets.filter(wallet => wallet.selected);
+    const selectedWallets = this.wallets.filter((wallet) => wallet.selected);
 
     if (selectedWallets.length === 0) {
       throw new Error('No wallets selected');
     }
 
     const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
     });
 
     let maxCurrentPriorityUnitPrice = 0;
@@ -69,13 +70,18 @@ export class SwarmFlushCommand {
 
     for (const wallet of selectedWallets) {
       const sellAmount = await this.calculateSellAmount(wallet);
+
+      if (sellAmount <= 0) {
+        continue;
+      }
+
       const sellParameters: ISellParameters = {
         seller: wallet.keypair,
         mint: new PublicKey(this.tokenMint),
         sellTokenAmount: sellAmount,
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
-        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice
+        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
       await this.broker.sell(sellParameters);

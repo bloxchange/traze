@@ -14,36 +14,23 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({ onBuy, onSell, onFlush }) => 
   const { token } = theme.useToken();
 
   return (
-    <div className="swarm-footer" style={{ borderTop: '1px solid', borderTopColor: token.colorBorder, paddingTop: 6 }}>
+    <div
+      className="swarm-footer"
+      style={{ borderTop: '1px solid', borderTopColor: token.colorBorder, paddingTop: 6 }}
+    >
       <Row gutter={8}>
         <Col span={8}>
-          <Button
-            type="primary"
-            icon={<ShoppingOutlined />}
-            block
-            onClick={onBuy}
-          >
+          <Button type="primary" icon={<ShoppingOutlined />} block onClick={onBuy}>
             {t('swarm.buy')}
           </Button>
         </Col>
         <Col span={8}>
-          <Button
-            type="primary"
-            danger
-            icon={<ShoppingCartOutlined />}
-            block
-            onClick={onSell}
-          >
+          <Button type="primary" danger icon={<ShoppingCartOutlined />} block onClick={onSell}>
             {t('swarm.sell')}
           </Button>
         </Col>
         <Col span={8}>
-          <Button
-            type="default"
-            icon={<ReloadOutlined />}
-            block
-            onClick={onFlush}
-          >
+          <Button type="default" icon={<ReloadOutlined />} block onClick={onFlush}>
             {t('swarm.flush')}
           </Button>
         </Col>

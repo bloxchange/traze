@@ -71,7 +71,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
           height: '56px',
           borderRadius: '28px',
           fontSize: '18px',
-          padding: '0 24px'
+          padding: '0 24px',
         }}
         autoFocus
         ref={(input) => setTimeout(() => input && input.focus())}

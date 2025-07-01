@@ -4,7 +4,6 @@ import type { TokenState } from '../models/token';
 import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformationCommand';
 import { TokenContext, useConfiguration } from '../hooks';
 
-
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { configuration } = useConfiguration();
   const [tokenState, setTokenState] = useState<TokenState>({
@@ -20,40 +19,39 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const tokenInfo = await getTokenInfoCommand.execute();
     return tokenInfo;
-  }
+  };
 
   if (location.pathname?.length > 20 && !tokenState.currentToken && !tokenState.loading) {
-    setTokenState(prev => ({ ...prev, loading: true, error: null }));
-    getTokenInfo(location.pathname.slice(1))
-      .then(tokenInfo => {
-        setTokenState(prev => ({
-          ...prev,
-          currentToken: tokenInfo,
-          loading: false,
-        }));
-        setTokenState(prev => ({
-          ...prev,
-          currentToken: tokenInfo,
-          loading: false,
-        }));
-      });
+    setTokenState((prev) => ({ ...prev, loading: true, error: null }));
+    getTokenInfo(location.pathname.slice(1)).then((tokenInfo) => {
+      setTokenState((prev) => ({
+        ...prev,
+        currentToken: tokenInfo,
+        loading: false,
+      }));
+      setTokenState((prev) => ({
+        ...prev,
+        currentToken: tokenInfo,
+        loading: false,
+      }));
+    });
   }
 
   const setTokenByMint = async (mint: string) => {
-    setTokenState(prev => ({ ...prev, loading: true, error: null }));
+    setTokenState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       const tokenInfo = await getTokenInfo(mint);
 
       // TODO: update the location path by new token mint
       window.history.replaceState(null, `Traze - ${tokenInfo.symbol}`, `/${tokenInfo.mint}`);
 
-      setTokenState(prev => ({
+      setTokenState((prev) => ({
         ...prev,
         currentToken: tokenInfo,
         loading: false,
       }));
     } catch (error) {
-      setTokenState(prev => ({
+      setTokenState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to fetch token information',
         loading: false,

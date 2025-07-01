@@ -56,12 +56,12 @@ export interface TokenInfo {
 
 export interface MintExtionions {
   transfer_hook: {
-    authority: string,
-    program_id: string
-  },
+    authority: string;
+    program_id: string;
+  };
   metadata_pointer: {
-    metadata_address: string
-  }
+    metadata_address: string;
+  };
 }
 
 export interface AssetResponsePayload {

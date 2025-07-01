@@ -23,34 +23,29 @@ const DraggableIcon: React.FC<DraggableIconProps> = ({ type, icon, flexLayoutRef
     if (flexLayoutRef.current) {
       flexLayoutRef.current!.setDragComponent(e.nativeEvent, title, 10, 10);
 
-      flexLayoutRef.current.addTabWithDragAndDrop(
-        e.nativeEvent,
-        {
-          type: 'tab',
-          name: type == 'swarm' ? `${title} - ${t('common.untitled')}` : title,
-          component: type,
-          config: {
-            name: t('common.untitled')
-          }
-        }
-      );
-    };
-  }
+      flexLayoutRef.current.addTabWithDragAndDrop(e.nativeEvent, {
+        type: 'tab',
+        name: type == 'swarm' ? `${title} - ${t('common.untitled')}` : title,
+        component: type,
+        config: {
+          name: t('common.untitled'),
+        },
+      });
+    }
+  };
 
   return (
     <Tooltip title={title}>
-      <div
-        className="draggable-icon"
-        draggable
-        onDragStart={handleDragStart}
-      >
+      <div className="draggable-icon" draggable onDragStart={handleDragStart}>
         {icon}
       </div>
     </Tooltip>
   );
 };
 
-const ComponentList: React.FC<{ flexLayoutRef: React.RefObject<FlexLayout> }> = ({ flexLayoutRef }) => {
+const ComponentList: React.FC<{ flexLayoutRef: React.RefObject<FlexLayout> }> = ({
+  flexLayoutRef,
+}) => {
   return (
     <Space className="component-list">
       <DraggableIcon

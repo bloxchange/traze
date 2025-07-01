@@ -8,7 +8,6 @@ import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
 
-
 export class SwarmJitoFlushCommand {
   private wallets: WalletInfo[];
   private tokenMint: string;
@@ -18,7 +17,6 @@ export class SwarmJitoFlushCommand {
   private broker: IBroker;
   private connection: Connection;
   private jitoEndpoint: string;
-
 
   constructor(
     wallets: WalletInfo[],
@@ -41,8 +39,9 @@ export class SwarmJitoFlushCommand {
       this.connection,
       new NodeWallet(this.wallets[0].keypair),
       {
-        commitment: "finalized",
-      });
+        commitment: 'finalized',
+      }
+    );
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
     if (!broker) {
@@ -57,14 +56,14 @@ export class SwarmJitoFlushCommand {
   }
 
   async execute(): Promise<void> {
-    const selectedWallets = this.wallets.filter(wallet => wallet.selected);
+    const selectedWallets = this.wallets.filter((wallet) => wallet.selected);
 
     if (selectedWallets.length === 0) {
       throw new Error('No wallets selected');
     }
 
     const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
     });
 
     let maxCurrentPriorityUnitPrice = 0;
@@ -79,6 +78,11 @@ export class SwarmJitoFlushCommand {
 
     for (const wallet of selectedWallets) {
       const sellAmount = await this.calculateSellAmount(wallet);
+
+      if (sellAmount <= 0) {
+        continue;
+      }
+
       sellParametersArray.push({
         seller: wallet.keypair,
         mint: new PublicKey(this.tokenMint),
@@ -86,8 +90,8 @@ export class SwarmJitoFlushCommand {
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
-        commitment: "finalized",
-        finality: "finalized"
+        commitment: 'finalized',
+        finality: 'finalized',
       });
     }
 

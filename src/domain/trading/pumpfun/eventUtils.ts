@@ -1,10 +1,5 @@
-import { PublicKey } from "@solana/web3.js";
-import type {
-  CompleteEvent,
-  CreateEvent,
-  SetParamsEvent,
-  TradeEvent,
-} from "./types";
+import { PublicKey } from '@solana/web3.js';
+import type { CompleteEvent, CreateEvent, SetParamsEvent, TradeEvent } from './types';
 
 export function toCreateEvent(event: CreateEvent): CreateEvent {
   return {

@@ -1,21 +1,34 @@
-import type { IBroker } from "../IBroker";
-import { BN, Program, type Provider } from "@coral-xyz/anchor";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, type Commitment, type Connection } from "@solana/web3.js";
+import type { IBroker } from '../IBroker';
+import { BN, Program, type Provider } from '@coral-xyz/anchor';
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  type Commitment,
+  type Connection,
+} from '@solana/web3.js';
 import { JitoJsonRpcClient } from 'jito-js-rpc';
-import { IDL, type PumpFun } from "./idl";
+import { IDL, type PumpFun } from './idl';
 import {
   calculateWithSlippageBuy,
   calculateWithSlippageSell,
   getBondingCurveAccount,
   getBondingCurvePDA,
   getGlobalAccount,
-  sendTransaction
-} from "./utils";
-import type { IBuyParameters } from "../IBuyParameters";
-import { createAssociatedTokenAccountInstruction, getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
-import type { ISellParameters } from "../ISellParameters";
-import type { PumpFunSellParameters } from "./SellParameters";
-import { DEFAULT_COMMITMENT } from "@/domain/infrastructure/consts";
+  sendTransaction,
+} from './utils';
+import type { IBuyParameters } from '../IBuyParameters';
+import {
+  createAssociatedTokenAccountInstruction,
+  getAccount,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
+import type { ISellParameters } from '../ISellParameters';
+import type { PumpFunSellParameters } from './SellParameters';
+import { DEFAULT_COMMITMENT } from '@/domain/infrastructure/consts';
+import type { BondingCurveAccount } from './BondingCurveAccount';
 
 /* eslint-disable */
 export class PumpFunBroker implements IBroker {
@@ -29,11 +42,11 @@ export class PumpFunBroker implements IBroker {
   }
 
   withdraw(amount: number, token: string, to: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   transfer(amount: number, from: string, to: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
@@ -49,10 +62,11 @@ export class PumpFunBroker implements IBroker {
 
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice > buyParameters.maxCurrentPriorityFee
-        ? buyParameters.maxCurrentPriorityFee
-        : estimatedUnitPrice,
-    }
+      unitPrice:
+        estimatedUnitPrice > buyParameters.maxCurrentPriorityFee
+          ? buyParameters.maxCurrentPriorityFee
+          : estimatedUnitPrice,
+    };
 
     console.log(priorityFees);
 
@@ -67,11 +81,9 @@ export class PumpFunBroker implements IBroker {
     );
   }
 
-  private async createBuyTransaction(
+  private async getBuyAccounts(
     buyer: Keypair,
     tokenMint: string,
-    amountInSol: number,
-    slippageBasisPoints: number,
     commitment: Commitment
   ) {
     const mint = new PublicKey(tokenMint);
@@ -79,10 +91,7 @@ export class PumpFunBroker implements IBroker {
     // Get bonding curve account
     const bondingCurvePDA = getBondingCurvePDA(mint, this.program.programId);
 
-    const bondingAccount = await getBondingCurveAccount(
-      this.connection,
-      mint,
-      commitment);
+    const bondingAccount = await getBondingCurveAccount(this.connection, mint, commitment);
 
     if (!bondingAccount) {
       throw new Error(`Bonding curve account not found: ${mint.toBase58()}`);
@@ -90,30 +99,12 @@ export class PumpFunBroker implements IBroker {
 
     const globalAccount = await getGlobalAccount(this.connection, commitment);
 
-    const amountInLamports = BigInt(amountInSol * LAMPORTS_PER_SOL);
-
-    // Calculate buy amount
-    const buyAmount = bondingAccount.getBuyPrice(amountInLamports);
-
-    const buyAmountWithSlippage = calculateWithSlippageBuy(
-      BigInt(amountInLamports),
-      BigInt(slippageBasisPoints)
-    );
-
     // Get the associated token accounts
-    const associatedBondingCurve = await getAssociatedTokenAddress(
-      mint,
-      bondingCurvePDA,
-      true
-    );
+    const associatedBondingCurve = await getAssociatedTokenAddress(mint, bondingCurvePDA, true);
 
-    const associatedUser = await getAssociatedTokenAddress(
-      mint,
-      buyer.publicKey,
-      false
-    );
+    const associatedUser = await getAssociatedTokenAddress(mint, buyer.publicKey, false);
 
-    // Get bonding curve account info to extract creator 
+    // Get bonding curve account info to extract creator
     const bondingAccountInfo = await this.connection.getAccountInfo(bondingCurvePDA, commitment);
 
     if (!bondingAccountInfo) {
@@ -127,9 +118,55 @@ export class PumpFunBroker implements IBroker {
 
     // Get the creator vault PDA
     const [creatorVaultPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("creator-vault"), creator.toBuffer()],
+      [Buffer.from('creator-vault'), creator.toBuffer()],
       this.program.programId
     );
+
+    return {
+      mint,
+      creatorVaultPda,
+      associatedUser,
+      associatedBondingCurve,
+      globalAccount,
+      bondingAccount,
+    };
+  }
+
+  private calculateBuyAmount(
+    amountInSol: number,
+    bondingAccount: BondingCurveAccount,
+    slippageBasisPoints: number
+  ) {
+    const amountInLamports = BigInt(amountInSol * LAMPORTS_PER_SOL);
+
+    const buyAmount = bondingAccount.getBuyPrice(amountInLamports);
+
+    const buyAmountWithSlippage = calculateWithSlippageBuy(
+      BigInt(amountInLamports),
+      BigInt(slippageBasisPoints)
+    );
+
+    return {
+      buyAmount,
+      buyAmountWithSlippage,
+    }
+  }
+
+  private async createBuyTransaction(
+    buyer: Keypair,
+    tokenMint: string,
+    amountInSol: number,
+    slippageBasisPoints: number,
+    commitment: Commitment
+  ) {
+    const {
+      mint,
+      creatorVaultPda,
+      associatedUser,
+      associatedBondingCurve,
+      globalAccount,
+      bondingAccount,
+    } = await this.getBuyAccounts(buyer, tokenMint, commitment);
 
     // Create a new transaction
     const transaction = new Transaction();
@@ -150,19 +187,15 @@ export class PumpFunBroker implements IBroker {
       );
     }
 
-    // Create buy instruction data
-    const amountData = Buffer.alloc(8);
-    amountData.writeBigUInt64LE(BigInt(buyAmount.toString()), 0);
-
-    const slippageData = Buffer.alloc(8);
-    slippageData.writeBigUInt64LE(BigInt(buyAmountWithSlippage.toString()), 0);
+    const { buyAmount, buyAmountWithSlippage } = this.calculateBuyAmount(
+      amountInSol,
+      bondingAccount,
+      slippageBasisPoints
+    );
 
     // Create sell instruction using IDL
     const ix = await this.program.methods
-      .buy(
-        new BN(buyAmount),
-        new BN(buyAmountWithSlippage)
-      )
+      .buy(new BN(buyAmount), new BN(buyAmountWithSlippage))
       .accounts({
         feeRecipient: globalAccount.feeRecipient,
         mint: mint,
@@ -174,6 +207,7 @@ export class PumpFunBroker implements IBroker {
       .instruction();
 
     transaction.add(ix);
+
     return transaction;
   }
 
@@ -183,12 +217,13 @@ export class PumpFunBroker implements IBroker {
       'finalized',
       sellParameters.sellTokenAmount,
       sellParameters.slippageBasisPoints,
-      sellParameters.seller);
+      sellParameters.seller
+    );
 
     const priorityFees = {
       unitLimit: 1_000_000,
       unitPrice: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
-    }
+    };
 
     return await sendTransaction(
       this.connection,
@@ -201,34 +236,34 @@ export class PumpFunBroker implements IBroker {
   }
 
   getBalance(address: string): Promise<number> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   getPrice(symbol: string): Promise<number> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   getTokenBalance(address: string, token: string): Promise<number> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
-  swap(fromToken: string, toToken: string, fromAmount: number, toAmount: number, walletAddress: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  swap(
+    fromToken: string,
+    toToken: string,
+    fromAmount: number,
+    toAmount: number,
+    walletAddress: string
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
-  // private methods
-  async createSellTransaction(
+  private async getSellAccounts(
+    seller: Keypair,
     mint: PublicKey,
-    commitment: Commitment = DEFAULT_COMMITMENT,
-    sellTokenAmount: bigint,
-    slippageBasisPoints: bigint,
-    seller: Keypair
+    commitment: Commitment = DEFAULT_COMMITMENT
   ) {
     const bondingCurvePDA = getBondingCurvePDA(mint, this.program.programId);
 
-    const bondingAccount = await getBondingCurveAccount(
-      this.connection,
-      mint,
-      commitment);
+    const bondingAccount = await getBondingCurveAccount(this.connection, mint, commitment);
 
     if (!bondingAccount) {
       throw new Error(`Bonding curve account not found: ${mint.toBase58()}`);
@@ -236,33 +271,11 @@ export class PumpFunBroker implements IBroker {
 
     const globalAccount = await getGlobalAccount(this.connection, commitment);
 
-    const minSolOutput = bondingAccount.getSellPrice(
-      sellTokenAmount,
-      globalAccount.feeBasisPoints
-    );
-
-    let sellAmountWithSlippage = calculateWithSlippageSell(
-      minSolOutput,
-      slippageBasisPoints
-    );
-
-    if (sellAmountWithSlippage < 1n) {
-      sellAmountWithSlippage = 1n;
-    }
-
-    const associatedBondingCurve = await getAssociatedTokenAddress(
-      mint,
-      bondingCurvePDA,
-      true
-    );
+    const associatedBondingCurve = await getAssociatedTokenAddress(mint, bondingCurvePDA, true);
 
     const sellerPublicKey = seller.publicKey;
 
-    const associatedUser = await getAssociatedTokenAddress(
-      mint,
-      sellerPublicKey,
-      false
-    );
+    const associatedUser = await getAssociatedTokenAddress(mint, sellerPublicKey, false);
 
     const bondingAccountInfo = await this.connection.getAccountInfo(bondingCurvePDA, commitment);
 
@@ -275,23 +288,53 @@ export class PumpFunBroker implements IBroker {
     const creator = new PublicKey(creatorBytes);
 
     const [creatorVaultPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("creator-vault"), creator.toBuffer()],
+      [Buffer.from('creator-vault'), creator.toBuffer()],
       this.program.programId
     );
+
+    return {
+      creatorVaultPda,
+      associatedUser,
+      associatedBondingCurve,
+      globalAccount,
+      bondingAccount,
+    };
+  }
+
+  // private methods
+  async createSellTransaction(
+    mint: PublicKey,
+    commitment: Commitment = DEFAULT_COMMITMENT,
+    sellTokenAmount: bigint,
+    slippageBasisPoints: bigint,
+    seller: Keypair
+  ) {
+    const {
+      creatorVaultPda,
+      associatedUser,
+      associatedBondingCurve,
+      globalAccount,
+      bondingAccount,
+    } = await this.getSellAccounts(seller, mint, commitment);
+
+    const minSolOutput = bondingAccount.getSellPrice(sellTokenAmount, globalAccount.feeBasisPoints);
+
+    let sellAmountWithSlippage = calculateWithSlippageSell(minSolOutput, slippageBasisPoints);
+
+    if (sellAmountWithSlippage < 1n) {
+      sellAmountWithSlippage = 1n;
+    }
 
     const transaction = new Transaction();
 
     const ix = await this.program.methods
-      .sell(
-        new BN(sellTokenAmount),
-        new BN(sellAmountWithSlippage)
-      )
+      .sell(new BN(sellTokenAmount), new BN(sellAmountWithSlippage))
       .accounts({
         feeRecipient: globalAccount.feeRecipient,
         mint: mint,
         associatedBondingCurve: associatedBondingCurve,
         associatedUser: associatedUser,
-        user: sellerPublicKey,
+        user: seller.publicKey,
         creatorVault: creatorVaultPda,
       } as any)
       .instruction();
@@ -301,18 +344,26 @@ export class PumpFunBroker implements IBroker {
     return transaction;
   }
 
-  async jitoSell(sellParameters: ISellParameters[], jitoTipAmount: number, jitoUrl: string): Promise<string | null> {
+  async jitoSell(
+    sellParameters: ISellParameters[],
+    jitoTipAmount: number,
+    jitoUrl: string
+  ): Promise<string | null> {
     const jitoClient = new JitoJsonRpcClient(jitoUrl);
+
     const randomTipAccount = await jitoClient.getRandomTipAccount();
+
     if (!randomTipAccount) {
       throw new Error('No tip accounts available');
     }
 
     const jitoTipAccount = new PublicKey(randomTipAccount);
+
     const transactions: string[] = [];
 
     for (const params of sellParameters) {
       const parameters = params as PumpFunSellParameters;
+
       const transaction = await this.createSellTransaction(
         parameters.mint,
         parameters.commitment,
@@ -331,17 +382,23 @@ export class PumpFunBroker implements IBroker {
       );
 
       const { blockhash } = await this.connection.getLatestBlockhash();
+
       transaction.recentBlockhash = blockhash;
+
       transaction.feePayer = parameters.seller.publicKey;
+
       transaction.sign(parameters.seller);
 
       const serializedTransaction = transaction.serialize({ verifySignatures: false });
+
       const base64EncodedTransaction = Buffer.from(serializedTransaction).toString('base64');
+
       transactions.push(base64EncodedTransaction);
     }
 
     try {
       const result = await jitoClient.sendBundle([transactions, { encoding: 'base64' }]);
+
       const bundleId = result.result;
       if (!bundleId) {
         throw new Error('Failed to get bundle ID from response');
@@ -357,7 +414,10 @@ export class PumpFunBroker implements IBroker {
           throw new Error(`Bundle failed with status: ${inflightStatus.status}`);
         }
       } else if ('confirmation_status' in inflightStatus) {
-        if (inflightStatus.confirmation_status === 'confirmed' || inflightStatus.confirmation_status === 'finalized') {
+        if (
+          inflightStatus.confirmation_status === 'confirmed' ||
+          inflightStatus.confirmation_status === 'finalized'
+        ) {
           return bundleId;
         } else if (inflightStatus.err) {
           throw new Error(`Bundle processing failed: ${JSON.stringify(inflightStatus.err)}`);
@@ -367,13 +427,20 @@ export class PumpFunBroker implements IBroker {
       throw new Error(`Unexpected inflight bundle status: ${JSON.stringify(inflightStatus)}`);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        if ('response' in error && typeof error.response === 'object' && error.response && 'data' in error.response) {
-          throw new Error(`Error sending or confirming bundle: ${error.message}. Server response: ${JSON.stringify(error.response.data)}`);
+        if (
+          'response' in error &&
+          typeof error.response === 'object' &&
+          error.response &&
+          'data' in error.response
+        ) {
+          throw new Error(
+            `Error sending or confirming bundle: ${error.message}. Server response: ${JSON.stringify(error.response.data)}`
+          );
         } else {
           throw new Error(`Error sending or confirming bundle: ${error.message}`);
         }
       }
-      throw new Error('An unknown error occurred while sending or confirming bundle')
+      throw new Error('An unknown error occurred while sending or confirming bundle');
     }
   }
 }

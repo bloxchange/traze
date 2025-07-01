@@ -3,9 +3,8 @@ import type { IBroker } from '../trading/IBroker';
 import type { IBuyParameters } from '../trading/IBuyParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
-//import { Wallet } from '@coral-xyz/anchor/dist/cjs';
 import NodeWallet from '../infrastructure/NodeWallet';
 
 export class SwarmBuyCommand {
@@ -43,7 +42,8 @@ export class SwarmBuyCommand {
       new NodeWallet(this.wallets[0].keypair),
       {
         commitment: 'confirmed',
-      });
+      }
+    );
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
 
@@ -54,25 +54,32 @@ export class SwarmBuyCommand {
     this.broker = broker;
   }
 
-  private getRandomAmount(): number {
+  private async getRandomAmount(wallet: PublicKey, priorityFeeInSol: number): Promise<number> {
     const randomIndex = Math.floor(Math.random() * this.buyAmounts.length);
 
-    return parseFloat(this.buyAmounts[randomIndex]);
+    const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
+
+    const balance = (await this.connection.getBalance(wallet, 'confirmed'))
+      / LAMPORTS_PER_SOL;
+
+    const availableBalance = balance - priorityFeeInSol;
+
+    return availableBalance > estimatedAmount ? estimatedAmount : availableBalance;
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async execute(): Promise<void> {
-    const selectedWallets = this.wallets.filter(wallet => wallet.selected);
+    const selectedWallets = this.wallets.filter((wallet) => wallet.selected);
 
     if (selectedWallets.length === 0) {
       throw new Error('No wallets selected');
     }
 
     const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
     });
 
     let maxCurrentPriorityUnitPrice = 0;
@@ -84,13 +91,19 @@ export class SwarmBuyCommand {
     });
 
     for (const wallet of selectedWallets) {
+      const amountInSol = await this.getRandomAmount(wallet.keypair.publicKey, this.priorityFeeInSol);
+
+      if (amountInSol <= 0) {
+        continue;
+      }
+
       const buyParameters: IBuyParameters = {
         buyer: wallet.keypair,
         tokenMint: this.tokenMint,
-        amountInSol: this.getRandomAmount(),
+        amountInSol: amountInSol,
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
-        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice
+        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
       await this.broker.buy(buyParameters);

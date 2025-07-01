@@ -12,12 +12,7 @@ interface FeedSwarmModalProps {
   wallets: WalletInfo[];
 }
 
-const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
-  open,
-  onCancel,
-  onSubmit,
-  wallets,
-}) => {
+const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmit, wallets }) => {
   const { t } = useTranslation();
   const { configuration } = useConfiguration();
   const [form] = Form.useForm();
@@ -32,7 +27,8 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
         values.sourceWallet,
         values.amount,
         wallets,
-        configuration.rpcUrl);
+        configuration.rpcUrl
+      );
       await feedCommand.execute();
       message.success(t('swarm.feedModal.success'));
 

@@ -5,29 +5,27 @@ import type { CreateSwarmModalProps } from '@/models';
 
 const { TextArea } = Input;
 
-const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
-  open,
-  onCancel,
-  onSubmit
-}) => {
+const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onSubmit }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleSubmit = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values) => {
       const privateKeys = values.privateKeys
         ? values.privateKeys
-          .split('\n')
-          .map((key: string) => key.trim())
-          .filter((key: string) => key.length > 0)
+            .split('\n')
+            .map((key: string) => key.trim())
+            .filter((key: string) => key.length > 0)
         : [];
       const generateCount = values.generateCount || 0;
 
       if (privateKeys.length === 0 && generateCount === 0) {
-        form.setFields([{
-          name: 'generateCount',
-          errors: [t('swarm.createModal.atLeastOneRequired')]
-        }]);
+        form.setFields([
+          {
+            name: 'generateCount',
+            errors: [t('swarm.createModal.atLeastOneRequired')],
+          },
+        ]);
         return;
       }
 
@@ -44,19 +42,9 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
       onOk={handleSubmit}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={{ generateCount: 0 }}
-      >
-        <Form.Item
-          name="privateKeys"
-          label={t('swarm.createModal.privateKeys')}
-        >
-          <TextArea
-            rows={4}
-            placeholder={t('swarm.createModal.privateKeysPlaceholder')}
-          />
+      <Form form={form} layout="vertical" initialValues={{ generateCount: 0 }}>
+        <Form.Item name="privateKeys" label={t('swarm.createModal.privateKeys')}>
+          <TextArea rows={4} placeholder={t('swarm.createModal.privateKeysPlaceholder')} />
         </Form.Item>
 
         <Form.Item

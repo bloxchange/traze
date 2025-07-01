@@ -14,7 +14,6 @@ interface SwarmConfigProps {
 }
 
 const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig }) => {
-
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
@@ -28,7 +27,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
   };
 
   const handleAmountSave = () => {
-    const amounts = amountInput.split(',').map(amount => amount.trim());
+    const amounts = amountInput.split(',').map((amount) => amount.trim());
     setAvailableBuyAmounts(amounts);
     form.setFieldsValue({ buyAmounts: [] });
     setIsAmountModalVisible(false);
@@ -52,14 +51,14 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
           className="swarm-config-tabs"
           tabBarStyle={{
             display: 'flex',
-            width: '100%'
+            width: '100%',
           }}
           tabBarGutter={0}
           items={[
             {
               key: 'general',
               label: t('swarm.generalTab'),
-              children: <GeneralSection />
+              children: <GeneralSection />,
             },
             {
               key: 'buy',
@@ -69,17 +68,13 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
                   availableAmounts={availableBuyAmounts}
                   onAmountEdit={handleAmountEdit}
                 />
-              )
+              ),
             },
             {
               key: 'sell',
               label: t('swarm.sellTab'),
-              children: (
-                <SellSection
-                  availablePercentages={availableSellPercentages}
-                />
-              )
-            }
+              children: <SellSection availablePercentages={availableSellPercentages} />,
+            },
           ]}
         />
       </Form>
@@ -96,7 +91,6 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
           placeholder={t('swarm.enterAmountsSeparatedByCommas')}
         />
       </Modal>
-
     </Card>
   );
 };

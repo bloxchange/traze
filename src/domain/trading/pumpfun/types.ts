@@ -1,4 +1,4 @@
-import { PublicKey, type VersionedTransactionResponse } from "@solana/web3.js";
+import { PublicKey, type VersionedTransactionResponse } from '@solana/web3.js';
 
 export type CreateTokenMetadata = {
   name: string;

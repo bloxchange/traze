@@ -47,7 +47,7 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
         SystemProgram.transfer({
           fromPubkey: window.solana.publicKey,
           toPubkey: new PublicKey(TIP_WALLET),
-          lamports: tipAmount * LAMPORTS_PER_SOL
+          lamports: tipAmount * LAMPORTS_PER_SOL,
         })
       );
 
@@ -74,14 +74,9 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
         <Button key="cancel" onClick={onCancel}>
           {t('common.cancel')}
         </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={handleSubmit}
-        >
+        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
           {t('tip.send')}
-        </Button>
+        </Button>,
       ]}
     >
       <Input

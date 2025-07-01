@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Space, Input, Button, Tooltip, theme, Popconfirm, Modal } from 'antd';
-import { ClearOutlined, PlusCircleOutlined, SettingOutlined, UnorderedListOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  ClearOutlined,
+  PlusCircleOutlined,
+  SettingOutlined,
+  UnorderedListOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +33,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   onConfig,
   onShowList,
   showConfig,
-  walletCount
+  walletCount,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -62,15 +68,12 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         borderBottomColor: token.colorBorder,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+        justifyContent: 'center',
+      }}
+    >
       <Space>
         <Tooltip title={t('swarm.editName')}>
-          <Button
-            icon={<EditOutlined />}
-            onClick={showModal}
-            type="text"
-          />
+          <Button icon={<EditOutlined />} onClick={showModal} type="text" />
         </Tooltip>
         <Tooltip title={t('swarm.feed')}>
           <Button
@@ -88,11 +91,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         </Tooltip>
         <Tooltip title={walletCount === 0 ? t('swarm.createWallets') : t('common.clear')}>
           {walletCount === 0 ? (
-            <Button
-              icon={<PlusCircleOutlined />}
-              onClick={onClear}
-              type="text"
-            />
+            <Button icon={<PlusCircleOutlined />} onClick={onClear} type="text" />
           ) : (
             <Popconfirm
               title={t('swarm.clearConfirmTitle')}
@@ -101,29 +100,17 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
               cancelText={t('common.cancel')}
               onConfirm={onClear}
             >
-              <Button
-                icon={<ClearOutlined />}
-                type="text"
-                danger
-              />
+              <Button icon={<ClearOutlined />} type="text" danger />
             </Popconfirm>
           )}
         </Tooltip>
         {showConfig ? (
           <Tooltip title={t('swarm.showList')}>
-            <Button
-              icon={<UnorderedListOutlined />}
-              onClick={onShowList}
-              type="text"
-            />
+            <Button icon={<UnorderedListOutlined />} onClick={onShowList} type="text" />
           </Tooltip>
         ) : (
           <Tooltip title={t('settings.configuration')}>
-            <Button
-              icon={<SettingOutlined />}
-              onClick={onConfig}
-              type="text"
-            />
+            <Button icon={<SettingOutlined />} onClick={onConfig} type="text" />
           </Tooltip>
         )}
       </Space>
@@ -147,7 +134,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         />
       </Modal>
     </div>
-  )
+  );
 };
 
 export default SwarmHeader;

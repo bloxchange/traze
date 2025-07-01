@@ -6,7 +6,7 @@ import {
   Connection,
   TransactionMessage,
   VersionedTransaction,
-  type TransactionConfirmationStrategy
+  type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
 
 export class FeedSwarmCommand {
@@ -55,14 +55,14 @@ export class FeedSwarmCommand {
       SystemProgram.transfer({
         fromPubkey: window.solana.publicKey,
         toPubkey: this.wallets[0].keypair.publicKey,
-        lamports: totalAmount
+        lamports: totalAmount,
       })
     );
 
     await window.solana.signAndSendTransaction(transaction);
 
     // Wait for transaction to settle
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Then distribute from first wallet to others
     const sender = this.wallets[0];
@@ -71,15 +71,16 @@ export class FeedSwarmCommand {
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
       recentBlockhash: blockhash,
-      instructions: remainingWallets.map(wallet =>
+      instructions: remainingWallets.map((wallet) =>
         SystemProgram.transfer({
           fromPubkey: sender!.keypair.publicKey,
           toPubkey: wallet.keypair.publicKey,
-          lamports: amountPerWallet
-        }))
+          lamports: amountPerWallet,
+        })
+      ),
     }).compileToV0Message();
 
-    const tx = new VersionedTransaction(txMessage)
+    const tx = new VersionedTransaction(txMessage);
 
     tx.sign([sender!.keypair]);
 
@@ -96,7 +97,9 @@ export class FeedSwarmCommand {
 
   private async executeSwarmTransfer(): Promise<void> {
     const sender = this.wallets.find((wallet) => wallet.publicKey === this.sourceWallet);
-    const remainingWallets = this.wallets.filter((wallet) => wallet.publicKey !== this.sourceWallet);
+    const remainingWallets = this.wallets.filter(
+      (wallet) => wallet.publicKey !== this.sourceWallet
+    );
     const amountPerWallet = (this.amount * LAMPORTS_PER_SOL) / remainingWallets.length;
 
     const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
@@ -104,15 +107,16 @@ export class FeedSwarmCommand {
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
       recentBlockhash: blockhash,
-      instructions: remainingWallets.map(wallet =>
+      instructions: remainingWallets.map((wallet) =>
         SystemProgram.transfer({
           fromPubkey: sender!.keypair.publicKey,
           toPubkey: wallet.keypair.publicKey,
-          lamports: amountPerWallet
-        }))
+          lamports: amountPerWallet,
+        })
+      ),
     }).compileToV0Message();
 
-    const tx = new VersionedTransaction(txMessage)
+    const tx = new VersionedTransaction(txMessage);
 
     tx.sign([sender!.keypair]);
 

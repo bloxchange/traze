@@ -39,10 +39,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          name="balanceUpdateMode"
-          label={t('settings.balanceUpdateMode')}
-        >
+        <Form.Item name="balanceUpdateMode" label={t('settings.balanceUpdateMode')}>
           <Radio.Group>
             <Radio value="rpc">{t('settings.balanceUpdateModeRpc')}</Radio>
             <Radio value="calculate">{t('settings.balanceUpdateModeCalculate')}</Radio>

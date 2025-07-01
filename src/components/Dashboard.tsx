@@ -42,7 +42,7 @@ const createDefaultLayout = (t: (key: string) => string) => ({
             component: 'swarm',
             config: {
               name: t('common.untitled'),
-              wallets: []
+              wallets: [],
             },
           },
         ],

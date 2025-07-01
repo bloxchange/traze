@@ -16,10 +16,7 @@ import { useConfiguration, useToken } from '@/hooks';
 import { SwarmJitoFlushCommand } from '@/domain/commands/SwarmJitoFlushCommand';
 import { SwarmFlushCommand } from '@/domain/commands/SwarmFlushCommand';
 
-const Swarm: React.FC<SwarmProps> = ({
-  name: initialName,
-  wallets = [],
-  onNameChange }) => {
+const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameChange }) => {
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);
 
@@ -33,7 +30,7 @@ const Swarm: React.FC<SwarmProps> = ({
     slippageBasisPoints: 4900,
     priorityFee: 0.0001,
     jitoTipAmount: 0.0001,
-    useJitoBundle: false
+    useJitoBundle: false,
   });
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
@@ -43,8 +40,8 @@ const Swarm: React.FC<SwarmProps> = ({
   };
 
   const handleFeedSubmit = (_: string, amount: number) => {
-    // TODO: Implement actual feed logic here
     message.success(t('swarm.feedSuccess', { amount }));
+
     setIsFeedModalOpen(false);
   };
 
@@ -56,6 +53,7 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const handleReturnSubmit = (targetWallet: string) => {
     message.success(t('swarm.returnSuccess', { targetWallet }));
+
     setIsReturnModalOpen(false);
   };
 
@@ -64,6 +62,7 @@ const Swarm: React.FC<SwarmProps> = ({
       setIsCreateModalOpen(true);
     } else {
       setWalletList([]);
+
       message.success(t('Wallets cleared successfully'));
     }
   };
@@ -71,31 +70,42 @@ const Swarm: React.FC<SwarmProps> = ({
   const handleCreateModalSubmit = (privateKeys: string[], generateCount: number) => {
     try {
       const createCommand = new CreateSwarmCommand(privateKeys, generateCount);
+
       const newWallets = createCommand.execute();
 
       // Download wallet information if wallets were generated
       if (generateCount > 0) {
-        const publicKeysString = newWallets
-          .map(wallet => wallet.publicKey)
-          .join('\n');
+        const publicKeysString = newWallets.map((wallet) => wallet.publicKey).join('\n');
+
         const privateKeysString = newWallets
-          .map(wallet => bs58.encode(wallet.keypair.secretKey))
+          .map((wallet) => bs58.encode(wallet.keypair.secretKey))
           .join('\n');
 
         const content = `Public Keys:\n${publicKeysString}\n\nPrivate Keys:\n${privateKeysString}`;
+
         const blob = new Blob([content], { type: 'text/plain' });
+
         const url = URL.createObjectURL(blob);
+
         const a = document.createElement('a');
+
         a.href = url;
+
         a.download = `wallets_${name}.txt`;
+
         document.body.appendChild(a);
+
         a.click();
+
         document.body.removeChild(a);
+
         URL.revokeObjectURL(url);
       }
 
       setWalletList(newWallets);
+
       setIsCreateModalOpen(false);
+
       message.success(t('swarm.walletsCreatedSuccess'));
     } catch {
       message.error(t('swarm.createModal.invalidPrivateKey'));
@@ -103,17 +113,15 @@ const Swarm: React.FC<SwarmProps> = ({
   };
 
   const handleWalletSelection = (publicKey: string, checked: boolean) => {
-    setWalletList(prevList =>
-      prevList.map(wallet =>
+    setWalletList((prevList) =>
+      prevList.map((wallet) =>
         wallet.publicKey === publicKey ? { ...wallet, selected: checked } : wallet
       )
     );
   };
 
   const handleSelectAll = (checked: boolean) => {
-    setWalletList(prevList =>
-      prevList.map(wallet => ({ ...wallet, selected: checked }))
-    );
+    setWalletList((prevList) => prevList.map((wallet) => ({ ...wallet, selected: checked })));
   };
 
   const handleNameChange = (newName: string) => {
@@ -123,16 +131,19 @@ const Swarm: React.FC<SwarmProps> = ({
   };
 
   const { configuration } = useConfiguration();
+
   const { tokenState } = useToken();
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
       message.error(t('swarm.noTokenSelected'));
+
       return;
     }
 
     if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
+
       return;
     }
 
@@ -148,9 +159,11 @@ const Swarm: React.FC<SwarmProps> = ({
       );
 
       await buyCommand.execute();
+
       message.success(t('swarm.buySuccess'));
     } catch (error) {
       message.error(t('swarm.buyError'));
+
       console.error('Buy error:', error);
     }
   };
@@ -158,11 +171,13 @@ const Swarm: React.FC<SwarmProps> = ({
   const handleSell = async () => {
     if (!tokenState.currentToken) {
       message.error(t('swarm.noTokenSelected'));
+
       return;
     }
 
     if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
+
       return;
     }
 
@@ -178,9 +193,11 @@ const Swarm: React.FC<SwarmProps> = ({
       );
 
       await sellCommand.execute();
+
       message.success(t('swarm.sellSuccess'));
     } catch (error) {
       message.error(t('swarm.sellError'));
+
       console.error('Sell error:', error);
     }
   };
@@ -201,6 +218,7 @@ const Swarm: React.FC<SwarmProps> = ({
           swarmConfig.priorityFee,
           configuration
         );
+
         await command.execute();
       } else {
         const command = new SwarmFlushCommand(
@@ -210,11 +228,13 @@ const Swarm: React.FC<SwarmProps> = ({
           swarmConfig.priorityFee,
           configuration
         );
+
         await command.execute();
       }
       message.success(t('swarm.flushSuccess'));
     } catch (error) {
       message.error(t('swarm.flushError'));
+
       console.error('Flush error:', error);
     }
   };
@@ -227,10 +247,10 @@ const Swarm: React.FC<SwarmProps> = ({
           height: '100%',
           padding: '0 6px 6px 6px',
           display: 'flex',
-          flexDirection: 'column'
-        }
+          flexDirection: 'column',
+        },
       }}
-      variant='borderless'
+      variant="borderless"
     >
       <SwarmHeader
         name={name}
@@ -251,11 +271,7 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig={swarmConfig}
         onConfigChange={setSwarmConfig}
       />
-      <SwarmFooter
-        onBuy={handleBuy}
-        onSell={handleSell}
-        onFlush={handleFlush}
-      />
+      <SwarmFooter onBuy={handleBuy} onSell={handleSell} onFlush={handleFlush} />
       <CreateSwarmModal
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}

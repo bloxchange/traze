@@ -2,16 +2,10 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import type { TokenInformation } from '../../models/token';
 import { getAsset } from '../rpc';
 import { TokenInformationCache } from '../infrastructure/TokenInformationCache';
-import {
-  fetchDigitalAsset,
-  mplTokenMetadata
-} from '@metaplex-foundation/mpl-token-metadata';
+import { fetchDigitalAsset, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { publicKey as metaplexPublicKey } from '@metaplex-foundation/umi';
-import {
-  getTokenMetadata,
-  TOKEN_2022_PROGRAM_ID
-} from '@solana/spl-token';
+import { getTokenMetadata, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 
 export class GetTokenInformationCommand {
   private tokenMint: string;
@@ -79,22 +73,23 @@ export class GetTokenInformationCommand {
       return null;
     }
 
-    if (asset.result!.mint_extensions) {
-      const tokenInfo = {
+    if (asset.result?.mint_extensions) {
+      const tokenInfo: TokenInformation = {
         mint: this.tokenMint,
-        name: asset.result!.content.metadata.name,
-        symbol: asset.result!.content.metadata.symbol,
-        decimals: asset.result!.token_info.decimals,
-        totalSupply: asset.result!.token_info.supply,
+        name: asset.result.content?.metadata.name ?? 'Unknown',
+        symbol: asset.result.content?.metadata.symbol ?? 'UNK',
+        decimals: asset.result.token_info.decimals,
+        totalSupply: Number(asset.result.token_info.supply),
         icon: '',
-        externalUrl: ''
+        externalUrl: '',
       };
 
       const meta2022 = await getTokenMetadata(
         this.connection,
         new PublicKey(this.tokenMint),
         'confirmed',
-        TOKEN_2022_PROGRAM_ID);
+        TOKEN_2022_PROGRAM_ID
+      );
 
       if (meta2022?.uri) {
         const metaJson = await this.extractJsonUri(meta2022?.uri);
@@ -106,22 +101,22 @@ export class GetTokenInformationCommand {
       return tokenInfo;
     }
 
-    if (!asset.result!.content) {
+    if (!asset.result?.content) {
       return null;
     }
 
-    const jsonUri = asset.result!.content.json_uri;
+    const jsonUri = asset.result.content.json_uri;
 
     const tokenMetadata = await this.extractJsonUri(jsonUri);
 
-    const tokenInfo = {
+    const tokenInfo: TokenInformation = {
       mint: this.tokenMint,
-      name: asset.result!.content.metadata.name,
-      symbol: asset.result!.content.metadata.symbol,
-      decimals: asset.result!.token_info.decimals,
-      totalSupply: asset.result!.token_info.supply,
+      name: asset.result.content.metadata.name,
+      symbol: asset.result.content.metadata.symbol,
+      decimals: asset.result.token_info.decimals,
+      totalSupply: Number(asset.result.token_info.supply),
       icon: tokenMetadata.image || '',
-      externalUrl: tokenMetadata.external_url || ''
+      externalUrl: tokenMetadata.external_url || '',
     };
 
     return tokenInfo;
@@ -146,8 +141,7 @@ export class GetTokenInformationCommand {
   }
 
   private async getByMetaplex(): Promise<TokenInformation | null> {
-    const umi = createUmi(this.connection.rpcEndpoint)
-      .use(mplTokenMetadata());
+    const umi = createUmi(this.connection.rpcEndpoint).use(mplTokenMetadata());
 
     try {
       const dAsset = await fetchDigitalAsset(umi, metaplexPublicKey(this.tokenMint));
@@ -175,7 +169,7 @@ export class GetTokenInformationCommand {
         totalSupply: Number(dAsset.mint.supply),
         icon: imageUrl,
         externalUrl: externalUrl,
-      }
+      };
     } catch {
       return null;
     }
