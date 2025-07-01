@@ -14,6 +14,7 @@ export class SwarmSellCommand {
   private sellPercentages: string[];
   private sellDelay: number;
   private slippageBasisPoints: number;
+  private priorityFeeInSol: number;
   private broker: IBroker;
   private connection: Connection;
 
@@ -23,6 +24,7 @@ export class SwarmSellCommand {
     sellPercentages: string[],
     sellDelay: number,
     slippageBasisPoints: number,
+    priorityFeeInSol: number,
     configuration: Configuration
   ) {
     this.wallets = wallets;
@@ -30,6 +32,7 @@ export class SwarmSellCommand {
     this.sellPercentages = sellPercentages;
     this.sellDelay = sellDelay;
     this.slippageBasisPoints = slippageBasisPoints;
+    this.priorityFeeInSol = priorityFeeInSol;
 
     this.connection = new Connection(configuration.rpcUrl);
     const provider: AnchorProvider = new AnchorProvider(
@@ -70,13 +73,27 @@ export class SwarmSellCommand {
       throw new Error('No wallets selected');
     }
 
+    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
+      lockedWritableAccounts: [new PublicKey(this.tokenMint)]
+    });
+
+    let maxCurrentPriorityUnitPrice = 0;
+
+    prioritizationFees.forEach(({ prioritizationFee }) => {
+      if (prioritizationFee > maxCurrentPriorityUnitPrice) {
+        maxCurrentPriorityUnitPrice = prioritizationFee;
+      }
+    });
+
     for (const wallet of selectedWallets) {
       const sellAmount = await this.calculateSellAmount(wallet);
       const sellParameters: ISellParameters = {
         seller: wallet.keypair,
         mint: new PublicKey(this.tokenMint),
         sellTokenAmount: sellAmount,
-        slippageBasisPoints: BigInt(this.slippageBasisPoints)
+        slippageBasisPoints: BigInt(this.slippageBasisPoints),
+        priorityFeeInSol: this.priorityFeeInSol,
+        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice
       };
 
       await this.broker.sell(sellParameters);

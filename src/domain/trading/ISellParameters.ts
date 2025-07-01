@@ -5,4 +5,6 @@ export interface ISellParameters {
   mint: PublicKey;
   sellTokenAmount: bigint;
   slippageBasisPoints: bigint;
+  priorityFeeInSol: number;
+  maxCurrentPriorityFee: number;
 }

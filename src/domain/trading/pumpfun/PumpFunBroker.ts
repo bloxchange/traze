@@ -3,7 +3,6 @@ import { BN, Program, type Provider } from "@coral-xyz/anchor";
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, type Commitment, type Connection } from "@solana/web3.js";
 import { JitoJsonRpcClient } from 'jito-js-rpc';
 import { IDL, type PumpFun } from "./idl";
-import type { PumpFunBuyParameters } from "./BuyParameters";
 import {
   calculateWithSlippageBuy,
   calculateWithSlippageSell,
@@ -38,9 +37,44 @@ export class PumpFunBroker implements IBroker {
   }
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
-    const parameters = buyParameters as PumpFunBuyParameters;
+    const transaction = await this.createBuyTransaction(
+      buyParameters.buyer,
+      buyParameters.tokenMint,
+      buyParameters.amountInSol,
+      buyParameters.slippageBasisPoints,
+      'finalized'
+    );
 
-    const mint = new PublicKey(buyParameters.tokenMint);
+    const estimatedUnitPrice = buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+
+    const priorityFees = {
+      unitLimit: 1_000_000,
+      unitPrice: estimatedUnitPrice > buyParameters.maxCurrentPriorityFee
+        ? buyParameters.maxCurrentPriorityFee
+        : estimatedUnitPrice,
+    }
+
+    console.log(priorityFees);
+
+    // Send the transaction
+    return await sendTransaction(
+      this.connection,
+      transaction,
+      buyParameters.buyer.publicKey,
+      [buyParameters.buyer],
+      priorityFees,
+      'finalized'
+    );
+  }
+
+  private async createBuyTransaction(
+    buyer: Keypair,
+    tokenMint: string,
+    amountInSol: number,
+    slippageBasisPoints: number,
+    commitment: Commitment
+  ) {
+    const mint = new PublicKey(tokenMint);
 
     // Get bonding curve account
     const bondingCurvePDA = getBondingCurvePDA(mint, this.program.programId);
@@ -48,22 +82,22 @@ export class PumpFunBroker implements IBroker {
     const bondingAccount = await getBondingCurveAccount(
       this.connection,
       mint,
-      parameters.commitment);
+      commitment);
 
     if (!bondingAccount) {
       throw new Error(`Bonding curve account not found: ${mint.toBase58()}`);
     }
 
-    const globalAccount = await getGlobalAccount(this.connection, parameters.commitment);
+    const globalAccount = await getGlobalAccount(this.connection, commitment);
 
-    const amountInLamports = BigInt(parameters.amountInSol * LAMPORTS_PER_SOL);
+    const amountInLamports = BigInt(amountInSol * LAMPORTS_PER_SOL);
 
     // Calculate buy amount
     const buyAmount = bondingAccount.getBuyPrice(amountInLamports);
 
     const buyAmountWithSlippage = calculateWithSlippageBuy(
       BigInt(amountInLamports),
-      BigInt(parameters.slippageBasisPoints)
+      BigInt(slippageBasisPoints)
     );
 
     // Get the associated token accounts
@@ -75,12 +109,12 @@ export class PumpFunBroker implements IBroker {
 
     const associatedUser = await getAssociatedTokenAddress(
       mint,
-      parameters.buyer.publicKey,
+      buyer.publicKey,
       false
     );
 
     // Get bonding curve account info to extract creator 
-    const bondingAccountInfo = await this.connection.getAccountInfo(bondingCurvePDA, parameters.commitment);
+    const bondingAccountInfo = await this.connection.getAccountInfo(bondingCurvePDA, commitment);
 
     if (!bondingAccountInfo) {
       throw new Error(`Bonding account info not found: ${bondingCurvePDA.toBase58()}`);
@@ -102,15 +136,15 @@ export class PumpFunBroker implements IBroker {
 
     // Add token account creation instruction if needed
     try {
-      await getAccount(this.connection, associatedUser, parameters.commitment);
+      await getAccount(this.connection, associatedUser, commitment);
     } catch (e) {
       console.error(e);
 
       transaction.add(
         createAssociatedTokenAccountInstruction(
-          parameters.buyer.publicKey,
+          buyer.publicKey,
           associatedUser,
-          parameters.buyer.publicKey,
+          buyer.publicKey,
           mint
         )
       );
@@ -134,41 +168,35 @@ export class PumpFunBroker implements IBroker {
         mint: mint,
         associatedBondingCurve: associatedBondingCurve,
         associatedUser: associatedUser,
-        user: parameters.buyer.publicKey,
+        user: buyer.publicKey,
         creatorVault: creatorVaultPda,
       } as any)
       .instruction();
 
     transaction.add(ix);
-
-    // Send the transaction
-    return await sendTransaction(
-      this.connection,
-      transaction,
-      parameters.buyer.publicKey,
-      [parameters.buyer],
-      parameters.priorityFees,
-      parameters.commitment
-    );
+    return transaction;
   }
 
   async sell(sellParameters: ISellParameters): Promise<string | null> {
-    const parameters = sellParameters as PumpFunSellParameters;
-
     const transaction = await this.createSellTransaction(
-      parameters.mint,
-      parameters.commitment,
-      parameters.sellTokenAmount,
-      parameters.slippageBasisPoints,
-      parameters.seller);
+      sellParameters.mint,
+      'finalized',
+      sellParameters.sellTokenAmount,
+      sellParameters.slippageBasisPoints,
+      sellParameters.seller);
+
+    const priorityFees = {
+      unitLimit: 1_000_000,
+      unitPrice: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
+    }
 
     return await sendTransaction(
       this.connection,
       transaction,
-      parameters.seller.publicKey,
-      [parameters.seller],
-      parameters.priorityFees,
-      parameters.commitment
+      sellParameters.seller.publicKey,
+      [sellParameters.seller],
+      priorityFees,
+      'finalized'
     );
   }
 
@@ -307,7 +335,7 @@ export class PumpFunBroker implements IBroker {
       transaction.feePayer = parameters.seller.publicKey;
       transaction.sign(parameters.seller);
 
-      const serializedTransaction = transaction.serialize({verifySignatures: false});
+      const serializedTransaction = transaction.serialize({ verifySignatures: false });
       const base64EncodedTransaction = Buffer.from(serializedTransaction).toString('base64');
       transactions.push(base64EncodedTransaction);
     }
@@ -321,7 +349,7 @@ export class PumpFunBroker implements IBroker {
 
       // Wait for confirmation
       const inflightStatus = await jitoClient.confirmInflightBundle(bundleId, 120000); // 2 minute timeout
-      
+
       if ('status' in inflightStatus) {
         if (inflightStatus.status === 'Landed') {
           return bundleId;
@@ -335,7 +363,7 @@ export class PumpFunBroker implements IBroker {
           throw new Error(`Bundle processing failed: ${JSON.stringify(inflightStatus.err)}`);
         }
       }
-      
+
       throw new Error(`Unexpected inflight bundle status: ${JSON.stringify(inflightStatus)}`);
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -143,6 +143,7 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig.buyAmounts,
         swarmConfig.buyDelay,
         swarmConfig.slippageBasisPoints,
+        swarmConfig.priorityFee,
         configuration
       );
 
@@ -172,6 +173,7 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig.sellPercentages,
         swarmConfig.sellDelay,
         swarmConfig.slippageBasisPoints,
+        swarmConfig.priorityFee,
         configuration
       );
 
@@ -196,6 +198,7 @@ const Swarm: React.FC<SwarmProps> = ({
           tokenState.currentToken.mint,
           BigInt(swarmConfig.slippageBasisPoints),
           swarmConfig.jitoTipAmount,
+          swarmConfig.priorityFee,
           configuration
         );
         await command.execute();
@@ -204,6 +207,7 @@ const Swarm: React.FC<SwarmProps> = ({
           walletList,
           tokenState.currentToken.mint,
           BigInt(swarmConfig.slippageBasisPoints),
+          swarmConfig.priorityFee,
           configuration
         );
         await command.execute();
