@@ -3,6 +3,8 @@
     "configuration": "Cấu hình",
     "rpcUrl": "URL RPC",
     "rpcUrlRequired": "Vui lòng nhập URL RPC!",
+    "rpcWebsocketUrl": "URL RPC Websocket",
+    "rpcWebsocketUrlRequired": "Vui lòng nhập URL RPC Websocket!",
     "jitoEndpoint": "Điểm cuối Jito",
     "jitoEndpointRequired": "Vui lòng nhập điểm cuối Jito!",
     "balanceUpdateMode": "Chế độ cập nhật số dư",

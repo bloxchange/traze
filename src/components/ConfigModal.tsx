@@ -33,6 +33,13 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
           <Input />
         </Form.Item>
         <Form.Item
+          name="rpcWebsocketUrl"
+          label={t('settings.rpcWebsocketUrl')}
+          rules={[{ required: true, message: t('settings.rpcWebsocketUrlRequired') }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
           name="jitoEndpoint"
           label={t('settings.jitoEndpoint')}
           rules={[{ required: true, message: t('settings.jitoEndpointRequired') }]}

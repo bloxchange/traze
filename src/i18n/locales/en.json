@@ -3,6 +3,8 @@
     "configuration": "Configuration",
     "rpcUrl": "RPC URL",
     "rpcUrlRequired": "Please input RPC URL!",
+    "rpcWebsocketUrl": "RPC Websocket URL",
+    "rpcWebsocketUrlRequired": "Please input RPC Websocket URL!",
     "jitoEndpoint": "Jito Endpoint",
     "jitoEndpointRequired": "Please input Jito endpoint!",
     "balanceUpdateMode": "Balance Update Mode",
