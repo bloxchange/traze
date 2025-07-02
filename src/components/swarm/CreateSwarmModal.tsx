@@ -9,8 +9,9 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onS
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
       const privateKeys = values.privateKeys
         ? values.privateKeys
             .split('\n')
@@ -29,9 +30,12 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onS
         return;
       }
 
-      onSubmit(privateKeys, generateCount);
+      await onSubmit(privateKeys, generateCount);
       form.resetFields();
-    });
+    } catch (error) {
+      // Form validation error is handled by antd Form
+      console.error('Form submission error:', error);
+    }
   };
 
   return (

@@ -6,8 +6,11 @@ import {
   Connection,
   TransactionMessage,
   VersionedTransaction,
+  PublicKey,
   type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
+import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
+import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
 
 export class FeedSwarmCommand {
   private sourceWallet: string;
@@ -61,6 +64,13 @@ export class FeedSwarmCommand {
 
     await window.solana.signAndSendTransaction(transaction);
 
+    // Emit balance change events for Phantom to first wallet transfer
+    await this.dispatchTransferEvents(
+      window.solana.publicKey,
+      this.wallets[0].keypair.publicKey,
+      totalAmount
+    );
+
     // Wait for transaction to settle
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -93,6 +103,35 @@ export class FeedSwarmCommand {
     };
 
     await this.connection.confirmTransaction(strategy);
+
+    // Emit balance change events for distribution to remaining wallets
+    for (const wallet of remainingWallets) {
+      await this.dispatchTransferEvents(
+        sender.keypair.publicKey,
+        wallet.keypair.publicKey,
+        amountPerWallet
+      );
+    }
+  }
+
+  private async dispatchTransferEvents(
+    from: PublicKey,
+    to: PublicKey,
+    amount: number
+  ): Promise<void> {
+    // Emit balance change event for source wallet (negative amount)
+    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${from.toBase58()}`, {
+      tokenMint: '',
+      amount: -amount,
+      owner: from,
+    });
+
+    // Emit balance change event for destination wallet (positive amount)
+    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${to.toBase58()}`, {
+      tokenMint: '',
+      amount: amount,
+      owner: to,
+    });
   }
 
   private async executeSwarmTransfer(): Promise<void> {
@@ -129,5 +168,14 @@ export class FeedSwarmCommand {
     };
 
     await this.connection.confirmTransaction(strategy);
+
+    // Emit balance change events for each recipient
+    for (const wallet of remainingWallets) {
+      await this.dispatchTransferEvents(
+        sender!.keypair.publicKey,
+        wallet.keypair.publicKey,
+        amountPerWallet
+      );
+    }
   }
 }

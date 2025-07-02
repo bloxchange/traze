@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -15,8 +15,14 @@ import bs58 from 'bs58';
 import { useConfiguration, useToken } from '@/hooks';
 import { SwarmJitoFlushCommand } from '@/domain/commands/SwarmJitoFlushCommand';
 import { SwarmFlushCommand } from '@/domain/commands/SwarmFlushCommand';
+import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
+import { EVENTS, type BalanceChangeData } from '../../domain/infrastructure/events/types';
+import { Connection } from '@solana/web3.js';
+import { getBalance, getTokenBalance } from '../../domain/rpc';
 
 const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameChange }) => {
+  const { configuration } = useConfiguration();
+  const { tokenState } = useToken();
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);
 
@@ -67,11 +73,16 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
     }
   };
 
-  const handleCreateModalSubmit = (privateKeys: string[], generateCount: number) => {
+  const handleCreateModalSubmit = async (privateKeys: string[], generateCount: number) => {
     try {
-      const createCommand = new CreateSwarmCommand(privateKeys, generateCount);
+      const createCommand = new CreateSwarmCommand(
+        privateKeys,
+        generateCount,
+        configuration.rpcUrl,
+        tokenState.currentToken?.mint
+      );
 
-      const newWallets = createCommand.execute();
+      const newWallets = await createCommand.execute();
 
       // Download wallet information if wallets were generated
       if (generateCount > 0) {
@@ -130,9 +141,71 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
     onNameChange(newName);
   };
 
-  const { configuration } = useConfiguration();
+  const handleRefresh = async () => {
+    try {
+      const connection = new Connection(configuration.rpcUrl);
+      const updatedWallets = await Promise.all(
+        walletList.map(async (wallet) => {
+          const newSolBalance = await getBalance(connection, wallet.publicKey);
+          let newTokenBalance = wallet.tokenBalance;
+          
+          if (tokenState.currentToken) {
+            newTokenBalance = await getTokenBalance(
+              connection,
+              wallet.publicKey,
+              tokenState.currentToken.mint
+            );
+          }
 
-  const { tokenState } = useToken();
+          return {
+            ...wallet,
+            solBalance: newSolBalance,
+            tokenBalance: newTokenBalance
+          };
+        })
+      );
+
+      setWalletList(updatedWallets);
+      message.success(t('common.refreshSuccess'));
+    } catch (error) {
+      console.error('Refresh error:', error);
+      message.error(t('common.refreshError'));
+    }
+  };
+
+  useEffect(() => {
+    // Subscribe to balance changes for each wallet
+    const subscriptions = walletList.map(wallet => {
+      const callback = async (data: BalanceChangeData) => {
+        if (data.owner.toBase58() === wallet.publicKey) {
+          setWalletList(prevList =>
+            prevList.map(w =>
+              w.publicKey === wallet.publicKey
+                ? {
+                    ...w,
+                    solBalance: data.tokenMint === '' ? w.solBalance + data.amount : w.solBalance,
+                    tokenBalance: data.tokenMint !== '' && tokenState.currentToken && 
+                                data.tokenMint === tokenState.currentToken.mint ? 
+                                w.tokenBalance + data.amount : w.tokenBalance
+                  }
+                : w
+            )
+          );
+        }
+      };
+
+      const eventName = `${EVENTS.BalanceChanged}_${wallet.publicKey}`;
+      globalEventEmitter.on<BalanceChangeData>(eventName, callback);
+      return { eventName, callback };
+    });
+
+    // Cleanup subscriptions
+    return () => {
+      subscriptions.forEach(({ eventName, callback }) => {
+        globalEventEmitter.off<BalanceChangeData>(eventName, callback);
+      });
+    };
+  }, [walletList, configuration.rpcUrl, tokenState.currentToken]);
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -260,6 +333,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         onClear={handleClear}
         onConfig={() => setShowConfig(true)}
         onShowList={() => setShowConfig(false)}
+        onRefresh={handleRefresh}
         showConfig={showConfig}
         walletCount={walletList.length}
       />
