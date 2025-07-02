@@ -6,6 +6,7 @@ import {
   SettingOutlined,
   UnorderedListOutlined,
   EditOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,7 @@ interface SwarmHeaderProps {
   onClear: () => void;
   onConfig: () => void;
   onShowList: () => void;
+  onRefresh: () => void;
   showConfig: boolean;
   walletCount: number;
 }
@@ -32,6 +34,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   onClear,
   onConfig,
   onShowList,
+  onRefresh,
   showConfig,
   walletCount,
 }) => {
@@ -109,9 +112,14 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
             <Button icon={<UnorderedListOutlined />} onClick={onShowList} type="text" />
           </Tooltip>
         ) : (
-          <Tooltip title={t('settings.configuration')}>
-            <Button icon={<SettingOutlined />} onClick={onConfig} type="text" />
-          </Tooltip>
+          <>
+            <Tooltip title={t('common.refresh')}>
+              <Button icon={<ReloadOutlined />} onClick={onRefresh} type="text" />
+            </Tooltip>
+            <Tooltip title={t('settings.configuration')}>
+              <Button icon={<SettingOutlined />} onClick={onConfig} type="text" />
+            </Tooltip>
+          </>
         )}
       </Space>
 
