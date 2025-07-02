@@ -90,7 +90,9 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             </Space>
           </Col>
           <Col span={7}>
-            <Text style={{ fontFamily: 'monospace' }}>{formatBalance(wallet.solBalance / LAMPORTS_PER_SOL, true)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>
+              {formatBalance(wallet.solBalance / LAMPORTS_PER_SOL, true)}
+            </Text>
           </Col>
           <Col span={7}>
             <Text style={{ fontFamily: 'monospace' }}>{formatBalance(wallet.tokenBalance)}</Text>

@@ -59,8 +59,7 @@ export class SwarmBuyCommand {
 
     const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
 
-    const balance = (await this.connection.getBalance(wallet, 'confirmed'))
-      / LAMPORTS_PER_SOL;
+    const balance = (await this.connection.getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
 
     const availableBalance = balance - priorityFeeInSol;
 
@@ -91,7 +90,10 @@ export class SwarmBuyCommand {
     });
 
     for (const wallet of selectedWallets) {
-      const amountInSol = await this.getRandomAmount(wallet.keypair.publicKey, this.priorityFeeInSol);
+      const amountInSol = await this.getRandomAmount(
+        wallet.keypair.publicKey,
+        this.priorityFeeInSol
+      );
 
       if (amountInSol <= 0) {
         continue;

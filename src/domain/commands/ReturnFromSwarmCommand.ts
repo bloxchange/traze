@@ -7,6 +7,8 @@ import {
   type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
 import type { WalletInfo } from '../../models';
+import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
+import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
 
 export class ReturnFromSwarmCommand {
   private targetWallet: string;
@@ -81,6 +83,32 @@ export class ReturnFromSwarmCommand {
     };
 
     await this.connection.confirmTransaction(strategy);
+
+    await this.dispatchTransferEvents(
+      distributor.keypair.publicKey,
+      window.solana.publicKey,
+      transferAmount
+    );
+  }
+
+  private async dispatchTransferEvents(
+    from: PublicKey,
+    to: PublicKey,
+    amount: number
+  ): Promise<void> {
+    // Emit balance change event for source wallet (negative amount)
+    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${from.toBase58()}`, {
+      tokenMint: '',
+      amount: -amount,
+      owner: from,
+    });
+
+    // Emit balance change event for destination wallet (positive amount)
+    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${to.toBase58()}`, {
+      tokenMint: '',
+      amount: amount,
+      owner: to,
+    });
   }
 
   private async executeSwarmTransfer(selectedWallet: string): Promise<void> {
@@ -98,19 +126,23 @@ export class ReturnFromSwarmCommand {
       instructions: [],
     });
 
-    txMsg.instructions = await Promise.all(
-      this.wallets
-        .filter((x) => x.publicKey !== selectedWallet)
-        .map(async (wallet) => {
-          const balance = await this.connection.getBalance(new PublicKey(wallet.publicKey));
-
-          return SystemProgram.transfer({
+    const sourceWallets = this.wallets.filter((x) => x.publicKey !== selectedWallet);
+    const transferInstructions = await Promise.all(
+      sourceWallets.map(async (wallet) => {
+        const balance = await this.connection.getBalance(new PublicKey(wallet.publicKey));
+        return {
+          instruction: SystemProgram.transfer({
             fromPubkey: wallet.keypair.publicKey,
             toPubkey: destinationWallet.keypair.publicKey,
             lamports: balance,
-          });
-        })
+          }),
+          amount: balance,
+          from: wallet.keypair.publicKey,
+        };
+      })
     );
+
+    txMsg.instructions = transferInstructions.map((x) => x.instruction);
 
     const compiledMsg = txMsg.compileToLegacyMessage();
 
@@ -127,5 +159,14 @@ export class ReturnFromSwarmCommand {
     };
 
     await this.connection.confirmTransaction(strategy);
+
+    // Emit transfer events for each source wallet
+    for (const transfer of transferInstructions) {
+      await this.dispatchTransferEvents(
+        transfer.from,
+        destinationWallet.keypair.publicKey,
+        transfer.amount
+      );
+    }
   }
 }

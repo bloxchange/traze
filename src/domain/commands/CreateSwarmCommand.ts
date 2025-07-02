@@ -30,7 +30,11 @@ export class CreateSwarmCommand {
         let tokenBalance = 0;
 
         if (this.tokenMint) {
-          tokenBalance = await getTokenBalance(this.connection, keypair.publicKey.toBase58(), this.tokenMint);
+          tokenBalance = await getTokenBalance(
+            this.connection,
+            keypair.publicKey.toBase58(),
+            this.tokenMint
+          );
         }
 
         newWallets.push({
@@ -38,7 +42,7 @@ export class CreateSwarmCommand {
           keypair,
           solBalance: solBalance,
           tokenBalance,
-          selected: false
+          selected: false,
         });
       } catch {
         throw new Error('Invalid private key format');

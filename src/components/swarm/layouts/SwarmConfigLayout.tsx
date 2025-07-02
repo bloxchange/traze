@@ -26,12 +26,13 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
   const { token } = theme.useToken();
 
   const handleCopyPublicKey = (publicKey: string) => {
-    navigator.clipboard.writeText(publicKey)
+    navigator.clipboard
+      .writeText(publicKey)
       .then(() => message.success(t('common.copySuccess')))
       .catch(() => message.error(t('common.copyFailed')));
   };
 
-  const allSelected = wallets.length > 0 && wallets.every(wallet => wallet.selected);
+  const allSelected = wallets.length > 0 && wallets.every((wallet) => wallet.selected);
 
   return (
     <Row>
@@ -41,7 +42,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
             <Checkbox
               checked={allSelected}
               onChange={(e) => onSelectAll?.(e.target.checked)}
-              indeterminate={wallets.some(wallet => wallet.selected) && !allSelected}
+              indeterminate={wallets.some((wallet) => wallet.selected) && !allSelected}
             />
           </Col>
           <Col span={20}>
@@ -59,7 +60,12 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
             </Col>
             <Col span={20}>
               <Space>
-                <label htmlFor={wallet.publicKey} style={{ cursor: 'pointer', fontFamily: 'monospace' }}>{wallet.publicKey.slice(0, 6)}...</label>
+                <label
+                  htmlFor={wallet.publicKey}
+                  style={{ cursor: 'pointer', fontFamily: 'monospace' }}
+                >
+                  {wallet.publicKey.slice(0, 6)}...
+                </label>
                 <Button
                   type="text"
                   icon={<CopyOutlined />}
@@ -71,10 +77,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
         ))}
       </Col>
       <Col span={16} style={{ paddingLeft: 16 }}>
-        <SwarmConfig
-          initialConfig={swarmConfig}
-          onConfigChange={onConfigChange}
-        />
+        <SwarmConfig initialConfig={swarmConfig} onConfigChange={onConfigChange} />
       </Col>
     </Row>
   );

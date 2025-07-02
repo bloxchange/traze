@@ -29,6 +29,8 @@ import type { ISellParameters } from '../ISellParameters';
 import type { PumpFunSellParameters } from './SellParameters';
 import { DEFAULT_COMMITMENT } from '@/domain/infrastructure/consts';
 import type { BondingCurveAccount } from './BondingCurveAccount';
+import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
+import { EVENTS, type BalanceChangeData } from '../../infrastructure/events/types';
 
 /* eslint-disable */
 export class PumpFunBroker implements IBroker {
@@ -50,7 +52,7 @@ export class PumpFunBroker implements IBroker {
   }
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
-    const transaction = await this.createBuyTransaction(
+    const { transaction, buyAmount, buyAmountWithSlippage } = await this.createBuyTransaction(
       buyParameters.buyer,
       buyParameters.tokenMint,
       buyParameters.amountInSol,
@@ -68,10 +70,8 @@ export class PumpFunBroker implements IBroker {
           : estimatedUnitPrice,
     };
 
-    console.log(priorityFees);
-
     // Send the transaction
-    return await sendTransaction(
+    const result = await sendTransaction(
       this.connection,
       transaction,
       buyParameters.buyer.publicKey,
@@ -79,13 +79,75 @@ export class PumpFunBroker implements IBroker {
       priorityFees,
       'finalized'
     );
+
+    if (result) {
+      this.dispatchBuyEvents(buyParameters, buyAmount, buyAmountWithSlippage);
+    }
+
+    return result;
   }
 
-  private async getBuyAccounts(
-    buyer: Keypair,
-    tokenMint: string,
-    commitment: Commitment
+  private dispatchBuyEvents(
+    buyParameters: IBuyParameters,
+    buyAmount: bigint,
+    buyAmountWithSlippage: bigint
   ) {
+    const totalSolSpent =
+      (buyParameters.amountInSol + buyParameters.priorityFeeInSol) * LAMPORTS_PER_SOL;
+    const averageTokenAmount = Math.ceil((Number(buyAmount) + Number(buyAmountWithSlippage)) / 2);
+
+    // Emit SOL balance change (negative as SOL is spent)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyParameters.buyer.publicKey.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: -totalSolSpent,
+        owner: buyParameters.buyer.publicKey,
+      }
+    );
+
+    // Emit token balance change (positive as tokens are received)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyParameters.buyer.publicKey.toBase58()}`,
+      {
+        tokenMint: buyParameters.tokenMint,
+        amount: averageTokenAmount,
+        owner: buyParameters.buyer.publicKey,
+      }
+    );
+  }
+
+  private dispatchSellEvents(
+    sellParameters: ISellParameters,
+    minSolOutput: bigint,
+    sellAmountWithSlippage: bigint
+  ) {
+    const averageTokenAmount = Math.ceil(
+      Number(sellParameters.sellTokenAmount + sellAmountWithSlippage) / 2
+    );
+
+    // Emit SOL balance change (negative as SOL is spent)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: Number(minSolOutput),
+        owner: sellParameters.seller.publicKey,
+      }
+    );
+
+    // Emit token balance change (positive as tokens are received)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
+      {
+        tokenMint: sellParameters.mint.toBase58(),
+        amount: averageTokenAmount,
+        owner: sellParameters.seller.publicKey,
+      }
+    );
+  }
+
+  private async getBuyAccounts(buyer: Keypair, tokenMint: string, commitment: Commitment) {
     const mint = new PublicKey(tokenMint);
 
     // Get bonding curve account
@@ -149,7 +211,7 @@ export class PumpFunBroker implements IBroker {
     return {
       buyAmount,
       buyAmountWithSlippage,
-    }
+    };
   }
 
   private async createBuyTransaction(
@@ -208,11 +270,11 @@ export class PumpFunBroker implements IBroker {
 
     transaction.add(ix);
 
-    return transaction;
+    return { transaction, buyAmount, buyAmountWithSlippage };
   }
 
   async sell(sellParameters: ISellParameters): Promise<string | null> {
-    const transaction = await this.createSellTransaction(
+    const { transaction, minSolOutput, sellAmountWithSlippage } = await this.createSellTransaction(
       sellParameters.mint,
       'finalized',
       sellParameters.sellTokenAmount,
@@ -225,7 +287,7 @@ export class PumpFunBroker implements IBroker {
       unitPrice: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
     };
 
-    return await sendTransaction(
+    const result = await sendTransaction(
       this.connection,
       transaction,
       sellParameters.seller.publicKey,
@@ -233,6 +295,12 @@ export class PumpFunBroker implements IBroker {
       priorityFees,
       'finalized'
     );
+
+    if (result) {
+      this.dispatchSellEvents(sellParameters, minSolOutput, sellAmountWithSlippage);
+    }
+
+    return result;
   }
 
   getBalance(address: string): Promise<number> {
@@ -243,8 +311,17 @@ export class PumpFunBroker implements IBroker {
     throw new Error('Method not implemented.');
   }
 
-  getTokenBalance(address: string, token: string): Promise<number> {
-    throw new Error('Method not implemented.');
+  async getTokenBalance(address: string, token: string): Promise<number> {
+    const tokenPublicKey = new PublicKey(token);
+    const ownerPublicKey = new PublicKey(address);
+    const associatedTokenAddress = await getAssociatedTokenAddress(tokenPublicKey, ownerPublicKey);
+
+    try {
+      const account = await getAccount(this.connection, associatedTokenAddress);
+      return Number(account.amount);
+    } catch (error) {
+      return 0; // Return 0 if token account doesn't exist
+    }
   }
   swap(
     fromToken: string,
@@ -341,7 +418,7 @@ export class PumpFunBroker implements IBroker {
 
     transaction.add(ix);
 
-    return transaction;
+    return { transaction, minSolOutput, sellAmountWithSlippage };
   }
 
   async jitoSell(
@@ -364,7 +441,7 @@ export class PumpFunBroker implements IBroker {
     for (const params of sellParameters) {
       const parameters = params as PumpFunSellParameters;
 
-      const transaction = await this.createSellTransaction(
+      const { transaction } = await this.createSellTransaction(
         parameters.mint,
         parameters.commitment,
         parameters.sellTokenAmount,

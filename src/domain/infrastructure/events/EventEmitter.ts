@@ -1,29 +1,29 @@
-import type { EventType, EventData, EventCallback } from './types';
+import type { EventData, EventCallback } from './types';
 import { EVENTS } from './types';
 
 export class EventEmitter {
-  private events: Map<EventType, Set<EventCallback<EventData>>>;
+  private events: Map<string, Set<EventCallback<EventData>>>;
 
   constructor() {
     this.events = new Map();
   }
 
-  on<T extends EventData>(event: EventType, callback: EventCallback<T>): void {
+  on<T extends EventData>(event: string, callback: EventCallback<T>): void {
     if (!this.events.has(event)) {
       this.events.set(event, new Set());
     }
     this.events.get(event)!.add(callback as EventCallback<EventData>);
   }
 
-  off<T extends EventData>(event: EventType, callback: EventCallback<T>): void {
+  off<T extends EventData>(event: string, callback: EventCallback<T>): void {
     if (this.events.has(event)) {
       this.events.get(event)!.delete(callback as EventCallback<EventData>);
     }
   }
 
-  emit<T extends EventData>(event: EventType, data: T): void {
+  emit<T extends EventData>(event: string, data: T): void {
     if (this.events.has(event)) {
-      this.events.get(event)!.forEach(callback => {
+      this.events.get(event)!.forEach((callback) => {
         try {
           callback(data);
         } catch (error) {
@@ -33,7 +33,7 @@ export class EventEmitter {
     }
   }
 
-  removeAllListeners(event?: EventType): void {
+  removeAllListeners(event?: string): void {
     if (event) {
       this.events.delete(event);
     } else {

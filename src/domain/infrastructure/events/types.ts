@@ -20,8 +20,7 @@ export interface ErrorEventData {
 
 export interface BalanceChangeData {
   tokenMint: string;
-  oldBalance: number;
-  newBalance: number;
+  amount: number;
   owner: PublicKey;
 }
 
@@ -29,13 +28,11 @@ export type EventData = BalanceChangeData | TransferEventData | TradeEventData |
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
-  BalanceChanged: 'balanceChanged',
   TransferSuccess: 'transferSuccess',
   TransferError: 'transferError',
   BuySuccess: 'buySuccess',
   BuyError: 'buyError',
   SellSuccess: 'sellSuccess',
-  SellError: 'sellError'
+  SellError: 'sellError',
+  BalanceChanged: 'balanceChanged',
 } as const;
-
-export type EventType = typeof EVENTS[keyof typeof EVENTS];
