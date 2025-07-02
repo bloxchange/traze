@@ -148,7 +148,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         walletList.map(async (wallet) => {
           const newSolBalance = await getBalance(connection, wallet.publicKey);
           let newTokenBalance = wallet.tokenBalance;
-          
+
           if (tokenState.currentToken) {
             newTokenBalance = await getTokenBalance(
               connection,
@@ -178,19 +178,36 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
     const subscriptions = walletList.map(wallet => {
       const callback = async (data: BalanceChangeData) => {
         if (data.owner.toBase58() === wallet.publicKey) {
-          setWalletList(prevList =>
-            prevList.map(w =>
-              w.publicKey === wallet.publicKey
-                ? {
+          if (configuration.balanceUpdateMode === 'rpc') {
+            const connection = new Connection(configuration.rpcUrl);
+            const [solBalance, tokenBalance] = await Promise.all([
+              getBalance(connection, wallet.publicKey),
+              tokenState.currentToken
+                ? getTokenBalance(connection, wallet.publicKey, tokenState.currentToken.mint)
+                : Promise.resolve(0)
+            ]);
+            setWalletList(prevList =>
+              prevList.map(w =>
+                w.publicKey === wallet.publicKey
+                  ? { ...w, solBalance, tokenBalance }
+                  : w
+              )
+            );
+          } else {
+            setWalletList(prevList =>
+              prevList.map(w =>
+                w.publicKey === wallet.publicKey
+                  ? {
                     ...w,
                     solBalance: data.tokenMint === '' ? w.solBalance + data.amount : w.solBalance,
-                    tokenBalance: data.tokenMint !== '' && tokenState.currentToken && 
-                                data.tokenMint === tokenState.currentToken.mint ? 
-                                w.tokenBalance + data.amount : w.tokenBalance
+                    tokenBalance: data.tokenMint !== '' && tokenState.currentToken &&
+                      data.tokenMint === tokenState.currentToken.mint ?
+                      w.tokenBalance + data.amount : w.tokenBalance
                   }
-                : w
-            )
-          );
+                  : w
+              )
+            );
+          }
         }
       };
 
@@ -205,7 +222,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         globalEventEmitter.off<BalanceChangeData>(eventName, callback);
       });
     };
-  }, [walletList, configuration.rpcUrl, tokenState.currentToken]);
+  }, [walletList, configuration.rpcUrl, tokenState.currentToken, configuration.balanceUpdateMode]);
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
