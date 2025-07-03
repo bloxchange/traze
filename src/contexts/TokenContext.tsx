@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Connection } from '@solana/web3.js';
 import type { TokenState } from '../models/token';
 import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformationCommand';
+import { TranslateLogsCommand } from '../domain/commands/TranslateLogsCommand';
 import { TokenContext, useConfiguration } from '../hooks';
 import { WebSocketManager } from '../domain/infrastructure/websocket/WebSocketManager';
 
@@ -17,10 +18,18 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     webSocketManager.initialize(configuration.rpcUrl, configuration.rpcWebsocketUrl);
 
+    if (tokenState.currentToken) {
+      webSocketManager.subscribeTokenLogs(tokenState.currentToken.mint, (logs) => {
+        const translateLogsCommand = new TranslateLogsCommand();
+        const translatedLog = translateLogsCommand.execute(logs);
+        console.log('Translated token logs:', translatedLog);
+      });
+    }
+
     return () => {
       webSocketManager.disconnect();
     };
-  }, [configuration.rpcUrl, configuration.rpcWebsocketUrl]);
+  }, [tokenState.currentToken, configuration.rpcUrl, configuration.rpcWebsocketUrl]);
 
   const getTokenInfo = async (mint: string) => {
     const connection = new Connection(configuration.rpcUrl);
@@ -66,8 +75,9 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         webSocketManager.subscribeTokenLogs(mint, (logs) => {
-          console.log('Token logs received:', logs);
-          // Process token logs here
+          const translateLogsCommand = new TranslateLogsCommand();
+          const translatedLog = translateLogsCommand.execute(logs);
+          console.log('Translated token logs:', translatedLog);
         });
       } else {
         webSocketManager.unsubscribeAll();
