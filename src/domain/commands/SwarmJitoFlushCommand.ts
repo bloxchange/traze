@@ -3,7 +3,8 @@ import type { IBroker } from '../trading/IBroker';
 import type { PumpFunSellParameters } from '../trading/pumpfun/SellParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
@@ -15,7 +16,6 @@ export class SwarmJitoFlushCommand {
   private jitoTipAmount: number;
   private priorityFeeInSol: number;
   private broker: IBroker;
-  private connection: Connection;
   private jitoEndpoint: string;
 
   constructor(
@@ -33,10 +33,9 @@ export class SwarmJitoFlushCommand {
     this.priorityFeeInSol = priorityFeeInSol;
 
     this.jitoEndpoint = configuration.jitoEndpoint;
-    this.connection = new Connection(this.jitoEndpoint);
 
     const provider: AnchorProvider = new AnchorProvider(
-      this.connection,
+      ConnectionManager.getInstance().getConnection(),
       new NodeWallet(this.wallets[0].keypair),
       {
         commitment: 'finalized',
@@ -44,15 +43,16 @@ export class SwarmJitoFlushCommand {
     );
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
+
     if (!broker) {
       throw new Error('Failed to create broker');
     }
+
     this.broker = broker;
   }
 
   private async calculateSellAmount(wallet: WalletInfo): Promise<bigint> {
-    const balance = await getTokenBalance(this.connection, wallet.publicKey, this.tokenMint);
-    return BigInt(balance);
+    return BigInt(await getTokenBalance(wallet.publicKey, this.tokenMint));
   }
 
   async execute(): Promise<void> {
@@ -62,9 +62,11 @@ export class SwarmJitoFlushCommand {
       throw new Error('No wallets selected');
     }
 
-    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-    });
+    const prioritizationFees = await ConnectionManager.getInstance()
+      .getConnection()
+      .getRecentPrioritizationFees({
+        lockedWritableAccounts: [new PublicKey(this.tokenMint)],
+      });
 
     let maxCurrentPriorityUnitPrice = 0;
 

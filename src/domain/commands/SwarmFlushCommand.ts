@@ -1,9 +1,10 @@
-import type { WalletInfo, Configuration } from '@/models';
+import type { WalletInfo } from '@/models';
 import type { IBroker } from '../trading/IBroker';
 import type { ISellParameters } from '../trading/ISellParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
@@ -14,23 +15,20 @@ export class SwarmFlushCommand {
   private slippageBasisPoints: bigint;
   private priorityFeeInSol: number;
   private broker: IBroker;
-  private connection: Connection;
 
   constructor(
     wallets: WalletInfo[],
     tokenMint: string,
     slippageBasisPoints: bigint,
-    priorityFeeInSol: number,
-    configuration: Configuration
+    priorityFeeInSol: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
 
-    this.connection = new Connection(configuration.rpcUrl);
     const provider: AnchorProvider = new AnchorProvider(
-      this.connection,
+      ConnectionManager.getInstance().getConnection(),
       new NodeWallet(this.wallets[0].keypair),
       {
         commitment: 'finalized',
@@ -38,15 +36,16 @@ export class SwarmFlushCommand {
     );
 
     const broker = BrokerFactory.create(PUMPFUN_PROGRAM_ID, provider);
+
     if (!broker) {
       throw new Error('Failed to create broker');
     }
+
     this.broker = broker;
   }
 
   private async calculateSellAmount(wallet: WalletInfo): Promise<bigint> {
-    const balance = await getTokenBalance(this.connection, wallet.publicKey, this.tokenMint);
-    return BigInt(balance);
+    return BigInt(await getTokenBalance(wallet.publicKey, this.tokenMint));
   }
 
   async execute(): Promise<void> {
@@ -56,9 +55,11 @@ export class SwarmFlushCommand {
       throw new Error('No wallets selected');
     }
 
-    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-    });
+    const prioritizationFees = await ConnectionManager.getInstance()
+      .getConnection()
+      .getRecentPrioritizationFees({
+        lockedWritableAccounts: [new PublicKey(this.tokenMint)],
+      });
 
     let maxCurrentPriorityUnitPrice = 0;
 

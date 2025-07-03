@@ -45,7 +45,7 @@ export class PumpFunBroker implements IBroker {
   }
 
   translateLogs(logs: string[]): TradeEventInfo {
-    const log = logs.find(x => x.startsWith('Program data:'))!.split('Program data: ')[1];
+    const log = logs.find((x) => x.startsWith('Program data:'))!.split('Program data: ')[1];
     const logData = this.program.coder.events.decode(log!);
     const tradeEventInfo: TradeEventInfo = {
       mint: logData!.data.mint,

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Connection } from '@solana/web3.js';
+import type { Logs } from '@solana/web3.js';
 import type { TokenState } from '../models/token';
 import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformationCommand';
 import { TranslateLogsCommand } from '../domain/commands/TranslateLogsCommand';
-import { TokenContext, useConfiguration } from '../hooks';
-import { WebSocketManager } from '../domain/infrastructure/websocket/WebSocketManager';
-
+import { TokenContext, useConfiguration, useRpcConnection } from '../hooks';
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { configuration } = useConfiguration();
-  const webSocketManager = WebSocketManager.getInstance();
+
+  const { connectionState } = useRpcConnection();
+
+  const { connectionManager } = connectionState;
+
   const [tokenState, setTokenState] = useState<TokenState>({
     currentToken: null,
     loading: false,
@@ -16,10 +18,8 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   useEffect(() => {
-    webSocketManager.initialize(configuration.rpcUrl, configuration.rpcWebsocketUrl);
-
     if (tokenState.currentToken) {
-      webSocketManager.subscribeTokenLogs(tokenState.currentToken.mint, (logs) => {
+      connectionManager?.subscribeTokenLogs(tokenState.currentToken.mint, (logs: Logs) => {
         const translateLogsCommand = new TranslateLogsCommand();
         const translatedLog = translateLogsCommand.execute(logs);
         console.log('Translated token logs:', translatedLog);
@@ -27,14 +27,12 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     return () => {
-      webSocketManager.disconnect();
+      connectionManager?.unsubscribeAll();
     };
   }, [tokenState.currentToken, configuration.rpcUrl, configuration.rpcWebsocketUrl]);
 
   const getTokenInfo = async (mint: string) => {
-    const connection = new Connection(configuration.rpcUrl);
-
-    const getTokenInfoCommand = new GetTokenInformationCommand(mint, connection);
+    const getTokenInfoCommand = new GetTokenInformationCommand(mint);
 
     const tokenInfo = await getTokenInfoCommand.execute();
     return tokenInfo;
@@ -71,16 +69,16 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Subscribe to token logs
       if (mint) {
         if (prevTokenMint) {
-          webSocketManager.unsubscribeTokenLogs(prevTokenMint);
+          connectionManager?.unsubscribeTokenLogs(prevTokenMint);
         }
 
-        webSocketManager.subscribeTokenLogs(mint, (logs) => {
+        connectionManager?.subscribeTokenLogs(mint, (logs: Logs) => {
           const translateLogsCommand = new TranslateLogsCommand();
           const translatedLog = translateLogsCommand.execute(logs);
           console.log('Translated token logs:', translatedLog);
         });
       } else {
-        webSocketManager.unsubscribeAll();
+        connectionManager?.unsubscribeAll();
       }
     } catch (error) {
       setTokenState((prev) => ({

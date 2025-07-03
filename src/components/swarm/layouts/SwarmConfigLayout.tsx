@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Checkbox, Space, Typography, Button, message, theme } from 'antd';
+import { Row, Col, Checkbox, Space, Typography, Button, App as AntdApp, theme } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { WalletInfo, SwarmConfigFormValues } from '@/models';
@@ -24,6 +24,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
+  const { message } = AntdApp.useApp();
 
   const handleCopyPublicKey = (publicKey: string) => {
     navigator.clipboard

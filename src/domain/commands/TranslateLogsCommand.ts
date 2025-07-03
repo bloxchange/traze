@@ -1,6 +1,5 @@
 import type { Logs, TransactionError } from '@solana/web3.js';
-import { BrokerFactory } from '../infrastructure/BrokerFactory';
-import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 
 export interface TranslatedLog {
   timestamp: number;
@@ -10,18 +9,18 @@ export interface TranslatedLog {
 }
 
 export class TranslateLogsCommand {
-  execute(logs: Logs): TranslatedLog {
-    const borker = BrokerFactory.create(PUMPFUN_PROGRAM_ID);
+  async execute(logs: Logs): Promise<TranslatedLog> {
+    const connection = ConnectionManager.getInstance().getConnection();
 
-    const tradeEventInfo = borker!.translateLogs(logs.logs);
-
-    console.log(tradeEventInfo);
+    const transaction = await connection.getTransaction(logs.signature, {
+      maxSupportedTransactionVersion: 0,
+    });
 
     return {
-      timestamp: Date.now(),
+      timestamp: transaction?.blockTime ? transaction.blockTime * 1000 : Date.now(),
       signature: logs.signature,
       err: logs.err,
-      logs: logs.logs || []
+      logs: logs.logs || [],
     };
   }
 }

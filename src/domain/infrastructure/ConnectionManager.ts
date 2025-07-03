@@ -1,33 +1,38 @@
-import { Connection, PublicKey } from '@solana/web3.js';
-import type { LogsFilter, Logs } from '@solana/web3.js';
+import { Connection, type LogsFilter, PublicKey, type Logs } from '@solana/web3.js';
 
-export class WebSocketManager {
-  private static instance: WebSocketManager;
+export class ConnectionManager {
+  private static instance: ConnectionManager;
   private connection: Connection | null = null;
   private subscriptionIds: Map<string, number> = new Map();
 
-  private constructor() { }
+  private constructor() {}
 
-  public static getInstance(): WebSocketManager {
-    if (!WebSocketManager.instance) {
-      WebSocketManager.instance = new WebSocketManager();
+  public static getInstance(): ConnectionManager {
+    if (!ConnectionManager.instance) {
+      ConnectionManager.instance = new ConnectionManager();
     }
-
-    return WebSocketManager.instance;
+    return ConnectionManager.instance;
   }
 
-  public initialize(httpUrl: string, websocketUrl: string): void {
-    // Create new connection - old one will be garbage collected
-    this.connection = new Connection(httpUrl, {
+  public initialize(rpcUrl: string, websocketUrl: string): void {
+    this.connection = new Connection(rpcUrl, {
       wsEndpoint: websocketUrl,
-      commitment: 'confirmed'
+      commitment: 'confirmed',
     });
   }
 
-  public async subscribeTokenLogs(tokenMint: string, callback: (logs: Logs) => void): Promise<void> {
+  public getConnection(): Connection {
     if (!this.connection) {
-      throw new Error('WebSocket connection not initialized');
+      throw new Error('ConnectionManager not initialized. Call initialize() first.');
     }
+    return this.connection;
+  }
+
+  public async subscribeTokenLogs(
+    tokenMint: string,
+    callback: (logs: Logs) => void
+  ): Promise<void> {
+    const connection = this.getConnection();
 
     // Unsubscribe from existing subscription for this token if it exists
     await this.unsubscribeTokenLogs(tokenMint);
@@ -35,7 +40,7 @@ export class WebSocketManager {
     try {
       const filter: LogsFilter = new PublicKey(tokenMint);
 
-      const subscriptionId = await this.connection.onLogs(
+      const subscriptionId = await connection.onLogs(
         filter,
         (logs) => {
           console.log('Received logs for token:', tokenMint, logs);
@@ -54,14 +59,11 @@ export class WebSocketManager {
   }
 
   public async unsubscribeTokenLogs(tokenMint: string): Promise<void> {
-    if (!this.connection) {
-      return;
-    }
-
+    const connection = this.getConnection();
     const subscriptionId = this.subscriptionIds.get(tokenMint);
     if (subscriptionId !== undefined) {
       try {
-        await this.connection.removeOnLogsListener(subscriptionId);
+        await connection.removeOnLogsListener(subscriptionId);
 
         this.subscriptionIds.delete(tokenMint);
 
@@ -73,24 +75,11 @@ export class WebSocketManager {
   }
 
   public async unsubscribeAll(): Promise<void> {
-    if (!this.connection) {
-      return;
-    }
-
     const unsubscribePromises = Array.from(this.subscriptionIds.entries()).map(
       async ([tokenMint]) => await this.unsubscribeTokenLogs(tokenMint)
     );
 
     await Promise.all(unsubscribePromises);
     this.subscriptionIds.clear();
-  }
-
-  public disconnect(): void {
-    if (this.connection) {
-      this.unsubscribeAll().then(() => {
-        // Connection will be garbage collected
-        this.connection = null;
-      });
-    }
   }
 }

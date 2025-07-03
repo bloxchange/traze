@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, message } from 'antd';
+import { Card, App as AntdApp } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
 import CreateSwarmModal from './CreateSwarmModal';
@@ -17,10 +17,10 @@ import { SwarmJitoFlushCommand } from '@/domain/commands/SwarmJitoFlushCommand';
 import { SwarmFlushCommand } from '@/domain/commands/SwarmFlushCommand';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../../domain/infrastructure/events/types';
-import { Connection } from '@solana/web3.js';
 import { getBalance, getTokenBalance } from '../../domain/rpc';
 
 const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameChange }) => {
+  const { message } = AntdApp.useApp();
   const { configuration } = useConfiguration();
   const { tokenState } = useToken();
   const { t } = useTranslation();
@@ -78,7 +78,6 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
       const createCommand = new CreateSwarmCommand(
         privateKeys,
         generateCount,
-        configuration.rpcUrl,
         tokenState.currentToken?.mint
       );
 
@@ -143,67 +142,66 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
 
   const handleRefresh = async () => {
     try {
-      const connection = new Connection(configuration.rpcUrl);
       const updatedWallets = await Promise.all(
         walletList.map(async (wallet) => {
-          const newSolBalance = await getBalance(connection, wallet.publicKey);
+          const newSolBalance = await getBalance(wallet.publicKey);
+
           let newTokenBalance = wallet.tokenBalance;
 
           if (tokenState.currentToken) {
-            newTokenBalance = await getTokenBalance(
-              connection,
-              wallet.publicKey,
-              tokenState.currentToken.mint
-            );
+            newTokenBalance = await getTokenBalance(wallet.publicKey, tokenState.currentToken.mint);
           }
 
           return {
             ...wallet,
             solBalance: newSolBalance,
-            tokenBalance: newTokenBalance
+            tokenBalance: newTokenBalance,
           };
         })
       );
 
       setWalletList(updatedWallets);
+
       message.success(t('common.refreshSuccess'));
     } catch (error) {
       console.error('Refresh error:', error);
+
       message.error(t('common.refreshError'));
     }
   };
 
   useEffect(() => {
     // Subscribe to balance changes for each wallet
-    const subscriptions = walletList.map(wallet => {
+    const subscriptions = walletList.map((wallet) => {
       const callback = async (data: BalanceChangeData) => {
         if (data.owner.toBase58() === wallet.publicKey) {
           if (configuration.balanceUpdateMode === 'rpc') {
-            const connection = new Connection(configuration.rpcUrl);
             const [solBalance, tokenBalance] = await Promise.all([
-              getBalance(connection, wallet.publicKey),
+              getBalance(wallet.publicKey),
               tokenState.currentToken
-                ? getTokenBalance(connection, wallet.publicKey, tokenState.currentToken.mint)
-                : Promise.resolve(0)
+                ? getTokenBalance(wallet.publicKey, tokenState.currentToken.mint)
+                : Promise.resolve(0),
             ]);
-            setWalletList(prevList =>
-              prevList.map(w =>
-                w.publicKey === wallet.publicKey
-                  ? { ...w, solBalance, tokenBalance }
-                  : w
+
+            setWalletList((prevList) =>
+              prevList.map((w) =>
+                w.publicKey === wallet.publicKey ? { ...w, solBalance, tokenBalance } : w
               )
             );
           } else {
-            setWalletList(prevList =>
-              prevList.map(w =>
+            setWalletList((prevList) =>
+              prevList.map((w) =>
                 w.publicKey === wallet.publicKey
                   ? {
-                    ...w,
-                    solBalance: data.tokenMint === '' ? w.solBalance + data.amount : w.solBalance,
-                    tokenBalance: data.tokenMint !== '' && tokenState.currentToken &&
-                      data.tokenMint === tokenState.currentToken.mint ?
-                      w.tokenBalance + data.amount : w.tokenBalance
-                  }
+                      ...w,
+                      solBalance: data.tokenMint === '' ? w.solBalance + data.amount : w.solBalance,
+                      tokenBalance:
+                        data.tokenMint !== '' &&
+                        tokenState.currentToken &&
+                        data.tokenMint === tokenState.currentToken.mint
+                          ? w.tokenBalance + data.amount
+                          : w.tokenBalance,
+                    }
                   : w
               )
             );
@@ -212,7 +210,9 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
       };
 
       const eventName = `${EVENTS.BalanceChanged}_${wallet.publicKey}`;
+
       globalEventEmitter.on<BalanceChangeData>(eventName, callback);
+
       return { eventName, callback };
     });
 
@@ -244,8 +244,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         swarmConfig.buyAmounts,
         swarmConfig.buyDelay,
         swarmConfig.slippageBasisPoints,
-        swarmConfig.priorityFee,
-        configuration
+        swarmConfig.priorityFee
       );
 
       await buyCommand.execute();
@@ -278,8 +277,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         swarmConfig.sellPercentages,
         swarmConfig.sellDelay,
         swarmConfig.slippageBasisPoints,
-        swarmConfig.priorityFee,
-        configuration
+        swarmConfig.priorityFee
       );
 
       await sellCommand.execute();
@@ -315,8 +313,7 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
           walletList,
           tokenState.currentToken.mint,
           BigInt(swarmConfig.slippageBasisPoints),
-          swarmConfig.priorityFee,
-          configuration
+          swarmConfig.priorityFee
         );
 
         await command.execute();
