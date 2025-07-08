@@ -15,8 +15,10 @@ const FaqModal: React.FC<FaqModalProps> = ({ open, onCancel }) => {
   useEffect(() => {
     const loadContent = async () => {
       try {
-        const response = await fetch(`/src/faq/${i18n.language}.md`);
+        const response = await fetch(`/faq/${i18n.language}.md`);
+
         const text = await response.text();
+
         setContent(text);
       } catch (error) {
         console.error('Error loading FAQ content:', error);
@@ -27,13 +29,7 @@ const FaqModal: React.FC<FaqModalProps> = ({ open, onCancel }) => {
   }, [i18n.language]);
 
   return (
-    <Modal
-      title="FAQs"
-      open={open}
-      onCancel={onCancel}
-      footer={null}
-      width={800}
-    >
+    <Modal title="FAQs" open={open} onCancel={onCancel} footer={null} width={800}>
       <div style={{ maxHeight: '70vh', overflow: 'auto' }}>
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>

@@ -20,8 +20,11 @@ const DisclaimerModal: React.FC = () => {
       maskClosable={false}
       cancelButtonProps={{ style: { display: 'none' } }}
     >
-      <div dangerouslySetInnerHTML={{
-        __html: t('disclaimer.content', `
+      <div
+        dangerouslySetInnerHTML={{
+          __html: t(
+            'disclaimer.content',
+            `
         <p>This software is completely free and for community. By using this software, you acknowledge and agree that:</p>
         <ul>
           <li>Trading cryptocurrencies involves substantial risk and may result in the loss of your invested capital.</li>
@@ -29,8 +32,10 @@ const DisclaimerModal: React.FC = () => {
           <li>The software developers and contributors are not liable for any damages or losses incurred through the use of this software.</li>
           <li>You will comply with all applicable laws and regulations in your jurisdiction regarding cryptocurrency trading.</li>
         </ul>
-      `)
-      }} />
+      `
+          ),
+        }}
+      />
     </Modal>
   );
 };
