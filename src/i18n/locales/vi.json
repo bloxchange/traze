@@ -119,7 +119,6 @@
   },
   "transactions": {
     "title": "Giao dịch",
-    "description": "Theo dõi và phân tích lịch sử giao dịch.",
     "timestamp": "Thời gian",
     "type": "Loại",
     "amount": "Số lượng",
@@ -132,5 +131,9 @@
   "search": {
     "title": "Tìm kiếm",
     "placeholder": "Nhập khóa công khai hoặc mã giao dịch"
+  },
+  "disclaimer": {
+    "title": "Tuyên bố miễn trừ trách nhiệm",
+    "content": "<p>Phần mềm này hoàn toàn miễn phí và phục vụ cộng đồng. Bằng việc sử dụng phần mềm này, bạn xác nhận và đồng ý rằng:</p><ul><li>Giao dịch tiền điện tử có rủi ro đáng kể và có thể dẫn đến mất vốn đầu tư.</li><li>Bạn hoàn toàn chịu trách nhiệm về các quyết định giao dịch và mọi khoản lãi hoặc lỗ phát sinh.</li><li>Các nhà phát triển và cộng tác viên của phần mềm không chịu trách nhiệm về bất kỳ thiệt hại hoặc tổn thất nào phát sinh từ việc sử dụng phần mềm này.</li><li>Bạn sẽ tuân thủ tất cả các luật và quy định hiện hành tại khu vực pháp lý của mình về giao dịch tiền điện tử.</li></ul>"
   }
 }

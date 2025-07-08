@@ -3,6 +3,7 @@ import { ConfigProvider, Layout } from 'antd';
 import { lightTheme, darkTheme, type ThemeMode } from './theme';
 import Dashboard from './components/Dashboard';
 import Header from './components/Header';
+import DisclaimerModal from './components/DisclaimerModal';
 import { ConfigurationProvider } from './contexts/ConfigurationContext';
 import { Layout as FlexLayout } from 'flexlayout-react';
 import { TokenProvider } from './contexts/TokenContext';
@@ -39,6 +40,7 @@ function App() {
                   <Dashboard flexLayoutRef={flexLayoutRef} />
                 </Content>
               </div>
+              <DisclaimerModal />
             </Layout>
           </ConfigProvider>
         </TokenProvider>
