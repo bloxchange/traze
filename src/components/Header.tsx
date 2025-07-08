@@ -1,10 +1,11 @@
 import { Space, Switch, Select, Button, Layout, theme } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { SettingOutlined, SearchOutlined, GiftFilled } from '@ant-design/icons';
+import { SettingOutlined, SearchOutlined, GiftFilled, QuestionCircleOutlined } from '@ant-design/icons';
 import { Layout as FlexLayout } from 'flexlayout-react';
 import ComponentList from './ComponentList';
 import SearchModal from './SearchModal';
 import TipModal from './TipModal';
+import FaqModal from './FaqModal';
 import type { ThemeMode } from '../theme';
 import { useState } from 'react';
 import ConfigModal from './ConfigModal';
@@ -28,6 +29,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
   const { configuration, updateConfiguration } = useConfiguration();
   const { token } = theme.useToken();
 
@@ -58,6 +60,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
+        <Button type="text" icon={<QuestionCircleOutlined />} onClick={() => setIsFaqModalOpen(true)} />
         <Button type="text" icon={<SearchOutlined />} onClick={() => setIsSearchModalOpen(true)} />
         <Button type="text" icon={<SettingOutlined />} onClick={() => setIsConfigModalOpen(true)} />
         <Button
@@ -81,6 +84,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       />
       <SearchModal open={isSearchModalOpen} onCancel={() => setIsSearchModalOpen(false)} />
       <TipModal open={isTipModalOpen} onCancel={() => setIsTipModalOpen(false)} />
+      <FaqModal open={isFaqModalOpen} onCancel={() => setIsFaqModalOpen(false)} />
     </Layout.Header>
   );
 };

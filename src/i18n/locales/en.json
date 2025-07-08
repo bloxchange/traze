@@ -132,6 +132,10 @@
     "title": "Search",
     "placeholder": "Enter public key or transaction hash"
   },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "content": "<h3>What is Traze?</h3><p>Traze is a free and open-source trading tool designed for the community to help manage and monitor cryptocurrency trading activities.</p><h3>How do I get started?</h3><p>1. Configure your RPC endpoints in the settings<br>2. Create a new swarm or import existing wallets<br>3. Select a token to trade<br>4. Start monitoring and trading</p><h3>Is it safe to use?</h3><p>Traze is designed with security in mind. Your private keys are stored locally and are never sent to any external servers. However, always exercise caution and never share your private keys with anyone.</p><h3>Where can I get support?</h3><p>Join our community channels for support and updates:<br>- Discord: [Coming soon]<br>- Twitter: [Coming soon]<br>- GitHub: [Coming soon]</p>"
+  },
   "disclaimer": {
     "title": "Disclaimer",
     "content": "<p>This software is completely free and for community. By using this software, you acknowledge and agree that:</p><ul><li>Trading cryptocurrencies involves substantial risk and may result in the loss of your invested capital.</li><li>You are solely responsible for your trading decisions and any resulting gains or losses.</li><li>The software developers and contributors are not liable for any damages or losses incurred through the use of this software.</li><li>You will comply with all applicable laws and regulations in your jurisdiction regarding cryptocurrency trading.</li></ul>"
