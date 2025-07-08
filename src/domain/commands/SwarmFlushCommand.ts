@@ -8,6 +8,8 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
+import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
+import { EVENTS } from '../infrastructure/events/types';
 
 export class SwarmFlushCommand {
   private wallets: WalletInfo[];
@@ -85,7 +87,14 @@ export class SwarmFlushCommand {
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
-      await this.broker.sell(sellParameters);
+      const signature = await this.broker.sell(sellParameters);
+      if (signature) {
+        globalEventEmitter.emit(EVENTS.TransactionCreated, {
+          signature,
+          type: 'sell',
+          owner: wallet.keypair.publicKey,
+        });
+      }
     }
   }
 }

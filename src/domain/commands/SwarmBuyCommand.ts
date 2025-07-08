@@ -3,6 +3,8 @@ import type { IBroker } from '../trading/IBroker';
 import type { IBuyParameters } from '../trading/IBuyParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
+import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
+import { EVENTS } from '../infrastructure/events/types';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
@@ -107,7 +109,15 @@ export class SwarmBuyCommand {
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
-      await this.broker.buy(buyParameters);
+      const signature = await this.broker.buy(buyParameters);
+
+      if (signature) {
+        globalEventEmitter.emit(EVENTS.TransactionCreated, {
+          signature,
+          type: 'buy',
+          owner: wallet.keypair.publicKey,
+        });
+      }
 
       if (this.buyDelay > 0) {
         await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds

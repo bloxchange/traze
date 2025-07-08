@@ -300,9 +300,10 @@ export class PumpFunBroker implements IBroker {
 
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice > sellParameters.maxCurrentPriorityFee
-        ? sellParameters.maxCurrentPriorityFee
-        : estimatedUnitPrice,
+      unitPrice:
+        estimatedUnitPrice > sellParameters.maxCurrentPriorityFee
+          ? sellParameters.maxCurrentPriorityFee
+          : estimatedUnitPrice,
     };
 
     const result = await sendTransaction(

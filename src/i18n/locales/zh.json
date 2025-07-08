@@ -121,7 +121,15 @@
   },
   "transactions": {
     "title": "交易",
-    "description": "追踪和分析交易历史。"
+    "description": "追踪和分析交易历史。",
+    "timestamp": "时间",
+    "type": "类型",
+    "amount": "数量",
+    "status": "状态",
+    "signature": "签名",
+    "buy": "买入",
+    "sell": "卖出",
+    "description": "此组件仅获取已开启群组的交易更新。"
   },
   "search": {
     "title": "搜索",

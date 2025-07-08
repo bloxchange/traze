@@ -130,7 +130,8 @@
     "status": "Status",
     "signature": "Signature",
     "buy": "Buy",
-    "sell": "Sell"
+    "sell": "Sell",
+    "description": "This component only gets transaction updates from opening swarms."
   },
   "search": {
     "title": "Search",

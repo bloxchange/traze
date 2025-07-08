@@ -5,7 +5,7 @@ export class ConnectionManager {
   private connection: Connection | null = null;
   private subscriptionIds: Map<string, number> = new Map();
 
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): ConnectionManager {
     if (!ConnectionManager.instance) {

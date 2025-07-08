@@ -14,7 +14,7 @@ export class GetTradeInfoCommand {
 
     const transaction = await connection.getParsedTransaction(this.signature, {
       maxSupportedTransactionVersion: 0,
-      commitment: 'confirmed'
+      commitment: 'confirmed',
     });
 
     if (!transaction || !transaction.meta) {

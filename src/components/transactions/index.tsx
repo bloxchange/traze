@@ -2,29 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
-import { EVENTS, type TradeEventData } from '../../domain/infrastructure/events/types';
+import {
+  EVENTS,
+  type TradeEventData,
+  type TransactionEventData,
+} from '../../domain/infrastructure/events/types';
+import { GetTradeInfoCommand } from '../../domain/commands/GetTradeInfoCommand';
 
-const { Title } = Typography;
+const { Paragraph } = Typography;
 
 interface TransactionsProps {
   name: string;
 }
 
-const Transactions: React.FC<TransactionsProps> = ({ name }) => {
+const Transactions: React.FC<TransactionsProps> = () => {
   const { t } = useTranslation();
   const [transactions, setTransactions] = useState<TradeEventData[]>([]);
 
   useEffect(() => {
-    const handleTradeEvent = (data: TradeEventData) => {
-      setTransactions(prev => [data, ...prev]);
+    const handleTransactionEvent = async (data: TransactionEventData) => {
+      const command = new GetTradeInfoCommand(data.signature);
+
+      const tradeInfo = await command.execute();
+
+      if (tradeInfo) {
+        const tradeEvent: TradeEventData = {
+          fromTokenMint: '',
+          toTokenMint: '',
+          fromAccount: data.owner,
+          toAccount: data.owner,
+          fromTokenAmount: tradeInfo.fromTokenAmount,
+          toTokenAmount: tradeInfo.toTokenAmount,
+          timestamp: Date.now(),
+          status: 'success',
+          signature: data.signature,
+          type: data.type,
+        };
+
+        setTransactions((prev) => [tradeEvent, ...prev]);
+      }
     };
 
-    globalEventEmitter.on<TradeEventData>(EVENTS.BuySuccess, handleTradeEvent);
-    globalEventEmitter.on<TradeEventData>(EVENTS.SellSuccess, handleTradeEvent);
+    globalEventEmitter.on<TransactionEventData>(EVENTS.TransactionCreated, handleTransactionEvent);
 
     return () => {
-      globalEventEmitter.off(EVENTS.BuySuccess, handleTradeEvent);
-      globalEventEmitter.off(EVENTS.SellSuccess, handleTradeEvent);
+      globalEventEmitter.off(EVENTS.TransactionCreated, handleTransactionEvent);
     };
   }, []);
 
@@ -33,14 +55,13 @@ const Transactions: React.FC<TransactionsProps> = ({ name }) => {
       title: t('transactions.timestamp'),
       dataIndex: 'timestamp',
       key: 'timestamp',
-      render: (timestamp: number) => new Date(timestamp).toLocaleString()
+      render: (timestamp: number) => new Date(timestamp).toLocaleString(),
     },
     {
       title: t('transactions.type'),
       key: 'type',
-      render: (_: unknown, record: TradeEventData) => (
-        record.type === 'buy' ? t('transactions.buy') : t('transactions.sell')
-      ),
+      render: (_: unknown, record: TradeEventData) =>
+        record.type === 'buy' ? t('transactions.buy') : t('transactions.sell'),
     },
     {
       title: t('transactions.amount') + ' (SOL)',
@@ -55,18 +76,45 @@ const Transactions: React.FC<TransactionsProps> = ({ name }) => {
       title: t('transactions.status'),
       dataIndex: 'status',
       key: 'status',
+      render: (status: string) => (
+        <span style={{ color: status === 'success' ? '#52c41a' : '#f5222d' }}>{status}</span>
+      ),
     },
     {
       title: t('transactions.signature'),
       dataIndex: 'signature',
       key: 'signature',
-      render: (signature: string) => signature.slice(0, 8) + '...',
+      render: (signature: string) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontFamily: 'monospace' }}>{signature.slice(0, 6)}...</span>
+          <a
+            href={`https://solscan.io/tx/${signature}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#1890ff',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+            </svg>
+          </a>
+        </div>
+      ),
     },
   ];
 
   return (
     <div>
-      <Title level={4}>{name}</Title>
+      <Paragraph>
+        {t(
+          'transactions.description',
+          'This component only gets transaction updates from opening swarms.'
+        )}
+      </Paragraph>
       <Table
         dataSource={transactions}
         columns={columns}
