@@ -3,12 +3,12 @@ import {
   SystemProgram,
   Transaction,
   LAMPORTS_PER_SOL,
-  Connection,
   TransactionMessage,
   VersionedTransaction,
   PublicKey,
   type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
 
@@ -16,13 +16,11 @@ export class FeedSwarmCommand {
   private sourceWallet: string;
   private amount: number;
   private wallets: WalletInfo[];
-  private connection: Connection;
 
-  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], rpcUrl: string) {
+  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[]) {
     this.sourceWallet = sourceWallet;
     this.amount = amount;
     this.wallets = wallets;
-    this.connection = new Connection(rpcUrl, 'confirmed');
   }
 
   async execute(): Promise<void> {
@@ -43,14 +41,19 @@ export class FeedSwarmCommand {
 
     // For Phantom wallet, first transfer total amount to first wallet
     const totalAmount = this.amount * LAMPORTS_PER_SOL;
+
     const amountPerWallet = totalAmount / this.wallets.length;
 
     // Create transaction
     const transaction = new Transaction();
 
     // Get recent blockhash
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+    const connection = ConnectionManager.getInstance().getConnection();
+
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
     transaction.recentBlockhash = blockhash;
+
     transaction.feePayer = window.solana.publicKey;
 
     // Transfer total amount to first wallet
@@ -76,6 +79,7 @@ export class FeedSwarmCommand {
 
     // Then distribute from first wallet to others
     const sender = this.wallets[0];
+
     const remainingWallets = this.wallets.slice(1);
 
     const txMessage = new TransactionMessage({
@@ -94,7 +98,7 @@ export class FeedSwarmCommand {
 
     tx.sign([sender!.keypair]);
 
-    const signature = await this.connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx);
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -102,7 +106,7 @@ export class FeedSwarmCommand {
       lastValidBlockHeight: lastValidBlockHeight,
     };
 
-    await this.connection.confirmTransaction(strategy);
+    await connection.confirmTransaction(strategy);
 
     // Emit balance change events for distribution to remaining wallets
     for (const wallet of remainingWallets) {
@@ -136,12 +140,15 @@ export class FeedSwarmCommand {
 
   private async executeSwarmTransfer(): Promise<void> {
     const sender = this.wallets.find((wallet) => wallet.publicKey === this.sourceWallet);
+
     const remainingWallets = this.wallets.filter(
       (wallet) => wallet.publicKey !== this.sourceWallet
     );
     const amountPerWallet = (this.amount * LAMPORTS_PER_SOL) / remainingWallets.length;
 
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+    const connection = ConnectionManager.getInstance().getConnection();
+
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
@@ -159,7 +166,7 @@ export class FeedSwarmCommand {
 
     tx.sign([sender!.keypair]);
 
-    const signature = await this.connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx);
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -167,7 +174,7 @@ export class FeedSwarmCommand {
       lastValidBlockHeight: lastValidBlockHeight,
     };
 
-    await this.connection.confirmTransaction(strategy);
+    await connection.confirmTransaction(strategy);
 
     // Emit balance change events for each recipient
     for (const wallet of remainingWallets) {

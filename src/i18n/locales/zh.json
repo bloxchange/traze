@@ -3,6 +3,8 @@
     "configuration": "配置",
     "rpcUrl": "RPC 地址",
     "rpcUrlRequired": "请输入 RPC 地址！",
+    "rpcWebsocketUrl": "RPC Websocket 地址",
+    "rpcWebsocketUrlRequired": "请输入 RPC Websocket 地址！",
     "jitoEndpoint": "Jito 终端",
     "jitoEndpointRequired": "请输入 Jito 终端地址！",
     "balanceUpdateMode": "余额更新模式",

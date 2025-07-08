@@ -1,4 +1,4 @@
-import { Modal, Input, Button, message } from 'antd';
+import { Modal, Input, Button, App as AntdApp } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -24,6 +24,7 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
+  const { message } = AntdApp.useApp();
 
   const handleSubmit = async () => {
     try {

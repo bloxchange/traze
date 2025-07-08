@@ -1,11 +1,11 @@
 import {
   PublicKey,
   SystemProgram,
-  Connection,
   TransactionMessage,
   VersionedTransaction,
   type TransactionConfirmationStrategy,
 } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { WalletInfo } from '../../models';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
@@ -13,12 +13,10 @@ import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
 export class ReturnFromSwarmCommand {
   private targetWallet: string;
   private wallets: WalletInfo[];
-  private connection: Connection;
 
-  constructor(targetWallet: string, wallets: WalletInfo[], rpcUrl: string) {
+  constructor(targetWallet: string, wallets: WalletInfo[]) {
     this.targetWallet = targetWallet;
     this.wallets = wallets;
-    this.connection = new Connection(rpcUrl, 'confirmed');
   }
 
   async execute(): Promise<void> {
@@ -46,18 +44,20 @@ export class ReturnFromSwarmCommand {
     // Now transfer consolidated balance from distributor to Phantom
     const distributor = this.wallets[0];
 
-    const distributorBalance = await this.connection.getBalance(distributor.keypair.publicKey);
+    const connection = ConnectionManager.getInstance().getConnection();
+
+    const distributorBalance = await connection.getBalance(distributor.keypair.publicKey);
 
     if (distributorBalance <= 0) {
       throw new Error('No balance to transfer');
     }
 
     const transferAmount = distributorBalance - 5000; // Leave some for fees
+
     if (transferAmount <= 0) {
       throw new Error('Insufficient balance for transfer');
     }
-
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
     const txMessage = new TransactionMessage({
       payerKey: distributor.keypair.publicKey,
@@ -72,9 +72,10 @@ export class ReturnFromSwarmCommand {
     }).compileToV0Message();
 
     const tx = new VersionedTransaction(txMessage);
+
     tx.sign([distributor.keypair]);
 
-    const signature = await this.connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx);
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -82,7 +83,7 @@ export class ReturnFromSwarmCommand {
       lastValidBlockHeight: lastValidBlockHeight,
     };
 
-    await this.connection.confirmTransaction(strategy);
+    await connection.confirmTransaction(strategy);
 
     await this.dispatchTransferEvents(
       distributor.keypair.publicKey,
@@ -118,7 +119,9 @@ export class ReturnFromSwarmCommand {
       throw new Error('Destination wallet not found');
     }
 
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+    const connection = ConnectionManager.getInstance().getConnection();
+
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
     const txMsg = new TransactionMessage({
       payerKey: destinationWallet.keypair.publicKey,
@@ -127,9 +130,10 @@ export class ReturnFromSwarmCommand {
     });
 
     const sourceWallets = this.wallets.filter((x) => x.publicKey !== selectedWallet);
+
     const transferInstructions = await Promise.all(
       sourceWallets.map(async (wallet) => {
-        const balance = await this.connection.getBalance(new PublicKey(wallet.publicKey));
+        const balance = await connection.getBalance(new PublicKey(wallet.publicKey));
         return {
           instruction: SystemProgram.transfer({
             fromPubkey: wallet.keypair.publicKey,
@@ -150,7 +154,7 @@ export class ReturnFromSwarmCommand {
 
     tx.sign(this.wallets.map((x) => x.keypair));
 
-    const signature = await this.connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx);
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -158,7 +162,7 @@ export class ReturnFromSwarmCommand {
       lastValidBlockHeight: lastValidBlockHeight,
     };
 
-    await this.connection.confirmTransaction(strategy);
+    await connection.confirmTransaction(strategy);
 
     // Emit transfer events for each source wallet
     for (const transfer of transferInstructions) {

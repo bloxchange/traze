@@ -1,9 +1,10 @@
-import type { WalletInfo, Configuration } from '@/models';
+import type { WalletInfo } from '@/models';
 import type { IBroker } from '../trading/IBroker';
 import type { IBuyParameters } from '../trading/IBuyParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 
@@ -14,7 +15,6 @@ export class SwarmBuyCommand {
   private buyDelay: number;
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
-  private connection: Connection;
   private broker: IBroker;
 
   constructor(
@@ -23,8 +23,7 @@ export class SwarmBuyCommand {
     buyAmounts: string[],
     buyDelay: number,
     slippageBasisPoints: number,
-    priorityFeeInSol: number,
-    configuration: Configuration
+    priorityFeeInSol: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
@@ -33,12 +32,8 @@ export class SwarmBuyCommand {
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
 
-    const connection = new Connection(configuration.rpcUrl);
-
-    this.connection = connection;
-
     const provider: AnchorProvider = new AnchorProvider(
-      connection,
+      ConnectionManager.getInstance().getConnection(),
       new NodeWallet(this.wallets[0].keypair),
       {
         commitment: 'confirmed',
@@ -59,7 +54,9 @@ export class SwarmBuyCommand {
 
     const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
 
-    const balance = (await this.connection.getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
+    const balance =
+      (await ConnectionManager.getInstance().getConnection().getBalance(wallet, 'confirmed')) /
+      LAMPORTS_PER_SOL;
 
     const availableBalance = balance - priorityFeeInSol;
 
@@ -77,9 +74,11 @@ export class SwarmBuyCommand {
       throw new Error('No wallets selected');
     }
 
-    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-    });
+    const prioritizationFees = await ConnectionManager.getInstance()
+      .getConnection()
+      .getRecentPrioritizationFees({
+        lockedWritableAccounts: [new PublicKey(this.tokenMint)],
+      });
 
     let maxCurrentPriorityUnitPrice = 0;
 

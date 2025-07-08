@@ -7,9 +7,17 @@ export interface TransferEventData {
   tokenMint: string;
 }
 
-export interface TradeEventData extends TransferEventData {
-  price: number;
-  txId: string;
+export interface TradeEventData {
+  fromTokenMint: string;
+  toTokenMint: string;
+  fromAccount: PublicKey;
+  toAccount: PublicKey;
+  fromTokenAmount: number;
+  toTokenAmount: number;
+  timestamp: number;
+  status: 'success' | 'pending' | 'error';
+  signature: string;
+  type: 'buy' | 'sell';
 }
 
 export interface ErrorEventData {

@@ -1,4 +1,5 @@
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { TokenInformation } from '../../models/token';
 import { getAsset } from '../rpc';
 import { TokenInformationCache } from '../infrastructure/TokenInformationCache';
@@ -9,12 +10,10 @@ import { getTokenMetadata, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 
 export class GetTokenInformationCommand {
   private tokenMint: string;
-  private connection: Connection;
   private cache: TokenInformationCache;
 
-  constructor(tokenMint: string, connection: Connection) {
+  constructor(tokenMint: string) {
     this.tokenMint = tokenMint;
-    this.connection = connection;
     this.cache = new TokenInformationCache();
   }
 
@@ -65,7 +64,7 @@ export class GetTokenInformationCommand {
   }
 
   private async getFromAsset(): Promise<TokenInformation | null> {
-    const asset = await getAsset(this.connection.rpcEndpoint, this.tokenMint);
+    const asset = await getAsset(this.tokenMint);
 
     console.log(asset);
 
@@ -85,7 +84,7 @@ export class GetTokenInformationCommand {
       };
 
       const meta2022 = await getTokenMetadata(
-        this.connection,
+        ConnectionManager.getInstance().getConnection(),
         new PublicKey(this.tokenMint),
         'confirmed',
         TOKEN_2022_PROGRAM_ID
@@ -141,7 +140,9 @@ export class GetTokenInformationCommand {
   }
 
   private async getByMetaplex(): Promise<TokenInformation | null> {
-    const umi = createUmi(this.connection.rpcEndpoint).use(mplTokenMetadata());
+    const connection = ConnectionManager.getInstance().getConnection();
+
+    const umi = createUmi(connection.rpcEndpoint).use(mplTokenMetadata());
 
     try {
       const dAsset = await fetchDigitalAsset(umi, metaplexPublicKey(this.tokenMint));
@@ -153,6 +154,7 @@ export class GetTokenInformationCommand {
       let externalUrl = '';
 
       const jsonResponse = await fetch(jsonUri);
+
       if (jsonResponse.ok) {
         const jsonData = await jsonResponse.json();
 

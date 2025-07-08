@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, Select, message } from 'antd';
+import { Modal, Form, Select, App as AntdApp } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useConfiguration } from '../../hooks';
 import { ReturnFromSwarmCommand } from '../../domain/commands';
 import type { WalletInfo } from '../../models/wallet';
 
@@ -19,22 +18,20 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
   wallets,
 }) => {
   const { t } = useTranslation();
-  const { configuration } = useConfiguration();
+  const { message } = AntdApp.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
       setLoading(true);
 
-      const returnCommand = new ReturnFromSwarmCommand(
-        values.targetWallet,
-        wallets,
-        configuration.rpcUrl
-      );
+      const returnCommand = new ReturnFromSwarmCommand(values.targetWallet, wallets);
 
       await returnCommand.execute();
+
       onSubmit(values.targetWallet);
     } catch (error) {
       if (error instanceof Error) {

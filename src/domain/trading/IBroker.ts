@@ -1,3 +1,4 @@
+import type TradeEventInfo from '../models/TradeEventInfo';
 import type { IBuyParameters } from './IBuyParameters';
 import type { ISellParameters } from './ISellParameters';
 
@@ -21,4 +22,5 @@ export interface IBroker {
     jitoTipAmount: number,
     jitoUrl: string
   ): Promise<string | null>;
+  translateLogs(logs: string[]): TradeEventInfo;
 }

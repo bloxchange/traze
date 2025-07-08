@@ -31,6 +31,7 @@ import { DEFAULT_COMMITMENT } from '@/domain/infrastructure/consts';
 import type { BondingCurveAccount } from './BondingCurveAccount';
 import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../../infrastructure/events/types';
+import type TradeEventInfo from '@/domain/models/TradeEventInfo';
 
 /* eslint-disable */
 export class PumpFunBroker implements IBroker {
@@ -41,6 +42,19 @@ export class PumpFunBroker implements IBroker {
     this.program = new Program<PumpFun>(IDL as PumpFun, provider);
 
     this.connection = this.program.provider.connection;
+  }
+
+  translateLogs(logs: string[]): TradeEventInfo {
+    const log = logs.find((x) => x.startsWith('Program data:'))!.split('Program data: ')[1];
+    const logData = this.program.coder.events.decode(log!);
+    const tradeEventInfo: TradeEventInfo = {
+      mint: logData!.data.mint,
+      solAmount: logData!.data.solAmount,
+      tokenAmount: logData!.data.tokenAmount,
+      isBuy: logData!.data.isBuy,
+      user: logData!.data.user,
+    };
+    return tradeEventInfo;
   }
 
   withdraw(amount: number, token: string, to: string): Promise<void> {
@@ -282,9 +296,13 @@ export class PumpFunBroker implements IBroker {
       sellParameters.seller
     );
 
+    const estimatedUnitPrice = sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
+      unitPrice: estimatedUnitPrice > sellParameters.maxCurrentPriorityFee
+        ? sellParameters.maxCurrentPriorityFee
+        : estimatedUnitPrice,
     };
 
     const result = await sendTransaction(

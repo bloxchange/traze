@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Checkbox, Space, Typography, Button, message } from 'antd';
+import { Row, Col, Checkbox, Space, Typography, Button, App as AntdApp } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -35,6 +35,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
 }) => {
   const { t } = useTranslation();
   const { tokenState } = useToken();
+  const { message } = AntdApp.useApp();
 
   const handleCopyPublicKey = (publicKey: string) => {
     navigator.clipboard

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, Select, InputNumber, message } from 'antd';
+import { Modal, Form, Select, InputNumber, App as AntdApp } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useConfiguration } from '../../hooks';
 import { FeedSwarmCommand } from '../../domain/commands';
 import type { WalletInfo } from '@/models';
 
@@ -14,7 +13,7 @@ interface FeedSwarmModalProps {
 
 const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmit, wallets }) => {
   const { t } = useTranslation();
-  const { configuration } = useConfiguration();
+  const { message } = AntdApp.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -23,12 +22,7 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmi
       const values = await form.validateFields();
       setLoading(true);
 
-      const feedCommand = new FeedSwarmCommand(
-        values.sourceWallet,
-        values.amount,
-        wallets,
-        configuration.rpcUrl
-      );
+      const feedCommand = new FeedSwarmCommand(values.sourceWallet, values.amount, wallets);
       await feedCommand.execute();
       message.success(t('swarm.feedModal.success'));
 

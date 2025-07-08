@@ -1,4 +1,4 @@
-import { Modal, Input, message } from 'antd';
+import { Modal, Input, App as AntdApp } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PublicKey } from '@solana/web3.js';
@@ -11,6 +11,7 @@ interface SearchModalProps {
 
 const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
   const { t } = useTranslation();
+  const { message } = AntdApp.useApp();
   const [searchValue, setSearchValue] = useState('');
   const { setTokenByMint } = useToken();
 

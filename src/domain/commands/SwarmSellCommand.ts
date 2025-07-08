@@ -1,9 +1,10 @@
-import type { WalletInfo, Configuration } from '@/models';
+import type { WalletInfo } from '@/models';
 import type { IBroker } from '../trading/IBroker';
 import type { ISellParameters } from '../trading/ISellParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
 import { PUMPFUN_PROGRAM_ID } from '../infrastructure/consts';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
@@ -16,7 +17,6 @@ export class SwarmSellCommand {
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
   private broker: IBroker;
-  private connection: Connection;
 
   constructor(
     wallets: WalletInfo[],
@@ -24,8 +24,7 @@ export class SwarmSellCommand {
     sellPercentages: string[],
     sellDelay: number,
     slippageBasisPoints: number,
-    priorityFeeInSol: number,
-    configuration: Configuration
+    priorityFeeInSol: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
@@ -34,9 +33,8 @@ export class SwarmSellCommand {
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
 
-    this.connection = new Connection(configuration.rpcUrl);
     const provider: AnchorProvider = new AnchorProvider(
-      this.connection,
+      ConnectionManager.getInstance().getConnection(),
       new NodeWallet(this.wallets[0].keypair),
       {
         commitment: 'finalized',
@@ -53,13 +51,16 @@ export class SwarmSellCommand {
   }
 
   private async calculateSellAmount(wallet: WalletInfo): Promise<bigint> {
-    const balance = await getTokenBalance(this.connection, wallet.publicKey, this.tokenMint);
+    const balance = await getTokenBalance(wallet.publicKey, this.tokenMint);
+
     const percentage = this.getRandomPercentage();
+
     return BigInt(Math.floor((balance * percentage) / 100));
   }
 
   private getRandomPercentage(): number {
     const randomIndex = Math.floor(Math.random() * this.sellPercentages.length);
+
     return parseFloat(this.sellPercentages[randomIndex]);
   }
 
@@ -74,9 +75,11 @@ export class SwarmSellCommand {
       throw new Error('No wallets selected');
     }
 
-    const prioritizationFees = await this.connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-    });
+    const prioritizationFees = await ConnectionManager.getInstance()
+      .getConnection()
+      .getRecentPrioritizationFees({
+        lockedWritableAccounts: [new PublicKey(this.tokenMint)],
+      });
 
     let maxCurrentPriorityUnitPrice = 0;
 
