@@ -17,6 +17,7 @@ export interface TradeEventData {
   timestamp: number;
   status: 'success' | 'pending' | 'error';
   signature: string;
+  type: 'buy' | 'sell';
 }
 
 export interface ErrorEventData {

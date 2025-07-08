@@ -296,9 +296,13 @@ export class PumpFunBroker implements IBroker {
       sellParameters.seller
     );
 
+    const estimatedUnitPrice = sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
+      unitPrice: estimatedUnitPrice > sellParameters.maxCurrentPriorityFee
+        ? sellParameters.maxCurrentPriorityFee
+        : estimatedUnitPrice,
     };
 
     const result = await sendTransaction(

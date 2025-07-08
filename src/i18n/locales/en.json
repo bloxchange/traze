@@ -123,7 +123,14 @@
   },
   "transactions": {
     "title": "Transactions",
-    "description": "Track and analyze transaction history."
+    "description": "Track and analyze transaction history.",
+    "timestamp": "Time",
+    "type": "Type",
+    "amount": "Amount",
+    "status": "Status",
+    "signature": "Signature",
+    "buy": "Buy",
+    "sell": "Sell"
   },
   "search": {
     "title": "Search",

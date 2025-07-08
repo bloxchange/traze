@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import type { Logs } from '@solana/web3.js';
 import type { TokenState } from '../models/token';
 import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformationCommand';
-import { TranslateLogsCommand } from '../domain/commands/TranslateLogsCommand';
 import { TokenContext, useConfiguration, useRpcConnection } from '../hooks';
+import { GetTradeInfoCommand } from '../domain/commands/GetTradeInfoCommand';
+import { globalEventEmitter } from '../domain/infrastructure/events/EventEmitter';
+import { EVENTS } from '../domain/infrastructure/events/types';
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { configuration } = useConfiguration();
 
@@ -19,10 +21,14 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     if (tokenState.currentToken) {
-      connectionManager?.subscribeTokenLogs(tokenState.currentToken.mint, (logs: Logs) => {
-        const translateLogsCommand = new TranslateLogsCommand();
-        const translatedLog = translateLogsCommand.execute(logs);
-        console.log('Translated token logs:', translatedLog);
+      connectionManager?.subscribeTokenLogs(tokenState.currentToken.mint, async (logs: Logs) => {
+        const getTradeInfoCommand = new GetTradeInfoCommand(logs.signature);
+
+        const tradeInfo = await getTradeInfoCommand.execute();
+
+        if (tradeInfo) {
+          globalEventEmitter.emit(EVENTS.BuySuccess, tradeInfo);
+        }
       });
     }
 
@@ -50,7 +56,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }
 
   const setTokenByMint = async (mint: string) => {
-    const prevTokenMint = tokenState.currentToken?.mint;
+    // const prevTokenMint = tokenState.currentToken?.mint;
 
     setTokenState((prev) => ({ ...prev, loading: true, error: null }));
 
@@ -67,19 +73,19 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }));
 
       // Subscribe to token logs
-      if (mint) {
-        if (prevTokenMint) {
-          connectionManager?.unsubscribeTokenLogs(prevTokenMint);
-        }
+      // if (mint) {
+      //   if (prevTokenMint) {
+      //     connectionManager?.unsubscribeTokenLogs(prevTokenMint);
+      //   }
 
-        connectionManager?.subscribeTokenLogs(mint, (logs: Logs) => {
-          const translateLogsCommand = new TranslateLogsCommand();
-          const translatedLog = translateLogsCommand.execute(logs);
-          console.log('Translated token logs:', translatedLog);
-        });
-      } else {
-        connectionManager?.unsubscribeAll();
-      }
+      //   connectionManager?.subscribeTokenLogs(mint, (logs: Logs) => {
+      //     const translateLogsCommand = new TranslateLogsCommand();
+      //     const translatedLog = translateLogsCommand.execute(logs);
+      //     console.log('Translated token logs:', translatedLog);
+      //   });
+      // } else {
+      //   connectionManager?.unsubscribeAll();
+      // }
     } catch (error) {
       setTokenState((prev) => ({
         ...prev,
