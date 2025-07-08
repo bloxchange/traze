@@ -8,6 +8,8 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
+import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
+import { EVENTS } from '../infrastructure/events/types';
 
 export class SwarmSellCommand {
   private wallets: WalletInfo[];
@@ -105,7 +107,14 @@ export class SwarmSellCommand {
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
-      await this.broker.sell(sellParameters);
+      const signature = await this.broker.sell(sellParameters);
+      if (signature) {
+        globalEventEmitter.emit(EVENTS.TransactionCreated, {
+          signature,
+          type: 'sell',
+          owner: wallet.keypair.publicKey,
+        });
+      }
 
       if (this.sellDelay > 0 && selectedWallets.indexOf(wallet) < selectedWallets.length - 1) {
         await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds

@@ -119,7 +119,15 @@
   },
   "transactions": {
     "title": "Giao dịch",
-    "description": "Theo dõi và phân tích lịch sử giao dịch."
+    "description": "Theo dõi và phân tích lịch sử giao dịch.",
+    "timestamp": "Thời gian",
+    "type": "Loại",
+    "amount": "Số lượng",
+    "status": "Trạng thái",
+    "signature": "Chữ ký",
+    "buy": "Mua",
+    "sell": "Bán",
+    "description": "Thành phần này chỉ nhận cập nhật giao dịch từ các nhóm đang mở."
   },
   "search": {
     "title": "Tìm kiếm",

@@ -32,7 +32,18 @@ export interface BalanceChangeData {
   owner: PublicKey;
 }
 
-export type EventData = BalanceChangeData | TransferEventData | TradeEventData | ErrorEventData;
+export interface TransactionEventData {
+  signature: string;
+  type: 'buy' | 'sell';
+  owner: PublicKey;
+}
+
+export type EventData =
+  | BalanceChangeData
+  | TransferEventData
+  | TradeEventData
+  | ErrorEventData
+  | TransactionEventData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -43,4 +54,5 @@ export const EVENTS = {
   SellSuccess: 'sellSuccess',
   SellError: 'sellError',
   BalanceChanged: 'balanceChanged',
+  TransactionCreated: 'transactionCreated',
 } as const;
