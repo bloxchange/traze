@@ -11,7 +11,6 @@
     "balanceUpdateModeRpc": "使用 RPC 终端",
     "balanceUpdateModeCalculate": "不使用 RPC 计算"
   },
-
   "dashboard": {
     "title": "仪表板",
     "welcomeMessage": "欢迎使用 Bloxchange"
@@ -99,7 +98,6 @@
     "copyFailed": "复制失败",
     "installPhantom": "请安装 Phantom 钱包"
   },
-
   "tokenInformation": {
     "title": "代币信息",
     "description": "查看详细的代币信息和统计数据。",
@@ -121,7 +119,6 @@
   },
   "transactions": {
     "title": "交易",
-    "description": "追踪和分析交易历史。",
     "timestamp": "时间",
     "type": "类型",
     "amount": "数量",
@@ -134,5 +131,9 @@
   "search": {
     "title": "搜索",
     "placeholder": "输入公钥或交易哈希"
+  },
+  "disclaimer": {
+    "title": "免责声明",
+    "content": "<p>本软件完全免费且服务于社区。使用本软件即表示您知晓并同意：</p><ul><li>加密货币交易具有重大风险，可能导致投资资本损失。</li><li>您对自己的交易决策及由此产生的盈亏完全负责。</li><li>软件开发者和贡献者对使用本软件所产生的任何损失或损害不承担责任。</li><li>您将遵守所在司法管辖区关于加密货币交易的所有适用法律法规。</li></ul>"
   }
 }

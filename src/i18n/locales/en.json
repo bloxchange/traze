@@ -11,12 +11,10 @@
     "balanceUpdateModeRpc": "Use RPC endpoint",
     "balanceUpdateModeCalculate": "Calculate without RPC"
   },
-
   "dashboard": {
     "title": "Dashboard",
     "welcomeMessage": "Welcome to Bloxchange"
   },
-
   "swarm": {
     "generalTab": "General",
     "slippage": "Slippage",
@@ -100,7 +98,6 @@
     "copyFailed": "Failed to copy",
     "installPhantom": "Please install Phantom wallet"
   },
-
   "tokenInformation": {
     "title": "Token Information",
     "description": "View detailed token information and statistics.",
@@ -116,14 +113,12 @@
     "lastUpdated": "Last Updated",
     "totalSupply": "Total Supply"
   },
-
   "liquidityPools": {
     "title": "Liquidity Pools",
     "description": "Monitor and manage liquidity pool positions."
   },
   "transactions": {
     "title": "Transactions",
-    "description": "Track and analyze transaction history.",
     "timestamp": "Time",
     "type": "Type",
     "amount": "Amount",
@@ -136,5 +131,9 @@
   "search": {
     "title": "Search",
     "placeholder": "Enter public key or transaction hash"
+  },
+  "disclaimer": {
+    "title": "Disclaimer",
+    "content": "<p>This software is completely free and for community. By using this software, you acknowledge and agree that:</p><ul><li>Trading cryptocurrencies involves substantial risk and may result in the loss of your invested capital.</li><li>You are solely responsible for your trading decisions and any resulting gains or losses.</li><li>The software developers and contributors are not liable for any damages or losses incurred through the use of this software.</li><li>You will comply with all applicable laws and regulations in your jurisdiction regarding cryptocurrency trading.</li></ul>"
   }
 }
