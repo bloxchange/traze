@@ -132,6 +132,10 @@
     "title": "Tìm kiếm",
     "placeholder": "Nhập khóa công khai hoặc mã giao dịch"
   },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "content": "<h3>Traze là gì?</h3><p>Traze là một công cụ giao dịch mã nguồn mở và miễn phí, được thiết kế cho cộng đồng để giúp quản lý và theo dõi hoạt động giao dịch tiền điện tử.</p><h3>Làm thế nào để bắt đầu?</h3><p>1. Cấu hình điểm cuối RPC trong cài đặt<br>2. Tạo bầy đàn mới hoặc nhập ví hiện có<br>3. Chọn token để giao dịch<br>4. Bắt đầu theo dõi và giao dịch</p><h3>Có an toàn để sử dụng không?</h3><p>Traze được thiết kế với tính bảo mật cao. Khóa riêng tư của bạn được lưu trữ cục bộ và không bao giờ được gửi đến bất kỳ máy chủ bên ngoài nào. Tuy nhiên, hãy luôn thận trọng và không bao giờ chia sẻ khóa riêng tư của bạn với bất kỳ ai.</p><h3>Tôi có thể nhận hỗ trợ ở đâu?</h3><p>Tham gia các kênh cộng đồng của chúng tôi để nhận hỗ trợ và cập nhật:<br>- Discord: [Sắp ra mắt]<br>- Twitter: [Sắp ra mắt]<br>- GitHub: [Sắp ra mắt]</p>"
+  },
   "disclaimer": {
     "title": "Tuyên bố miễn trừ trách nhiệm",
     "content": "<p>Phần mềm này hoàn toàn miễn phí và phục vụ cộng đồng. Bằng việc sử dụng phần mềm này, bạn xác nhận và đồng ý rằng:</p><ul><li>Giao dịch tiền điện tử có rủi ro đáng kể và có thể dẫn đến mất vốn đầu tư.</li><li>Bạn hoàn toàn chịu trách nhiệm về các quyết định giao dịch và mọi khoản lãi hoặc lỗ phát sinh.</li><li>Các nhà phát triển và cộng tác viên của phần mềm không chịu trách nhiệm về bất kỳ thiệt hại hoặc tổn thất nào phát sinh từ việc sử dụng phần mềm này.</li><li>Bạn sẽ tuân thủ tất cả các luật và quy định hiện hành tại khu vực pháp lý của mình về giao dịch tiền điện tử.</li></ul>"
