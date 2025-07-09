@@ -88,6 +88,7 @@
   },
   "common": {
     "tooltips": {
+      "manual": "Hướng dẫn sử dụng",
       "roadmap": "Lộ trình",
       "faq": "Câu hỏi thường gặp",
       "search": "Tìm kiếm",
@@ -157,5 +158,8 @@
     "send": "Gửi Tip",
     "sendFromPhantom": "Gửi từ ví Phantom:",
     "sendUsingPublicAddress": "Hoặc tự gửi bằng địa chỉ công khai:"
+  },
+  "manual": {
+    "title": "Hướng dẫn sử dụng"
   }
 }

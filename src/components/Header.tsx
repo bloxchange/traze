@@ -5,6 +5,7 @@ import {
   SearchOutlined,
   GiftFilled,
   QuestionCircleOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 import { MapOutlined } from './icons';
 import { Layout as FlexLayout } from 'flexlayout-react';
@@ -13,6 +14,7 @@ import SearchModal from './SearchModal';
 import TipModal from './TipModal';
 import FaqModal from './FaqModal';
 import { RoadMapModal } from './RoadMapModal';
+import ManualModal from './ManualModal';
 import type { ThemeMode } from '../theme';
 import { useState } from 'react';
 import ConfigModal from './ConfigModal';
@@ -39,6 +41,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
   const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
   const [isRoadMapModalOpen, setIsRoadMapModalOpen] = useState(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const { configuration, updateConfiguration } = useConfiguration();
   const { token } = theme.useToken();
 
@@ -80,6 +83,9 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
+        <Tooltip title={t('common.tooltips.manual')}>
+          <Button type="text" icon={<ReadOutlined />} onClick={() => setIsManualModalOpen(true)} />
+        </Tooltip>
         <Tooltip title={t('common.tooltips.roadmap')}>
           <Button type="text" icon={<MapOutlined />} onClick={() => setIsRoadMapModalOpen(true)} />
         </Tooltip>
@@ -139,6 +145,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       <TipModal open={isTipModalOpen} onCancel={() => setIsTipModalOpen(false)} />
       <FaqModal open={isFaqModalOpen} onCancel={() => setIsFaqModalOpen(false)} />
       <RoadMapModal open={isRoadMapModalOpen} onClose={() => setIsRoadMapModalOpen(false)} />
+      <ManualModal open={isManualModalOpen} onCancel={() => setIsManualModalOpen(false)} />
     </Layout.Header>
   );
 };

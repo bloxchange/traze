@@ -88,6 +88,7 @@
   },
   "common": {
     "tooltips": {
+      "manual": "User Manual",
       "roadmap": "Roadmap",
       "faq": "FAQ",
       "search": "Search",
@@ -157,5 +158,8 @@
     "send": "Send Tip",
     "sendFromPhantom": "Send Tip from Phantom wallet:",
     "sendUsingPublicAddress": "Or do it yourself with the public address:"
+  },
+  "manual": {
+    "title": "User Manual"
   }
 }
