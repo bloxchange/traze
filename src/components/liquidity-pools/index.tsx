@@ -1,21 +1,15 @@
 import React from 'react';
-import { Typography } from 'antd';
-import { useTranslation } from 'react-i18next';
-
-const { Title } = Typography;
+import { Card, Typography } from 'antd';
 
 interface LiquidityPoolsProps {
   name: string;
 }
 
-const LiquidityPools: React.FC<LiquidityPoolsProps> = ({ name }) => {
-  const { t } = useTranslation();
-
+const LiquidityPools: React.FC<LiquidityPoolsProps> = () => {
   return (
-    <div>
-      <Title level={4}>{name}</Title>
-      <Typography.Text>{t('liquidityPools.description')}</Typography.Text>
-    </div>
+    <Card variant='borderless'>
+      <Typography.Text>Under construction</Typography.Text>
+    </Card>
   );
 };
 

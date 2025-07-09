@@ -87,6 +87,18 @@
     }
   },
   "common": {
+    "tooltips": {
+      "roadmap": "路线图",
+      "faq": "常见问题",
+      "search": "搜索",
+      "settings": "设置",
+      "sendTip": "发送打赏",
+      "switchTheme": {
+        "toLight": "切换到亮色模式",
+        "toDark": "切换到暗色模式"
+      },
+      "changeLanguage": "切换语言"
+    },
     "clear": "清除",
     "confirm": "确认",
     "cancel": "取消",
@@ -96,7 +108,8 @@
     "untitled": "未命名",
     "copySuccess": "已复制到剪贴板",
     "copyFailed": "复制失败",
-    "installPhantom": "请安装 Phantom 钱包"
+    "installPhantom": "请安装 Phantom 钱包",
+    "refresh": "刷新"
   },
   "tokenInformation": {
     "title": "代币信息",
