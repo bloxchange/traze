@@ -88,6 +88,7 @@
   },
   "common": {
     "tooltips": {
+      "manual": "使用手册",
       "roadmap": "路线图",
       "faq": "常见问题",
       "search": "搜索",
@@ -157,5 +158,8 @@
     "send": "发送打赏",
     "sendFromPhantom": "从 Phantom 钱包发送打赏：",
     "sendUsingPublicAddress": "或者使用公共地址自行发送："
+  },
+  "manual": {
+    "title": "使用手册"
   }
 }
