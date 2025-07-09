@@ -29,12 +29,14 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+
       if (!window.solana || !window.solana.isPhantom) {
         message.error(t('common.installPhantom'));
         return;
       }
 
       const tipAmount = parseFloat(amount);
+
       if (isNaN(tipAmount) || tipAmount <= 0) {
         message.error(t('tip.invalidAmount'));
         return;
@@ -93,10 +95,7 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
       </div>
       <div>
         <div style={{ marginBottom: 8 }}>{t('tip.sendUsingPublicAddress')}</div>
-        <Input
-          value={TIP_WALLET}
-          readOnly
-        />
+        <Input value={TIP_WALLET} readOnly />
       </div>
     </Modal>
   );
