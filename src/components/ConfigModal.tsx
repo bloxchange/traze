@@ -24,6 +24,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
 
   return (
     <Modal title={t('settings.configuration')} open={open} onOk={handleOk} onCancel={onCancel}>
+      <p style={{ marginBottom: 16 }}>{t('settings.description')}</p>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="rpcUrl"
@@ -40,13 +41,18 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
           <Input />
         </Form.Item>
         <Form.Item
-          name="jitoEndpoint"
           label={t('settings.jitoEndpoint')}
+          name="jitoEndpoint"
           rules={[{ required: true, message: t('settings.jitoEndpointRequired') }]}
+          extra={t('settings.jitoEndpointDescription')}
         >
           <Input />
         </Form.Item>
-        <Form.Item name="balanceUpdateMode" label={t('settings.balanceUpdateMode')}>
+        <Form.Item
+          name="balanceUpdateMode"
+          label={t('settings.balanceUpdateMode')}
+          extra={t('settings.balanceUpdateModeDescription')}
+        >
           <Radio.Group>
             <Radio value="rpc">{t('settings.balanceUpdateModeRpc')}</Radio>
             <Radio value="calculate">{t('settings.balanceUpdateModeCalculate')}</Radio>
