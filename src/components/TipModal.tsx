@@ -2,6 +2,7 @@ import { Modal, Input, Button, App as AntdApp } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { TIP_WALLET } from '../consts';
 
 declare global {
   interface Window {
@@ -13,7 +14,6 @@ declare global {
     };
   }
 }
-import { TIP_WALLET } from '../consts';
 
 interface TipModalProps {
   open: boolean;
@@ -80,14 +80,24 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
         </Button>,
       ]}
     >
-      <Input
-        placeholder={t('tip.enterAmount')}
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        type="number"
-        min="0"
-        step="0.01"
-      />
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 8 }}>Send from your Phantom wallet:</div>
+        <Input
+          placeholder={t('tip.sendFromPhantom')}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          type="number"
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div>
+        <div style={{ marginBottom: 8 }}>{t('tip.sendUsingPublicAddress')}</div>
+        <Input
+          value={TIP_WALLET}
+          readOnly
+        />
+      </div>
     </Modal>
   );
 };
