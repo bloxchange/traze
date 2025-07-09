@@ -73,6 +73,7 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmi
           name="amount"
           label={t('swarm.feedModal.amount')}
           rules={[{ required: true, message: t('common.required') }]}
+          extra={t('swarm.feedModal.amountDescription')}
         >
           <InputNumber
             min={0.000001}

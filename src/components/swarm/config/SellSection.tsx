@@ -9,7 +9,11 @@ const SellSection: React.FC<SellConfigProps> = ({ availablePercentages, defaultU
 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <Form.Item name="sellPercentages" label={t('swarm.percentageAmount')}>
+      <Form.Item
+        name="sellPercentages"
+        label={t('swarm.percentageAmount')}
+        extra={t('swarm.percentageAmountDescription')}
+      >
         <Checkbox.Group
           options={availablePercentages.map((percentage: string) => ({
             label: `${percentage}%`,
@@ -20,7 +24,12 @@ const SellSection: React.FC<SellConfigProps> = ({ availablePercentages, defaultU
       <Form.Item label={t('swarm.delayInSeconds')} name="sellDelay">
         <Input type="number" min={0} />
       </Form.Item>
-      <Form.Item name="useJitoBundle" valuePropName="checked" initialValue={defaultUseJitoBundle}>
+      <Form.Item
+        name="useJitoBundle"
+        valuePropName="checked"
+        initialValue={defaultUseJitoBundle}
+        extra={t('swarm.useJitoBundleDescription')}
+      >
         <Checkbox>{t('swarm.useJitoBundle')}</Checkbox>
       </Form.Item>
     </Space>
