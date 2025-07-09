@@ -25,6 +25,6 @@ Traze is built with security as its top priority. It operates exclusively in you
 
 ## Where Can I Get Support?
 Connect with the community through these channels:
-- Discord: [Coming soon]
-- Twitter: [Coming soon]
-- GitHub: [Coming soon]
+- Discord: https://discord.gg/fVM6pd3Z
+- X: https://x.com/bloxchangedev
+- GitHub: https://github.com/bloxchange/traze

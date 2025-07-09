@@ -24,6 +24,6 @@ Traze được thiết kế với tính bảo mật cao. Nó chỉ chạy trên 
 
 ## Tôi có thể nhận hỗ trợ ở đâu?
 Tham gia các kênh cộng đồng để nhận hỗ trợ và cập nhật:
-- Discord: [Sắp ra mắt]
-- Twitter: [Sắp ra mắt]
-- GitHub: [Sắp ra mắt]
+- Discord: https://discord.gg/fVM6pd3Z
+- X: https://x.com/bloxchangedev
+- GitHub: https://github.com/bloxchange/traze
