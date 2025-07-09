@@ -87,6 +87,18 @@
     }
   },
   "common": {
+    "tooltips": {
+      "roadmap": "Lộ trình",
+      "faq": "Câu hỏi thường gặp",
+      "search": "Tìm kiếm",
+      "settings": "Cài đặt",
+      "sendTip": "Gửi tiền ủng hộ",
+      "switchTheme": {
+        "toLight": "Chuyển sang chế độ sáng",
+        "toDark": "Chuyển sang chế độ tối"
+      },
+      "changeLanguage": "Thay đổi ngôn ngữ"
+    },
     "clear": "Xóa",
     "confirm": "Xác nhận",
     "cancel": "Hủy",
@@ -96,7 +108,8 @@
     "untitled": "Chưa đặt tên",
     "copySuccess": "Đã sao chép vào clipboard",
     "copyFailed": "Sao chép thất bại",
-    "installPhantom": "Vui lòng cài đặt ví Phantom"
+    "installPhantom": "Vui lòng cài đặt ví Phantom",
+    "refresh": "Làm mới"
   },
   "tokenInformation": {
     "title": "Thông tin Token",

@@ -1,4 +1,4 @@
-import { Space, Switch, Select, Button, Layout, theme } from 'antd';
+import { Space, Switch, Select, Button, Layout, theme, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
   SettingOutlined,
@@ -18,6 +18,7 @@ import { useState } from 'react';
 import ConfigModal from './ConfigModal';
 import { useConfiguration } from '../hooks/useConfiguration';
 import type { Configuration } from '../models';
+import { CURRENT_VERSION } from '../consts';
 
 interface HeaderProps {
   theme: ThemeMode;
@@ -32,7 +33,7 @@ const languageOptions = [
 ];
 
 const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThemeChange }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
@@ -60,34 +61,73 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         borderBottom: '1px solid var(--ant-color-border)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <img src="/traze.png" alt="Traze Logo" style={{ height: 48 }} />
-        <span style={{ color: token.colorText, fontSize: 32, fontWeight: 500, lineHeight: 1 }}>
+        <span
+          style={{
+            color: token.colorText,
+            fontSize: 32,
+            fontWeight: 500,
+            lineHeight: 1,
+            marginLeft: 8,
+          }}
+        >
           traze
+        </span>
+        <span style={{ fontSize: 10, color: token.colorTextDescription, paddingTop: 20 }}>
+          {CURRENT_VERSION}
         </span>
       </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
-        <Button type="text" icon={<MapOutlined />} onClick={() => setIsRoadMapModalOpen(true)} />
-        <Button
-          type="text"
-          icon={<QuestionCircleOutlined />}
-          onClick={() => setIsFaqModalOpen(true)}
-        />
-        <Button type="text" icon={<SearchOutlined />} onClick={() => setIsSearchModalOpen(true)} />
-        <Button type="text" icon={<SettingOutlined />} onClick={() => setIsConfigModalOpen(true)} />
-        <Button
-          type="text"
-          icon={<GiftFilled style={{ color: token.colorPrimary }} />}
-          onClick={() => setIsTipModalOpen(true)}
-        />
-        <Switch
-          checkedChildren="🌙"
-          unCheckedChildren="☀️"
-          checked={themeMode === 'dark'}
-          onChange={onThemeChange}
-        />
-        <Select value={i18n.language} onChange={handleLanguageChange} options={languageOptions} />
+        <Tooltip title={t('common.tooltips.roadmap')}>
+          <Button type="text" icon={<MapOutlined />} onClick={() => setIsRoadMapModalOpen(true)} />
+        </Tooltip>
+        <Tooltip title={t('common.tooltips.faq')}>
+          <Button
+            type="text"
+            icon={<QuestionCircleOutlined />}
+            onClick={() => setIsFaqModalOpen(true)}
+          />
+        </Tooltip>
+        <Tooltip title={t('common.tooltips.search')}>
+          <Button
+            type="text"
+            icon={<SearchOutlined />}
+            onClick={() => setIsSearchModalOpen(true)}
+          />
+        </Tooltip>
+        <Tooltip title={t('common.tooltips.settings')}>
+          <Button
+            type="text"
+            icon={<SettingOutlined />}
+            onClick={() => setIsConfigModalOpen(true)}
+          />
+        </Tooltip>
+        <Tooltip title={t('common.tooltips.sendTip')}>
+          <Button
+            type="text"
+            icon={<GiftFilled style={{ color: token.colorPrimary }} />}
+            onClick={() => setIsTipModalOpen(true)}
+          />
+        </Tooltip>
+        <Tooltip
+          title={t(
+            themeMode === 'dark'
+              ? 'common.tooltips.switchTheme.toLight'
+              : 'common.tooltips.switchTheme.toDark'
+          )}
+        >
+          <Switch
+            checkedChildren="🌙"
+            unCheckedChildren="☀️"
+            checked={themeMode === 'dark'}
+            onChange={onThemeChange}
+          />
+        </Tooltip>
+        <Tooltip title={t('common.tooltips.changeLanguage')}>
+          <Select value={i18n.language} onChange={handleLanguageChange} options={languageOptions} />
+        </Tooltip>
       </Space>
       <ConfigModal
         open={isConfigModalOpen}
