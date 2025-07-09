@@ -63,7 +63,15 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <img src="/traze.png" alt="Traze Logo" style={{ height: 48 }} />
-        <span style={{ color: token.colorText, fontSize: 32, fontWeight: 500, lineHeight: 1, marginLeft: 8 }}>
+        <span
+          style={{
+            color: token.colorText,
+            fontSize: 32,
+            fontWeight: 500,
+            lineHeight: 1,
+            marginLeft: 8,
+          }}
+        >
           traze
         </span>
         <span style={{ fontSize: 10, color: token.colorTextDescription, paddingTop: 20 }}>
@@ -83,10 +91,18 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
           />
         </Tooltip>
         <Tooltip title={t('common.tooltips.search')}>
-          <Button type="text" icon={<SearchOutlined />} onClick={() => setIsSearchModalOpen(true)} />
+          <Button
+            type="text"
+            icon={<SearchOutlined />}
+            onClick={() => setIsSearchModalOpen(true)}
+          />
         </Tooltip>
         <Tooltip title={t('common.tooltips.settings')}>
-          <Button type="text" icon={<SettingOutlined />} onClick={() => setIsConfigModalOpen(true)} />
+          <Button
+            type="text"
+            icon={<SettingOutlined />}
+            onClick={() => setIsConfigModalOpen(true)}
+          />
         </Tooltip>
         <Tooltip title={t('common.tooltips.sendTip')}>
           <Button
@@ -95,7 +111,13 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
             onClick={() => setIsTipModalOpen(true)}
           />
         </Tooltip>
-        <Tooltip title={t(themeMode === 'dark' ? 'common.tooltips.switchTheme.toLight' : 'common.tooltips.switchTheme.toDark')}>
+        <Tooltip
+          title={t(
+            themeMode === 'dark'
+              ? 'common.tooltips.switchTheme.toLight'
+              : 'common.tooltips.switchTheme.toDark'
+          )}
+        >
           <Switch
             checkedChildren="🌙"
             unCheckedChildren="☀️"

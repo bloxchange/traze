@@ -7,7 +7,7 @@ interface LiquidityPoolsProps {
 
 const LiquidityPools: React.FC<LiquidityPoolsProps> = () => {
   return (
-    <Card variant='borderless'>
+    <Card variant="borderless">
       <Typography.Text>Under construction</Typography.Text>
     </Card>
   );
