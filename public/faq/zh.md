@@ -24,6 +24,6 @@ Traze 在设计时就考虑到了安全性。它只在您的浏览器中运行�
 
 ## 在哪里可以获得支持？
 加入社区频道获取支持和更新：
-- Discord：[即将推出]
-- Twitter：[即将推出]
-- GitHub：[即将推出]
+- Discord: https://discord.gg/fVM6pd3Z
+- X: https://x.com/bloxchangedev
+- GitHub: https://github.com/bloxchange/traze

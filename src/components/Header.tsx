@@ -6,6 +6,7 @@ import {
   GiftFilled,
   QuestionCircleOutlined,
   ReadOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import { MapOutlined } from './icons';
 import { Layout as FlexLayout } from 'flexlayout-react';
@@ -15,6 +16,7 @@ import TipModal from './TipModal';
 import FaqModal from './FaqModal';
 import { RoadMapModal } from './RoadMapModal';
 import ManualModal from './ManualModal';
+import ContactModal from './ContactModal';
 import type { ThemeMode } from '../theme';
 import { useState } from 'react';
 import ConfigModal from './ConfigModal';
@@ -42,6 +44,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
   const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
   const [isRoadMapModalOpen, setIsRoadMapModalOpen] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const { configuration, updateConfiguration } = useConfiguration();
   const { token } = theme.useToken();
 
@@ -83,6 +86,13 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
       <Space>
+        <Tooltip title={t('common.tooltips.contact')}>
+          <Button
+            type="text"
+            icon={<MessageOutlined />}
+            onClick={() => setIsContactModalOpen(true)}
+          />
+        </Tooltip>
         <Tooltip title={t('common.tooltips.manual')}>
           <Button type="text" icon={<ReadOutlined />} onClick={() => setIsManualModalOpen(true)} />
         </Tooltip>
@@ -146,6 +156,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
       <FaqModal open={isFaqModalOpen} onCancel={() => setIsFaqModalOpen(false)} />
       <RoadMapModal open={isRoadMapModalOpen} onClose={() => setIsRoadMapModalOpen(false)} />
       <ManualModal open={isManualModalOpen} onCancel={() => setIsManualModalOpen(false)} />
+      <ContactModal open={isContactModalOpen} onCancel={() => setIsContactModalOpen(false)} />
     </Layout.Header>
   );
 };

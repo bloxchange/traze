@@ -94,6 +94,7 @@
       "search": "Tìm kiếm",
       "settings": "Cài đặt",
       "sendTip": "Gửi tiền ủng hộ",
+      "contact": "Liên hệ",
       "switchTheme": {
         "toLight": "Chuyển sang chế độ sáng",
         "toDark": "Chuyển sang chế độ tối"
@@ -161,5 +162,8 @@
   },
   "manual": {
     "title": "Hướng dẫn sử dụng"
+  },
+  "contact": {
+    "description": "Liên hệ với chúng tôi qua các kênh sau:"
   }
 }

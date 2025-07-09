@@ -1,41 +1,41 @@
 {
   "settings": {
     "configuration": "配置",
-    "rpcUrl": "RPC 地址",
-    "rpcUrlRequired": "请输入 RPC 地址！",
-    "rpcWebsocketUrl": "RPC Websocket 地址",
-    "rpcWebsocketUrlRequired": "请输入 RPC Websocket 地址！",
-    "jitoEndpoint": "Jito 终端",
-    "jitoEndpointRequired": "请输入 Jito 终端地址！",
+    "rpcUrl": "RPC URL",
+    "rpcUrlRequired": "请输入RPC URL！",
+    "rpcWebsocketUrl": "RPC Websocket URL",
+    "rpcWebsocketUrlRequired": "请输入RPC Websocket URL！",
+    "jitoEndpoint": "Jito 端点",
+    "jitoEndpointRequired": "请输入Jito端点！",
     "balanceUpdateMode": "余额更新模式",
-    "balanceUpdateModeRpc": "使用 RPC 终端",
-    "balanceUpdateModeCalculate": "不使用 RPC 计算"
+    "balanceUpdateModeRpc": "使用RPC端点",
+    "balanceUpdateModeCalculate": "无RPC计算"
   },
   "dashboard": {
-    "title": "仪表板",
+    "title": "仪表盘",
     "welcomeMessage": "欢迎使用 Bloxchange"
   },
   "swarm": {
     "generalTab": "通用",
     "slippage": "滑点",
-    "priorityFee": "优先费",
-    "jitoTipAmount": "Jito 小费金额",
-    "useJitoBundle": "售罄时使用 Jito 捆绑",
+    "priorityFee": "优先费用",
+    "jitoTipAmount": "Jito小费金额",
+    "useJitoBundle": "清仓时使用Jito包",
     "title": "蜂群",
-    "feed": "注资",
-    "return": "返还",
+    "feed": "注入",
+    "return": "返回",
     "clear": "清除",
     "createWallets": "创建钱包",
     "config": "配置",
     "showList": "显示列表",
     "buy": "买入",
     "sell": "卖出",
-    "flush": "售罄",
+    "flush": "清仓",
     "wallet": "钱包",
     "sol": "SOL",
     "token": "代币",
-    "walletsClearedSuccess": "钱包已成功清除",
-    "walletsCreatedSuccess": "钱包已成功创建",
+    "walletsClearedSuccess": "钱包清除成功",
+    "walletsCreatedSuccess": "钱包创建成功",
     "name": "蜂群名称",
     "nameRequired": "请输入蜂群名称！",
     "editName": "编辑蜂群名称",
@@ -43,31 +43,31 @@
     "save": "保存",
     "buyTab": "买入",
     "sellTab": "卖出",
-    "amountInSol": "SOL 数量",
+    "amountInSol": "SOL数量",
     "delayInSeconds": "延迟（秒）",
-    "percentageAmount": "百分比数量",
-    "editAmounts": "编辑数量",
-    "enterAmounts": "输入数量（用逗号分隔）",
+    "percentageAmount": "百分比",
+    "editAmounts": "编辑金额",
+    "enterAmounts": "输入金额（用逗号分隔）",
     "back": "返回",
     "createSwarm": "创建蜂群",
-    "publicKeys": "公钥列表",
+    "publicKeys": "公钥",
     "enterPublicKeys": "每行输入一个公钥",
     "generateNewKeys": "生成新密钥",
-    "generateKeysPlaceholder": "输入要生成的新密钥数量",
+    "generateKeysPlaceholder": "要生成的新密钥数量",
     "clearConfirmTitle": "清除钱包",
-    "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤消。",
+    "clearConfirmContent": "确定要清除所有钱包吗？此操作无法撤销。",
     "noTokenSelected": "请先选择代币",
     "noConfigSet": "请先配置蜂群设置",
-    "buySuccess": "买入订单执行成功",
-    "buyError": "买入订单执行失败",
+    "buySuccess": "买入指令执行成功",
+    "buyError": "买入指令执行失败",
     "createModal": {
       "title": "创建蜂群",
       "privateKeys": "私钥",
       "privateKeysPlaceholder": "每行输入一个私钥",
       "privateKeysRequired": "请输入私钥！",
-      "invalidPrivateKey": "无效的私钥格式",
+      "invalidPrivateKey": "私钥格式无效",
       "generateCount": "生成额外密钥",
-      "generateCountPlaceholder": "输入要生成的额外密钥数量",
+      "generateCountPlaceholder": "要生成的额外密钥数量",
       "atLeastOneRequired": "请提供私钥或设置要生成的密钥数量"
     },
     "returnModal": {
@@ -75,15 +75,15 @@
       "targetWallet": "目标钱包"
     },
     "feedModal": {
-      "title": "注资 SOL",
+      "title": "注入SOL",
       "sourceWallet": "源钱包",
-      "phantomWallet": "Phantom 钱包",
+      "phantomWallet": "Phantom钱包",
       "amount": "数量",
-      "amountPlaceholder": "输入注资数量",
+      "amountPlaceholder": "输入注入数量",
       "cancel": "取消",
       "confirm": "确认",
-      "success": "SOL 转账成功",
-      "error": "SOL 转账失败"
+      "success": "SOL转账成功",
+      "error": "SOL转账失败"
     }
   },
   "common": {
@@ -93,10 +93,11 @@
       "faq": "常见问题",
       "search": "搜索",
       "settings": "设置",
-      "sendTip": "发送打赏",
+      "sendTip": "发送小费",
+      "contact": "联系我们",
       "switchTheme": {
-        "toLight": "切换到亮色模式",
-        "toDark": "切换到暗色模式"
+        "toLight": "切换到浅色模式",
+        "toDark": "切换到深色模式"
       },
       "changeLanguage": "切换语言"
     },
@@ -109,27 +110,27 @@
     "untitled": "未命名",
     "copySuccess": "已复制到剪贴板",
     "copyFailed": "复制失败",
-    "installPhantom": "请安装 Phantom 钱包",
+    "installPhantom": "请安装Phantom钱包",
     "refresh": "刷新"
   },
   "tokenInformation": {
     "title": "代币信息",
-    "description": "查看详细的代币信息和统计数据。",
+    "description": "查看代币的详细信息和统计数据。",
     "noToken": "未选择代币",
-    "searchPrompt": "使用搜索框通过铸币地址查找代币",
+    "searchPrompt": "使用搜索框按铸币地址查找代币",
     "mint": "铸币地址",
     "symbol": "符号",
     "decimals": "小数位数",
-    "holders": "持有人数",
+    "holders": "持有者数量",
     "price": "价格",
     "volume24h": "24小时交易量",
     "marketCap": "市值",
-    "lastUpdated": "最后更新时间",
+    "lastUpdated": "最后更新",
     "totalSupply": "总供应量"
   },
   "liquidityPools": {
     "title": "流动性池",
-    "description": "监控和管理流动性池仓位。"
+    "description": "跟踪和管理流动性池中的头寸。"
   },
   "transactions": {
     "title": "交易",
@@ -140,26 +141,29 @@
     "signature": "签名",
     "buy": "买入",
     "sell": "卖出",
-    "description": "此组件仅获取已开启群组的交易更新。"
+    "description": "此组件仅接收来自打开的群组的交易更新。"
   },
   "search": {
     "title": "搜索",
-    "placeholder": "输入公钥或交易哈希"
+    "placeholder": "输入公钥或交易ID"
   },
   "faq": {
     "title": "常见问题",
-    "content": "<h3>什么是 Traze？</h3><p>Traze 是一个免费的开源交易工具，专为社区设计，旨在帮助管理和监控加密货币交易活动。</p><h3>如何开始使用？</h3><p>1. 在设置中配置您的 RPC 终端<br>2. 创建新的蜂群或导入现有钱包<br>3. 选择要交易的代币<br>4. 开始监控和交易</p><h3>使用安全吗？</h3><p>Traze 在设计时就考虑到了安全性。您的私钥存储在本地，永远不会发送到任何外部服务器。但是，请始终保持谨慎，切勿与任何人分享您的私钥。</p><h3>在哪里可以获得支持？</h3><p>加入我们的社区频道获取支持和更新：<br>- Discord：[即将推出]<br>- Twitter：[即将推出]<br>- GitHub：[即将推出]</p>"
+    "content": "<h3>什么是Traze？</h3><p>Traze是一个开源且免费的交易工具，专为社区设计，旨在帮助管理和跟踪加密货币交易活动。</p><h3>如何开始使用？</h3><p>1. 在设置中配置RPC端点<br>2. 创建新的蜂群或导入现有钱包<br>3. 选择要交易的代币<br>4. 开始跟踪和交易</p><h3>使用安全吗？</h3><p>Traze在设计时考虑了高度安全性。您的私钥存储在本地，永远不会发送到任何外部服务器。但是，请始终保持谨慎，切勿与任何人分享您的私钥。</p><h3>在哪里可以获得支持？</h3><p>加入我们的社区渠道获取支持和更新：<br>- Discord：[即将推出]<br>- Twitter：[即将推出]<br>- GitHub：[即将推出]</p>"
   },
   "disclaimer": {
     "title": "免责声明",
-    "content": "<p>本软件完全免费且服务于社区。使用本软件即表示您知晓并同意：</p><ul><li>加密货币交易具有重大风险，可能导致投资资本损失。</li><li>您对自己的交易决策及由此产生的盈亏完全负责。</li><li>软件开发者和贡献者对使用本软件所产生的任何损失或损害不承担责任。</li><li>您将遵守所在司法管辖区关于加密货币交易的所有适用法律法规。</li></ul>"
+    "content": "<p>此软件完全免费并服务于社区。通过使用此软件，您确认并同意：</p><ul><li>加密货币交易具有重大风险，可能导致投资损失。</li><li>您对交易决策以及由此产生的任何盈亏完全负责。</li><li>软件的开发者和贡献者对使用此软件造成的任何损害或损失不承担责任。</li><li>您将遵守您所在司法管辖区关于加密货币交易的所有适用法律和法规。</li></ul>"
   },
   "tip": {
-    "send": "发送打赏",
-    "sendFromPhantom": "从 Phantom 钱包发送打赏：",
-    "sendUsingPublicAddress": "或者使用公共地址自行发送："
+    "send": "发送小费",
+    "sendFromPhantom": "从Phantom钱包发送：",
+    "sendUsingPublicAddress": "或使用公共地址自行发送："
   },
   "manual": {
     "title": "使用手册"
+  },
+  "contact": {
+    "description": "通过以下渠道联系我们："
   }
 }

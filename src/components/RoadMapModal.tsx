@@ -34,7 +34,10 @@ export function RoadMapModal({ open, onClose }: RoadMapModalProps) {
 
   return (
     <Modal open={open} onCancel={onClose} width={800} title="Roadmap" footer={null}>
-      <div style={{ maxHeight: '70vh', overflow: 'auto', padding: '16px 0' }}>
+      <div
+        className="markdown-content"
+        style={{ maxHeight: '70vh', overflow: 'auto', padding: '16px 0' }}
+      >
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     </Modal>
