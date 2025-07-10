@@ -4,7 +4,9 @@ import { RpcConnectionContext } from '../hooks/useRpcConnection';
 import { useConfiguration } from '../hooks';
 import type { RpcConnectionState } from '../models';
 
-export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { configuration } = useConfiguration();
   const [connectionState, setConnectionState] = useState<RpcConnectionState>({
     connectionManager: null as ConnectionManager | null,
@@ -20,7 +22,10 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const connectionManager = ConnectionManager.getInstance();
 
-      connectionManager.initialize(configuration.rpcUrl, configuration.rpcWebsocketUrl);
+      connectionManager.initialize(
+        configuration.rpcUrl,
+        configuration.rpcWebsocketUrl
+      );
 
       setConnectionState({
         connectionManager,
@@ -31,7 +36,10 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
       setConnectionState({
         connectionManager: null,
         isConnected: false,
-        error: error instanceof Error ? error.message : 'Failed to establish connection',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to establish connection',
       });
     }
   };
@@ -46,13 +54,16 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       setConnectionState((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Failed to reset connection',
+        error:
+          error instanceof Error ? error.message : 'Failed to reset connection',
       }));
     }
   };
 
   return (
-    <RpcConnectionContext.Provider value={{ connectionState, updateConnection, resetConnection }}>
+    <RpcConnectionContext.Provider
+      value={{ connectionState, updateConnection, resetConnection }}
+    >
       {children}
     </RpcConnectionContext.Provider>
   );

@@ -47,7 +47,9 @@ export class GlobalAccount {
 
     const s = this.initialVirtualTokenReserves - r;
 
-    return s < this.initialRealTokenReserves ? s : this.initialRealTokenReserves;
+    return s < this.initialRealTokenReserves
+      ? s
+      : this.initialRealTokenReserves;
   }
 
   public static fromBuffer(buffer: Buffer): GlobalAccount {

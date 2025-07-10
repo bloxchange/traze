@@ -30,7 +30,9 @@ const TokenInformation: React.FC = () => {
 
   return (
     <Card variant="borderless">
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}
+      >
         {currentToken.icon && (
           <img
             src={currentToken.icon}
@@ -55,7 +57,11 @@ const TokenInformation: React.FC = () => {
         </Descriptions.Item>
         {currentToken.externalUrl && (
           <Descriptions.Item label={t('tokenInformation.externalUrl')}>
-            <a href={currentToken.externalUrl} target="_blank" rel="noopener noreferrer">
+            <a
+              href={currentToken.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {currentToken.externalUrl}
             </a>
           </Descriptions.Item>

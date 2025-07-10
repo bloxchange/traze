@@ -1,7 +1,12 @@
 import { Modal, Input, Button, App as AntdApp } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import {
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  LAMPORTS_PER_SOL,
+} from '@solana/web3.js';
 import { TIP_WALLET } from '../consts';
 
 declare global {
@@ -10,7 +15,9 @@ declare global {
       isPhantom?: boolean;
       connect: () => Promise<{ publicKey: PublicKey }>;
       publicKey: PublicKey;
-      signAndSendTransaction: (transaction: Transaction) => Promise<{ signature: string }>;
+      signAndSendTransaction: (
+        transaction: Transaction
+      ) => Promise<{ signature: string }>;
     };
   }
 }
@@ -32,6 +39,7 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
 
       if (!window.solana || !window.solana.isPhantom) {
         message.error(t('common.installPhantom'));
+
         return;
       }
 
@@ -39,6 +47,7 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
 
       if (isNaN(tipAmount) || tipAmount <= 0) {
         message.error(t('tip.invalidAmount'));
+
         return;
       }
 
@@ -77,7 +86,12 @@ const TipModal: React.FC<TipModalProps> = ({ open, onCancel }) => {
         <Button key="cancel" onClick={onCancel}>
           {t('common.cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleSubmit}
+        >
           {t('tip.send')}
         </Button>,
       ]}

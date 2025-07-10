@@ -1,5 +1,14 @@
 import React from 'react';
-import { Row, Col, Checkbox, Space, Typography, Button, App as AntdApp, theme } from 'antd';
+import {
+  Row,
+  Col,
+  Checkbox,
+  Space,
+  Typography,
+  Button,
+  App as AntdApp,
+  theme,
+} from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { WalletInfo, SwarmConfigFormValues } from '@/models';
@@ -33,17 +42,26 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
       .catch(() => message.error(t('common.copyFailed')));
   };
 
-  const allSelected = wallets.length > 0 && wallets.every((wallet) => wallet.selected);
+  const allSelected =
+    wallets.length > 0 && wallets.every((wallet) => wallet.selected);
 
   return (
     <Row>
-      <Col span={8} style={{ borderRight: `1px solid ${token.colorBorder}`, paddingRight: 16 }}>
+      <Col
+        span={8}
+        style={{
+          borderRight: `1px solid ${token.colorBorder}`,
+          paddingRight: 16,
+        }}
+      >
         <Row align="middle" style={{}}>
           <Col span={4}>
             <Checkbox
               checked={allSelected}
               onChange={(e) => onSelectAll?.(e.target.checked)}
-              indeterminate={wallets.some((wallet) => wallet.selected) && !allSelected}
+              indeterminate={
+                wallets.some((wallet) => wallet.selected) && !allSelected
+              }
             />
           </Col>
           <Col span={20}>
@@ -51,12 +69,18 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
           </Col>
         </Row>
         {wallets.map((wallet) => (
-          <Row key={wallet.publicKey} align="middle" style={{ marginBottom: 8 }}>
+          <Row
+            key={wallet.publicKey}
+            align="middle"
+            style={{ marginBottom: 8 }}
+          >
             <Col span={4}>
               <Checkbox
                 id={wallet.publicKey}
                 checked={wallet.selected}
-                onChange={(e) => onWalletSelection(wallet.publicKey, e.target.checked)}
+                onChange={(e) =>
+                  onWalletSelection(wallet.publicKey, e.target.checked)
+                }
               />
             </Col>
             <Col span={20}>
@@ -78,7 +102,10 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
         ))}
       </Col>
       <Col span={16} style={{ paddingLeft: 16 }}>
-        <SwarmConfig initialConfig={swarmConfig} onConfigChange={onConfigChange} />
+        <SwarmConfig
+          initialConfig={swarmConfig}
+          onConfigChange={onConfigChange}
+        />
       </Col>
     </Row>
   );

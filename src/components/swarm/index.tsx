@@ -9,17 +9,28 @@ import SwarmWalletList from './SwarmWalletList';
 import SwarmFooter from './SwarmFooter';
 import type { WalletInfo, SwarmProps } from '../../models/wallet';
 import type { SwarmConfigFormValues } from '../../models';
-import { CreateSwarmCommand, SwarmBuyCommand, SwarmSellCommand } from '../../domain/commands';
+import {
+  CreateSwarmCommand,
+  SwarmBuyCommand,
+  SwarmSellCommand,
+} from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
 import { useConfiguration, useToken } from '@/hooks';
 import { SwarmJitoFlushCommand } from '@/domain/commands/SwarmJitoFlushCommand';
 import { SwarmFlushCommand } from '@/domain/commands/SwarmFlushCommand';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
-import { EVENTS, type BalanceChangeData } from '../../domain/infrastructure/events/types';
+import {
+  EVENTS,
+  type BalanceChangeData,
+} from '../../domain/infrastructure/events/types';
 import { getBalance, getTokenBalance } from '../../domain/rpc';
 
-const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameChange }) => {
+const Swarm: React.FC<SwarmProps> = ({
+  name: initialName,
+  wallets = [],
+  onNameChange,
+}) => {
   const { message } = AntdApp.useApp();
   const { configuration } = useConfiguration();
   const { tokenState } = useToken();
@@ -73,7 +84,10 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
     }
   };
 
-  const handleCreateModalSubmit = async (privateKeys: string[], generateCount: number) => {
+  const handleCreateModalSubmit = async (
+    privateKeys: string[],
+    generateCount: number
+  ) => {
     try {
       const createCommand = new CreateSwarmCommand(
         privateKeys,
@@ -85,7 +99,9 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
 
       // Download wallet information if wallets were generated
       if (generateCount > 0) {
-        const publicKeysString = newWallets.map((wallet) => wallet.publicKey).join('\n');
+        const publicKeysString = newWallets
+          .map((wallet) => wallet.publicKey)
+          .join('\n');
 
         const privateKeysString = newWallets
           .map((wallet) => bs58.encode(wallet.keypair.secretKey))
@@ -125,13 +141,17 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
   const handleWalletSelection = (publicKey: string, checked: boolean) => {
     setWalletList((prevList) =>
       prevList.map((wallet) =>
-        wallet.publicKey === publicKey ? { ...wallet, selected: checked } : wallet
+        wallet.publicKey === publicKey
+          ? { ...wallet, selected: checked }
+          : wallet
       )
     );
   };
 
   const handleSelectAll = (checked: boolean) => {
-    setWalletList((prevList) => prevList.map((wallet) => ({ ...wallet, selected: checked })));
+    setWalletList((prevList) =>
+      prevList.map((wallet) => ({ ...wallet, selected: checked }))
+    );
   };
 
   const handleNameChange = (newName: string) => {
@@ -149,7 +169,10 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
           let newTokenBalance = wallet.tokenBalance;
 
           if (tokenState.currentToken) {
-            newTokenBalance = await getTokenBalance(wallet.publicKey, tokenState.currentToken.mint);
+            newTokenBalance = await getTokenBalance(
+              wallet.publicKey,
+              tokenState.currentToken.mint
+            );
           }
 
           return {
@@ -179,13 +202,18 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
             const [solBalance, tokenBalance] = await Promise.all([
               getBalance(wallet.publicKey),
               tokenState.currentToken
-                ? getTokenBalance(wallet.publicKey, tokenState.currentToken.mint)
+                ? getTokenBalance(
+                    wallet.publicKey,
+                    tokenState.currentToken.mint
+                  )
                 : Promise.resolve(0),
             ]);
 
             setWalletList((prevList) =>
               prevList.map((w) =>
-                w.publicKey === wallet.publicKey ? { ...w, solBalance, tokenBalance } : w
+                w.publicKey === wallet.publicKey
+                  ? { ...w, solBalance, tokenBalance }
+                  : w
               )
             );
           } else {
@@ -194,7 +222,10 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
                 w.publicKey === wallet.publicKey
                   ? {
                       ...w,
-                      solBalance: data.tokenMint === '' ? w.solBalance + data.amount : w.solBalance,
+                      solBalance:
+                        data.tokenMint === ''
+                          ? w.solBalance + data.amount
+                          : w.solBalance,
                       tokenBalance:
                         data.tokenMint !== '' &&
                         tokenState.currentToken &&
@@ -222,7 +253,12 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         globalEventEmitter.off<BalanceChangeData>(eventName, callback);
       });
     };
-  }, [walletList, configuration.rpcUrl, tokenState.currentToken, configuration.balanceUpdateMode]);
+  }, [
+    walletList,
+    configuration.rpcUrl,
+    tokenState.currentToken,
+    configuration.balanceUpdateMode,
+  ]);
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -359,7 +395,11 @@ const Swarm: React.FC<SwarmProps> = ({ name: initialName, wallets = [], onNameCh
         swarmConfig={swarmConfig}
         onConfigChange={setSwarmConfig}
       />
-      <SwarmFooter onBuy={handleBuy} onSell={handleSell} onFlush={handleFlush} />
+      <SwarmFooter
+        onBuy={handleBuy}
+        onSell={handleSell}
+        onFlush={handleFlush}
+      />
       <CreateSwarmModal
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}

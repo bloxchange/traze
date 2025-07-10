@@ -11,7 +11,12 @@ interface FeedSwarmModalProps {
   wallets: WalletInfo[];
 }
 
-const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmit, wallets }) => {
+const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
+  open,
+  onCancel,
+  onSubmit,
+  wallets,
+}) => {
   const { t } = useTranslation();
   const { message } = AntdApp.useApp();
   const [form] = Form.useForm();
@@ -20,17 +25,28 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmi
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
       setLoading(true);
 
-      const feedCommand = new FeedSwarmCommand(values.sourceWallet, values.amount, wallets);
+      const feedCommand = new FeedSwarmCommand(
+        values.sourceWallet,
+        values.amount,
+        wallets
+      );
+
       await feedCommand.execute();
+
       message.success(t('swarm.feedModal.success'));
 
       onSubmit(values.sourceWallet, values.amount);
+
       form.resetFields();
+
       onCancel();
     } catch (error) {
-      message.error(t('swarm.feedModal.error') + ': ' + (error as Error)?.message);
+      message.error(
+        t('swarm.feedModal.error') + ': ' + (error as Error)?.message
+      );
     } finally {
       setLoading(false);
     }
@@ -61,7 +77,9 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({ open, onCancel, onSubmi
           rules={[{ required: true, message: t('common.required') }]}
         >
           <Select>
-            <Select.Option value="phantom">{t('swarm.feedModal.phantomWallet')}</Select.Option>
+            <Select.Option value="phantom">
+              {t('swarm.feedModal.phantomWallet')}
+            </Select.Option>
             {wallets.map((wallet) => (
               <Select.Option key={wallet.publicKey} value={wallet.publicKey}>
                 {wallet.publicKey}

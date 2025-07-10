@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import type { SellConfigProps } from '@/models';
 
-const SellSection: React.FC<SellConfigProps> = ({ availablePercentages, defaultUseJitoBundle }) => {
+const SellSection: React.FC<SellConfigProps> = ({
+  availablePercentages,
+  defaultUseJitoBundle,
+}) => {
   const { t } = useTranslation();
 
   return (

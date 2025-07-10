@@ -24,8 +24,12 @@ const GeneralSection: React.FC<GeneralConfigProps> = ({
           min={0}
           precision={2}
           style={{ width: '100%' }}
-          formatter={(value: number | undefined) => `${value ? value / 100 : '0'}`}
-          parser={(displayValue: string | undefined) => parseFloat(displayValue || '0') * 100}
+          formatter={(value: number | undefined) =>
+            `${value ? value / 100 : '0'}`
+          }
+          parser={(displayValue: string | undefined) =>
+            parseFloat(displayValue || '0') * 100
+          }
         />
       </Form.Item>
 
@@ -34,7 +38,12 @@ const GeneralSection: React.FC<GeneralConfigProps> = ({
         name="priorityFee"
         initialValue={defaultPriorityFee}
       >
-        <InputNumber min={0} step={0.001} precision={4} style={{ width: '100%' }} />
+        <InputNumber
+          min={0}
+          step={0.001}
+          precision={4}
+          style={{ width: '100%' }}
+        />
       </Form.Item>
 
       <Form.Item
@@ -42,7 +51,12 @@ const GeneralSection: React.FC<GeneralConfigProps> = ({
         name="jitoTipAmount"
         initialValue={defaultJitoTipAmount}
       >
-        <InputNumber min={0} step={0.001} precision={4} style={{ width: '100%' }} />
+        <InputNumber
+          min={0}
+          step={0.001}
+          precision={4}
+          style={{ width: '100%' }}
+        />
       </Form.Item>
     </div>
   );

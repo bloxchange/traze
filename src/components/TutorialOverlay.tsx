@@ -2,6 +2,7 @@ import { Tour } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import type { TourProps } from 'antd';
+import { theme } from 'antd';
 
 interface TutorialOverlayProps {
   onFinish: () => void;
@@ -11,6 +12,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onFinish }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [current, setCurrent] = useState(0);
+  const { token } = theme.useToken();
 
   const steps: TourProps['steps'] = [
     {
@@ -32,13 +34,16 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onFinish }) => {
     {
       title: t('tutorial.workspace.title'),
       description: t('tutorial.workspace.description'),
-      target: () => document.querySelector('.flexlayout__layout') as HTMLElement,
+      target: () =>
+        document.querySelector('.flexlayout__layout') as HTMLElement,
     },
   ];
 
   const handleFinish = () => {
     setOpen(false);
+
     localStorage.setItem('tutorial_completed', 'true');
+
     onFinish();
   };
 
@@ -60,9 +65,9 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onFinish }) => {
             style={{
               border: 'none',
               padding: '4px 8px',
-              background: '#1890ff',
-              color: 'white',
-              borderRadius: 4,
+              background: token.colorPrimary,
+              color: token.colorWhite,
+              borderRadius: token.borderRadiusSM,
               cursor: 'pointer',
               marginRight: 8,
             }}
@@ -75,11 +80,12 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onFinish }) => {
           <button
             key="prev"
             style={{
-              border: '1px solid #1890ff',
+              border: '1px solid',
+              borderColor: token.colorPrimary,
               padding: '4px 8px',
               background: 'transparent',
-              color: '#1890ff',
-              borderRadius: 4,
+              color: token.colorPrimary,
+              borderRadius: token.borderRadiusSM,
               cursor: 'pointer',
               marginRight: 8,
             }}
@@ -93,9 +99,9 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onFinish }) => {
             style={{
               border: 'none',
               padding: '4px 8px',
-              background: '#1890ff',
-              color: 'white',
-              borderRadius: 4,
+              background: token.colorPrimary,
+              color: token.colorWhite,
+              borderRadius: token.borderRadiusSM,
               cursor: 'pointer',
             }}
             onClick={() => {

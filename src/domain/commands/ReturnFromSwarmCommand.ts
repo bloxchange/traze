@@ -46,7 +46,9 @@ export class ReturnFromSwarmCommand {
 
     const connection = ConnectionManager.getInstance().getConnection();
 
-    const distributorBalance = await connection.getBalance(distributor.keypair.publicKey);
+    const distributorBalance = await connection.getBalance(
+      distributor.keypair.publicKey
+    );
 
     if (distributorBalance <= 0) {
       throw new Error('No balance to transfer');
@@ -57,7 +59,8 @@ export class ReturnFromSwarmCommand {
     if (transferAmount <= 0) {
       throw new Error('Insufficient balance for transfer');
     }
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
 
     const txMessage = new TransactionMessage({
       payerKey: distributor.keypair.publicKey,
@@ -98,22 +101,30 @@ export class ReturnFromSwarmCommand {
     amount: number
   ): Promise<void> {
     // Emit balance change event for source wallet (negative amount)
-    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${from.toBase58()}`, {
-      tokenMint: '',
-      amount: -amount,
-      owner: from,
-    });
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${from.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: -amount,
+        owner: from,
+      }
+    );
 
     // Emit balance change event for destination wallet (positive amount)
-    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${to.toBase58()}`, {
-      tokenMint: '',
-      amount: amount,
-      owner: to,
-    });
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${to.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: amount,
+        owner: to,
+      }
+    );
   }
 
   private async executeSwarmTransfer(selectedWallet: string): Promise<void> {
-    const destinationWallet = this.wallets.find((x) => x.publicKey == selectedWallet);
+    const destinationWallet = this.wallets.find(
+      (x) => x.publicKey == selectedWallet
+    );
 
     if (!destinationWallet) {
       throw new Error('Destination wallet not found');
@@ -121,7 +132,8 @@ export class ReturnFromSwarmCommand {
 
     const connection = ConnectionManager.getInstance().getConnection();
 
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
 
     const txMsg = new TransactionMessage({
       payerKey: destinationWallet.keypair.publicKey,
@@ -129,11 +141,15 @@ export class ReturnFromSwarmCommand {
       instructions: [],
     });
 
-    const sourceWallets = this.wallets.filter((x) => x.publicKey !== selectedWallet);
+    const sourceWallets = this.wallets.filter(
+      (x) => x.publicKey !== selectedWallet
+    );
 
     const transferInstructions = await Promise.all(
       sourceWallets.map(async (wallet) => {
-        const balance = await connection.getBalance(new PublicKey(wallet.publicKey));
+        const balance = await connection.getBalance(
+          new PublicKey(wallet.publicKey)
+        );
         return {
           instruction: SystemProgram.transfer({
             fromPubkey: wallet.keypair.publicKey,

@@ -17,7 +17,9 @@ export function RoadMapModal({ open, onClose }: RoadMapModalProps) {
   useEffect(() => {
     const loadContent = async () => {
       try {
-        const response = await fetch(`/roadmap/${i18n.language}-${ROADMAP_VERSION}.md`);
+        const response = await fetch(
+          `/roadmap/${i18n.language}-${ROADMAP_VERSION}.md`
+        );
 
         const text = await response.text();
 
@@ -33,7 +35,13 @@ export function RoadMapModal({ open, onClose }: RoadMapModalProps) {
   }, [open, i18n.language]);
 
   return (
-    <Modal open={open} onCancel={onClose} width={800} title="Roadmap" footer={null}>
+    <Modal
+      open={open}
+      onCancel={onClose}
+      width={800}
+      title="Roadmap"
+      footer={null}
+    >
       <div
         className="markdown-content"
         style={{ maxHeight: '70vh', overflow: 'auto', padding: '16px 0' }}

@@ -12,12 +12,15 @@ export class BrokerFactory {
     }
 
     let broker: IBroker | null = null;
+
     switch (programId) {
       case PUMPFUN_PROGRAM_ID:
         broker = new PumpFunBroker(provider);
         break;
+
       case 'RAYDIUM_PROGRAM_ID': // Placeholder for Raydium
         throw new Error('Raydium broker not implemented');
+
       default:
         return null;
     }
@@ -25,6 +28,7 @@ export class BrokerFactory {
     if (broker) {
       this.instances.set(programId, broker);
     }
+
     return broker;
   }
 }

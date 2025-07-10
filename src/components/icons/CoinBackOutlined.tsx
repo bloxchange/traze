@@ -8,7 +8,12 @@ interface CoinBackOutlinedProps {
 
 const CoinBackSvg: React.FC = () => (
   <span style={{ width: '24px', height: '24px' }}>
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -19,8 +24,9 @@ const CoinBackSvg: React.FC = () => (
   </span>
 );
 
-const CoinBackOutlined: React.FC<CoinBackOutlinedProps> = ({ className, style }) => (
-  <Icon component={CoinBackSvg} className={className} style={style} />
-);
+const CoinBackOutlined: React.FC<CoinBackOutlinedProps> = ({
+  className,
+  style,
+}) => <Icon component={CoinBackSvg} className={className} style={style} />;
 
 export default CoinBackOutlined;

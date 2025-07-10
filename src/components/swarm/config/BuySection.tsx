@@ -5,13 +5,24 @@ import { EditOutlined } from '@ant-design/icons';
 
 import type { BuyConfigProps } from '@/models';
 
-const BuySection: React.FC<BuyConfigProps> = ({ availableAmounts, onAmountEdit }) => {
+const BuySection: React.FC<BuyConfigProps> = ({
+  availableAmounts,
+  onAmountEdit,
+}) => {
   const { t } = useTranslation();
 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ color: 'var(--ant-form-label-color)' }}>{t('swarm.amountInSol')}</label>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <label style={{ color: 'var(--ant-form-label-color)' }}>
+          {t('swarm.amountInSol')}
+        </label>
         <Button
           type="text"
           icon={<EditOutlined />}

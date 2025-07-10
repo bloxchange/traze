@@ -29,8 +29,17 @@ const FaqModal: React.FC<FaqModalProps> = ({ open, onCancel }) => {
   }, [i18n.language]);
 
   return (
-    <Modal title="FAQs" open={open} onCancel={onCancel} footer={null} width={800}>
-      <div className="markdown-content" style={{ maxHeight: '70vh', overflow: 'auto' }}>
+    <Modal
+      title="FAQs"
+      open={open}
+      onCancel={onCancel}
+      footer={null}
+      width={800}
+    >
+      <div
+        className="markdown-content"
+        style={{ maxHeight: '70vh', overflow: 'auto' }}
+      >
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     </Modal>

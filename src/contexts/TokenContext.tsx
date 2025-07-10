@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import type { TokenState } from '../models/token';
 import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformationCommand';
 import { TokenContext } from '../hooks';
-export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [tokenState, setTokenState] = useState<TokenState>({
     currentToken: null,
     loading: false,
@@ -13,11 +15,17 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const getTokenInfoCommand = new GetTokenInformationCommand(mint);
 
     const tokenInfo = await getTokenInfoCommand.execute();
+
     return tokenInfo;
   };
 
-  if (location.pathname?.length > 20 && !tokenState.currentToken && !tokenState.loading) {
+  if (
+    location.pathname?.length > 20 &&
+    !tokenState.currentToken &&
+    !tokenState.loading
+  ) {
     setTokenState((prev) => ({ ...prev, loading: true, error: null }));
+
     getTokenInfo(location.pathname.slice(1)).then((tokenInfo) => {
       setTokenState((prev) => ({
         ...prev,
@@ -36,7 +44,11 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const tokenInfo = await getTokenInfo(mint);
 
       // TODO: update the location path by new token mint
-      window.history.replaceState(null, `Traze - ${tokenInfo.symbol}`, `/${tokenInfo.mint}`);
+      window.history.replaceState(
+        null,
+        `Traze - ${tokenInfo.symbol}`,
+        `/${tokenInfo.mint}`
+      );
 
       setTokenState((prev) => ({
         ...prev,
@@ -46,7 +58,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (error) {
       setTokenState((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Failed to fetch token information',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch token information',
         loading: false,
       }));
     }

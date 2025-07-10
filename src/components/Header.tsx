@@ -36,7 +36,11 @@ const languageOptions = [
   { value: 'vi', label: 'Tiếng Việt' },
 ];
 
-const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThemeChange }) => {
+const Header: React.FC<HeaderProps> = ({
+  theme: themeMode,
+  flexLayoutRef,
+  onThemeChange,
+}) => {
   const { t, i18n } = useTranslation();
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -54,6 +58,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
 
   const handleConfigSubmit = (newConfig: Configuration) => {
     updateConfiguration(newConfig);
+
     setIsConfigModalOpen(false);
   };
 
@@ -80,7 +85,13 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         >
           traze
         </span>
-        <span style={{ fontSize: 10, color: token.colorTextDescription, paddingTop: 20 }}>
+        <span
+          style={{
+            fontSize: 10,
+            color: token.colorTextDescription,
+            paddingTop: 20,
+          }}
+        >
           {CURRENT_VERSION}
         </span>
       </div>
@@ -94,10 +105,18 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
           />
         </Tooltip>
         <Tooltip title={t('common.tooltips.manual')}>
-          <Button type="text" icon={<ReadOutlined />} onClick={() => setIsManualModalOpen(true)} />
+          <Button
+            type="text"
+            icon={<ReadOutlined />}
+            onClick={() => setIsManualModalOpen(true)}
+          />
         </Tooltip>
         <Tooltip title={t('common.tooltips.roadmap')}>
-          <Button type="text" icon={<MapOutlined />} onClick={() => setIsRoadMapModalOpen(true)} />
+          <Button
+            type="text"
+            icon={<MapOutlined />}
+            onClick={() => setIsRoadMapModalOpen(true)}
+          />
         </Tooltip>
         <Tooltip title={t('common.tooltips.faq')}>
           <Button
@@ -142,7 +161,11 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
           />
         </Tooltip>
         <Tooltip title={t('common.tooltips.changeLanguage')}>
-          <Select value={i18n.language} onChange={handleLanguageChange} options={languageOptions} />
+          <Select
+            value={i18n.language}
+            onChange={handleLanguageChange}
+            options={languageOptions}
+          />
         </Tooltip>
       </Space>
       <ConfigModal
@@ -151,12 +174,30 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         onSubmit={handleConfigSubmit}
         initialValues={configuration}
       />
-      <SearchModal open={isSearchModalOpen} onCancel={() => setIsSearchModalOpen(false)} />
-      <TipModal open={isTipModalOpen} onCancel={() => setIsTipModalOpen(false)} />
-      <FaqModal open={isFaqModalOpen} onCancel={() => setIsFaqModalOpen(false)} />
-      <RoadMapModal open={isRoadMapModalOpen} onClose={() => setIsRoadMapModalOpen(false)} />
-      <ManualModal open={isManualModalOpen} onCancel={() => setIsManualModalOpen(false)} />
-      <ContactModal open={isContactModalOpen} onCancel={() => setIsContactModalOpen(false)} />
+      <SearchModal
+        open={isSearchModalOpen}
+        onCancel={() => setIsSearchModalOpen(false)}
+      />
+      <TipModal
+        open={isTipModalOpen}
+        onCancel={() => setIsTipModalOpen(false)}
+      />
+      <FaqModal
+        open={isFaqModalOpen}
+        onCancel={() => setIsFaqModalOpen(false)}
+      />
+      <RoadMapModal
+        open={isRoadMapModalOpen}
+        onClose={() => setIsRoadMapModalOpen(false)}
+      />
+      <ManualModal
+        open={isManualModalOpen}
+        onCancel={() => setIsManualModalOpen(false)}
+      />
+      <ContactModal
+        open={isContactModalOpen}
+        onCancel={() => setIsContactModalOpen(false)}
+      />
     </Layout.Header>
   );
 };

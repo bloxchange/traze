@@ -1,6 +1,11 @@
 import React from 'react';
 import { Space, Tooltip } from 'antd';
-import { TeamOutlined, DollarOutlined, BankOutlined, SwapOutlined } from '@ant-design/icons';
+import {
+  TeamOutlined,
+  DollarOutlined,
+  BankOutlined,
+  SwapOutlined,
+} from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Layout as FlexLayout } from 'flexlayout-react';
 import './ComponentList.css';
@@ -11,15 +16,22 @@ interface DraggableIconProps {
   flexLayoutRef: React.RefObject<FlexLayout>;
 }
 
-const DraggableIcon: React.FC<DraggableIconProps> = ({ type, icon, flexLayoutRef }) => {
+const DraggableIcon: React.FC<DraggableIconProps> = ({
+  type,
+  icon,
+  flexLayoutRef,
+}) => {
   const { t } = useTranslation();
 
   const title = t(`${type}.title`);
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
+
     e.dataTransfer.setData('componentType', type);
+
     e.dataTransfer.setData('componentTitle', title);
+
     if (flexLayoutRef.current) {
       flexLayoutRef.current!.setDragComponent(e.nativeEvent, title, 10, 10);
 
@@ -43,9 +55,9 @@ const DraggableIcon: React.FC<DraggableIconProps> = ({ type, icon, flexLayoutRef
   );
 };
 
-const ComponentList: React.FC<{ flexLayoutRef: React.RefObject<FlexLayout> }> = ({
-  flexLayoutRef,
-}) => {
+const ComponentList: React.FC<{
+  flexLayoutRef: React.RefObject<FlexLayout>;
+}> = ({ flexLayoutRef }) => {
   return (
     <Space className="component-list">
       <DraggableIcon

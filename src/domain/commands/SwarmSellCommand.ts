@@ -116,7 +116,10 @@ export class SwarmSellCommand {
         });
       }
 
-      if (this.sellDelay > 0 && selectedWallets.indexOf(wallet) < selectedWallets.length - 1) {
+      if (
+        this.sellDelay > 0 &&
+        selectedWallets.indexOf(wallet) < selectedWallets.length - 1
+      ) {
         await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds
       }
     }

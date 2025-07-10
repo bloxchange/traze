@@ -1,10 +1,14 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { type Configuration, defaultConfiguration } from '../models/configuration';
+import {
+  type Configuration,
+  defaultConfiguration,
+} from '../models/configuration';
 import { ConfigurationContext } from '../hooks';
 
 export function ConfigurationProvider({ children }: { children: ReactNode }) {
   const [configuration, setConfiguration] = useState<Configuration>(() => {
     const savedConfig = localStorage.getItem('configuration');
+
     return savedConfig ? JSON.parse(savedConfig) : defaultConfiguration;
   });
 
@@ -17,7 +21,9 @@ export function ConfigurationProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ConfigurationContext.Provider value={{ configuration, updateConfiguration }}>
+    <ConfigurationContext.Provider
+      value={{ configuration, updateConfiguration }}
+    >
       {children}
     </ConfigurationContext.Provider>
   );

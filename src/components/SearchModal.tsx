@@ -21,6 +21,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
     }
     try {
       new PublicKey(value);
+
       return true;
     } catch {
       return false;
@@ -30,13 +31,17 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
   const handleSearch = async (value: string) => {
     if (!validatePublicKey(value)) {
       message.error(t('search.invalidKey'));
+
       return;
     }
 
     try {
       await setTokenByMint(value);
+
       message.success(t('search.success'));
+
       setSearchValue('');
+
       onCancel();
     } catch {
       message.error(t('search.error'));
@@ -60,7 +65,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onCancel }) => {
       width={600}
       style={{ top: 64, backgroundColor: 'transparent' }}
       closable={false}
-      styles={{ content: { backgroundColor: 'transparent', boxShadow: 'none' } }}
+      styles={{
+        content: { backgroundColor: 'transparent', boxShadow: 'none' },
+      }}
     >
       <Input
         placeholder={t('search.placeholder')}

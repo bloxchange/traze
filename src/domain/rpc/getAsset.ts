@@ -3,6 +3,7 @@ import type { AssetResponsePayload, RpcResponse } from '../models/rpc';
 
 export async function getAsset(tokenMint: string) {
   const rpcUrl = ConnectionManager.getInstance().getConnection().rpcEndpoint;
+
   const response = await fetch(rpcUrl, {
     method: 'POST',
     headers: {

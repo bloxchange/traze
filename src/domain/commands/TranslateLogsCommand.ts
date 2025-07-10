@@ -17,7 +17,9 @@ export class TranslateLogsCommand {
     });
 
     return {
-      timestamp: transaction?.blockTime ? transaction.blockTime * 1000 : Date.now(),
+      timestamp: transaction?.blockTime
+        ? transaction.blockTime * 1000
+        : Date.now(),
       signature: logs.signature,
       err: logs.err,
       logs: logs.logs || [],

@@ -45,6 +45,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
 
   const showModal = () => {
     setNewName(initialName);
+
     setIsModalVisible(true);
   };
 
@@ -52,6 +53,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
     if (onNameChange) {
       onNameChange(newName);
     }
+
     setIsModalVisible(false);
   };
 
@@ -92,9 +94,17 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
             type="text"
           />
         </Tooltip>
-        <Tooltip title={walletCount === 0 ? t('swarm.createWallets') : t('common.clear')}>
+        <Tooltip
+          title={
+            walletCount === 0 ? t('swarm.createWallets') : t('common.clear')
+          }
+        >
           {walletCount === 0 ? (
-            <Button icon={<PlusCircleOutlined />} onClick={onClear} type="text" />
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={onClear}
+              type="text"
+            />
           ) : (
             <Popconfirm
               title={t('swarm.clearConfirmTitle')}
@@ -109,15 +119,27 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         </Tooltip>
         {showConfig ? (
           <Tooltip title={t('swarm.showList')}>
-            <Button icon={<UnorderedListOutlined />} onClick={onShowList} type="text" />
+            <Button
+              icon={<UnorderedListOutlined />}
+              onClick={onShowList}
+              type="text"
+            />
           </Tooltip>
         ) : (
           <>
             <Tooltip title={t('common.refresh')}>
-              <Button icon={<ReloadOutlined />} onClick={onRefresh} type="text" />
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={onRefresh}
+                type="text"
+              />
             </Tooltip>
             <Tooltip title={t('settings.configuration')}>
-              <Button icon={<SettingOutlined />} onClick={onConfig} type="text" />
+              <Button
+                icon={<SettingOutlined />}
+                onClick={onConfig}
+                type="text"
+              />
             </Tooltip>
           </>
         )}

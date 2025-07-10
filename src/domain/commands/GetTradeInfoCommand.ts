@@ -42,7 +42,9 @@ export class GetTradeInfoCommand {
       toAccount: new PublicKey('11111111111111111111111111111111'),
       fromTokenAmount: fromBalance,
       toTokenAmount: toBalance,
-      timestamp: transaction.blockTime ? transaction.blockTime * 1000 : Date.now(),
+      timestamp: transaction.blockTime
+        ? transaction.blockTime * 1000
+        : Date.now(),
       status: transaction.meta.err ? 'error' : 'success',
       signature: this.signature,
       type: fromBalance > toBalance ? 'buy' : 'sell',
