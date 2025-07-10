@@ -85,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ theme: themeMode, flexLayoutRef, onThem
         </span>
       </div>
       <ComponentList flexLayoutRef={flexLayoutRef} />
-      <Space>
+      <Space className="header-buttons">
         <Tooltip title={t('common.tooltips.contact')}>
           <Button
             type="text"

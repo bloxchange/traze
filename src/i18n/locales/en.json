@@ -95,6 +95,9 @@
     }
   },
   "common": {
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish",
     "tooltips": {
       "manual": "User Manual",
       "roadmap": "Roadmap",
@@ -173,5 +176,24 @@
   },
   "contact": {
     "description": "Get in touch with us through any of the following channels:"
+  },
+  "tutorial": {
+    "quit": "Skip Tutorial",
+    "welcome": {
+      "title": "Welcome to Traze!",
+      "description": "Let's take a quick tour to help you get started with our trading tool."
+    },
+    "componentList": {
+      "title": "Component List",
+      "description": "These icons represent different trading components. Click and drag them to create new trading panels in your workspace."
+    },
+    "navigationButtons": {
+      "title": "Navigation & Settings",
+      "description": "Access important features like settings, search, FAQ, user manual, and more from these buttons."
+    },
+    "workspace": {
+      "title": "Your Workspace",
+      "description": "This is your main workspace where you can organize and manage multiple trading panels. Drag components here to get started!"
+    }
   }
 }

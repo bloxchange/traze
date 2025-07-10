@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConfigProvider, Layout } from 'antd';
 import { lightTheme, darkTheme, type ThemeMode } from './theme';
 import Dashboard from './components/Dashboard';
 import Header from './components/Header';
 import DisclaimerModal from './components/DisclaimerModal';
+import TutorialOverlay from './components/TutorialOverlay';
 import { ConfigurationProvider } from './contexts/ConfigurationContext';
 import { Layout as FlexLayout } from 'flexlayout-react';
 import { TokenProvider } from './contexts/TokenContext';
@@ -14,11 +15,37 @@ import { RpcConnectionProvider } from './contexts/RpcConnectionContext';
 const { Content } = Layout;
 
 function App() {
-  const [theme, setTheme] = useState<ThemeMode>('dark');
+  const [theme, setTheme] = useState<ThemeMode>(() => {
+    const savedTheme = localStorage.getItem('theme_preference');
+
+    return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+  });
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const flexLayoutRef = React.useRef<FlexLayout>(null);
 
+  useEffect(() => {
+    const tutorialCompleted = localStorage.getItem('tutorial_completed');
+
+    if (!tutorialCompleted) {
+      setShowTutorial(true);
+    } else {
+      setShowDisclaimer(true);
+    }
+  }, []);
+
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+
+    setTheme(newTheme);
+
+    localStorage.setItem('theme_preference', newTheme);
+  };
+
+  const handleTutorialFinish = () => {
+    setShowTutorial(false);
+
+    setShowDisclaimer(true);
   };
 
   return (
@@ -40,7 +67,8 @@ function App() {
                   <Dashboard flexLayoutRef={flexLayoutRef} />
                 </Content>
               </div>
-              <DisclaimerModal />
+              {showDisclaimer && <DisclaimerModal />}
+              {showTutorial && <TutorialOverlay onFinish={handleTutorialFinish} />}
             </Layout>
           </ConfigProvider>
         </TokenProvider>
