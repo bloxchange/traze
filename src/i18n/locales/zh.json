@@ -95,6 +95,9 @@
     }
   },
   "common": {
+    "previous": "上一步",
+    "next": "下一步",
+    "finish": "完成",
     "tooltips": {
       "manual": "使用手册",
       "roadmap": "路线图",
@@ -173,5 +176,24 @@
   },
   "contact": {
     "description": "通过以下渠道联系我们："
+  },
+  "tutorial": {
+    "quit": "跳过教程",
+    "welcome": {
+      "title": "欢迎使用 Traze！",
+      "description": "让我们快速浏览一下，帮助您开始使用我们的交易工具。"
+    },
+    "componentList": {
+      "title": "组件列表",
+      "description": "这些图标代表不同的交易组件。点击并拖动它们到工作区创建新的交易面板。"
+    },
+    "navigationButtons": {
+      "title": "导航与设置",
+      "description": "从这些按钮访问重要功能，如设置、搜索、常见问题、用户手册等。"
+    },
+    "workspace": {
+      "title": "工作区",
+      "description": "这是您的主工作区，您可以在这里组织和管理多个交易面板。拖动组件到这里开始使用！"
+    }
   }
 }

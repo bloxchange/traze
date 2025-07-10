@@ -95,6 +95,9 @@
     }
   },
   "common": {
+    "previous": "Trước",
+    "next": "Tiếp",
+    "finish": "Hoàn thành",
     "tooltips": {
       "manual": "Hướng dẫn sử dụng",
       "roadmap": "Lộ trình",
@@ -173,5 +176,24 @@
   },
   "contact": {
     "description": "Liên hệ với chúng tôi qua các kênh sau:"
+  },
+  "tutorial": {
+    "quit": "Bỏ qua hướng dẫn",
+    "welcome": {
+      "title": "Chào mừng đến với Traze!",
+      "description": "Hãy cùng tham quan nhanh để giúp bạn bắt đầu sử dụng công cụ giao dịch của chúng tôi."
+    },
+    "componentList": {
+      "title": "Danh sách thành phần",
+      "description": "Các biểu tượng này đại diện cho các thành phần giao dịch khác nhau. Nhấp và kéo chúng để tạo các bảng giao dịch mới trong không gian làm việc của bạn."
+    },
+    "navigationButtons": {
+      "title": "Điều hướng & Cài đặt",
+      "description": "Truy cập các tính năng quan trọng như cài đặt, tìm kiếm, câu hỏi thường gặp, hướng dẫn sử dụng và nhiều hơn nữa từ các nút này."
+    },
+    "workspace": {
+      "title": "Không gian làm việc",
+      "description": "Đây là không gian làm việc chính của bạn, nơi bạn có thể tổ chức và quản lý nhiều bảng giao dịch. Kéo các thành phần vào đây để bắt đầu!"
+    }
   }
 }
