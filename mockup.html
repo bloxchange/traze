@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Crypto Trading Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <style type="text/tailwindcss">
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #080A0D;
+      color: #F3F4F6;
+    }
+    .bg-custom-dark {
+      background-color: #12151C;
+    }
+    .bg-custom-darker {
+      background-color: #080A0D;
+    }
+    .text-custom-yellow {
+      color: #D4AF37;
+    }
+    .border-custom-yellow {
+      border-color: #D4AF37;
+    }
+    .border-custom-gray {
+      border-color: #222831;
+    }
+    .hover-bg-custom-yellow-darker:hover {
+      background-color: #B8860B;
+    }
+    .icon-sm {
+      font-size: 1rem;
+    }
+    .icon-md {
+      font-size: 1.25rem;
+    }
+    .chart-placeholder {
+      background: repeating-linear-gradient(45deg,
+          #222831,
+          #222831 7px,
+          #303841 7px,
+          #303841 14px);
+      opacity: 0.25;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 3px;
+      height: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #12151C;
+      border-radius: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #D4AF37;
+      border-radius: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #B8860B;
+    }
+    h1,
+    h2,
+    h3,
+    .heading-golden {
+      color: #D4AF37 !important;
+    }
+    .space-y-1 {
+      margin-bottom: 0.125rem;
+      margin-top: 0.125rem;
+    }
+    .space-y-1>:not([hidden])~:not([hidden]) {
+      margin-top: 0.125rem;
+      margin-bottom: 0.125rem;
+    }
+    .space-x-1 {
+      margin-left: 0.125rem;
+      margin-right: 0.125rem;
+    }
+    .space-x-1>:not([hidden])~:not([hidden]) {
+      margin-left: 0.125rem;
+      margin-right: 0.125rem;
+    }
+    .space-y-0\.5 {
+      margin-bottom: 0.0625rem;
+      margin-top: 0.0625rem;
+    }
+    .space-y-0\.5>:not([hidden])~:not([hidden]) {
+      margin-top: 0.0625rem;
+      margin-bottom: 0.0625rem;
+    }
+    .space-x-0\.5 {
+      margin-left: 0.0625rem;
+      margin-right: 0.0625rem;
+    }
+    .space-x-0\.5>:not([hidden])~:not([hidden]) {
+      margin-left: 0.0625rem;
+      margin-right: 0.0625rem;
+    }
+    .gap-1 {
+      gap: 0.125rem;
+    }
+    .p-0\.5 {
+      padding: 0.125rem;
+    }
+    .p-1 {
+      padding: 0.25rem;
+    }
+    .p-1\.5 {
+      padding: 0.375rem;
+    }
+    .p-2 {
+      padding: 0.5rem;
+    }
+    .p-2\.5 {
+      padding: 0.625rem;
+    }
+    .mb-0\.5 {
+      margin-bottom: 0.125rem;
+    }
+    .mb-1 {
+      margin-bottom: 0.25rem;
+    }
+    .mb-1\.5 {
+      margin-bottom: 0.375rem;
+    }
+    .mb-2 {
+      margin-bottom: 0.5rem;
+    }
+    .py-0\.5 {
+      padding-top: 0.125rem;
+      padding-bottom: 0.125rem;
+    }
+    .py-1 {
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+    }
+    .px-1 {
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+    }
+    .px-1\.5 {
+      padding-left: 0.375rem;
+      padding-right: 0.375rem;
+    }
+    .text-xxs {
+      font-size: 0.65rem;
+      line-height: 0.85rem;
+    }
+  </style>
+</head>
+
+<body class="p-0.5">
+  <div class="min-h-screen bg-custom-darker p-1 md:p-1.5 rounded-md shadow-xl border border-gray-900">
+    <header class="flex items-center justify-between p-1.5 border-b border-custom-gray mb-1.5">
+      <div class="flex items-center space-x-1.5">
+        <span class="material-icons text-custom-yellow icon-md">candlestick_chart</span>
+        <h1 class="text-md font-semibold">CRYPTOBOARD</h1>
+      </div>
+      <nav class="flex items-center space-x-2">
+        <button class="p-1.5 rounded-sm text-custom-yellow bg-gray-700">
+          <span class="material-icons icon-md">dashboard</span>
+        </button>
+        <button class="p-1.5 rounded-sm text-gray-400 hover:text-custom-yellow hover:bg-gray-700 transition-colors">
+          <span class="material-icons icon-md">show_chart</span>
+        </button>
+        <button class="p-1.5 rounded-sm text-gray-400 hover:text-custom-yellow hover:bg-gray-700 transition-colors">
+          <span class="material-icons icon-md">account_balance_wallet</span>
+        </button>
+        <button class="p-1.5 rounded-sm text-gray-400 hover:text-custom-yellow hover:bg-gray-700 transition-colors">
+          <span class="material-icons icon-md">swap_horiz</span>
+        </button>
+        <button class="p-1.5 rounded-sm text-gray-400 hover:text-custom-yellow hover:bg-gray-700 transition-colors">
+          <span class="material-icons icon-md">history</span>
+        </button>
+      </nav>
+      <div class="flex items-center space-x-1.5">
+        <div class="flex items-center space-x-0.5 bg-custom-dark px-1.5 py-0.5 rounded-sm">
+          <span class="material-icons text-green-500 icon-sm">arrow_upward</span>
+          <span class="text-xxs text-gray-300">74.5K</span>
+          <span class="text-xxs text-gray-500">/ LTC</span>
+        </div>
+        <button class="p-1 bg-custom-dark rounded-sm hover-bg-custom-yellow-darker transition-colors">
+          <span class="material-icons text-gray-400 hover:text-gray-100 icon-sm">notifications</span>
+        </button>
+        <button class="p-1 bg-custom-dark rounded-sm hover-bg-custom-yellow-darker transition-colors">
+          <span class="material-icons text-gray-400 hover:text-gray-100 icon-sm">settings</span>
+        </button>
+        <button class="p-1 bg-custom-dark rounded-sm hover-bg-custom-yellow-darker transition-colors">
+          <span class="material-icons text-gray-400 hover:text-gray-100 icon-sm">account_circle</span>
+        </button>
+        <button class="p-1.5 rounded-sm text-gray-400 hover:text-custom-yellow hover:bg-gray-700 transition-colors">
+          <span class="material-icons icon-md">logout</span>
+        </button>
+      </div>
+    </header>
+    <div class="grid grid-cols-12 gap-1.5">
+      <main class="col-span-12 md:col-span-9 space-y-1.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
+          <div class="bg-custom-dark p-2 rounded-md">
+            <div class="flex items-center justify-between mb-0.5">
+              <h3 class="text-xs text-gray-400 heading-golden">BALANCE (BTC)</h3>
+              <span class="material-icons text-blue-400 icon-sm">currency_bitcoin</span>
+            </div>
+            <p class="text-md font-semibold text-gray-100">0.54321 BTC</p>
+            <p class="text-xxs text-green-400">+2.5%</p>
+          </div>
+          <div class="bg-custom-dark p-2 rounded-md">
+            <div class="flex items-center justify-between mb-0.5">
+              <h3 class="text-xs text-gray-400 heading-golden">BALANCE (ETH)</h3>
+              <span class="material-icons text-purple-400 icon-sm">token</span>
+            </div>
+            <p class="text-md font-semibold text-gray-100">12.45 ETH</p>
+            <p class="text-xxs text-red-400">-1.2%</p>
+          </div>
+          <div class="bg-custom-dark p-2 rounded-md">
+            <div class="flex items-center justify-between mb-0.5">
+              <h3 class="text-xs text-gray-400 heading-golden">PROFIT 24H</h3>
+              <span class="material-icons text-green-400 icon-sm">trending_up</span>
+            </div>
+            <p class="text-md font-semibold text-gray-100">$ 1,230.50</p>
+            <p class="text-xxs text-green-400">+5.8%</p>
+          </div>
+          <div class="bg-custom-dark p-2 rounded-md">
+            <div class="flex items-center justify-between mb-0.5">
+              <h3 class="text-xs text-gray-400 heading-golden">TOTAL ASSETS</h3>
+              <span class="material-icons text-yellow-400 icon-sm">pie_chart</span>
+            </div>
+            <p class="text-md font-semibold text-gray-100">$ 58,721.00</p>
+            <p class="text-xxs text-gray-400">USD Value</p>
+          </div>
+        </div>
+        <div class="bg-custom-dark p-2 rounded-md h-[20rem]">
+          <div class="flex items-center justify-between mb-1.5">
+            <h2 class="text-sm font-semibold">Market Overview - BTC/USDT</h2>
+            <div class="flex items-center space-x-1">
+              <button class="text-xxs px-1.5 py-0.5 rounded-sm bg-gray-700 text-custom-yellow">1H</button>
+              <button
+                class="text-xxs px-1.5 py-0.5 rounded-sm bg-gray-600 text-gray-300 hover:bg-gray-500 transition-colors">4H</button>
+              <button
+                class="text-xxs px-1.5 py-0.5 rounded-sm bg-gray-600 text-gray-300 hover:bg-gray-500 transition-colors">1D</button>
+              <button
+                class="text-xxs px-1.5 py-0.5 rounded-sm bg-gray-600 text-gray-300 hover:bg-gray-500 transition-colors">1W</button>
+            </div>
+          </div>
+          <div class="w-full h-56 chart-placeholder rounded-sm">
+            <img alt="Candlestick chart showing BTC/USDT price movement" class="w-full h-full object-cover opacity-40"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWUy7dcjvcm4BNzOPe2Jly39KP0YJR9x1HuEjLVFO1QiUxRZLb6aZwspMzTXMm6OpIvreG8Xk2-AwIGkf3rV5EekcBwha8NjqwtUUBG52YA_DcW58O1jLRFWgFS4qutSyRsh2UE48UslJX2wu8KZnPCTD-io3FdZ8vPqiUDelQg8nJ1ZpnsVgrL8oq8o0IF3UO2huCYPU5O698x7EVfn_q-V76sJo2gP3v7GNp5cmgQWKQfQClWFeaSWk0YS11xYPOUmEHOk0u8nw" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-1.5">
+          <div class="bg-custom-dark p-2 rounded-md">
+            <h3 class="text-sm font-semibold mb-1.5 heading-golden">Order Book</h3>
+            <div class="flex justify-between text-xxs text-gray-400 mb-1">
+              <span>Price (USDT)</span>
+              <span>Amount (BTC)</span>
+              <span>Total</span>
+            </div>
+            <div class="space-y-0.5 text-xxs custom-scrollbar overflow-y-auto h-24 pr-1">
+              <div class="flex justify-between items-center">
+                <span class="text-red-400">40150.50</span>
+                <span>0.125</span>
+                <span>5018.81</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-red-400">40140.20</span>
+                <span>0.300</span>
+                <span>12042.06</span>
+              </div>
+              <div class="flex justify-between items-center py-0.5 border-t border-b border-custom-gray my-0.5">
+                <span class="text-sm font-semibold text-custom-yellow">40125.00</span>
+                <span class="material-icons text-custom-yellow icon-sm">horizontal_rule</span>
+                <span class="text-sm font-semibold text-custom-yellow">Current</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-green-400">40110.80</span>
+                <span>0.050</span>
+                <span>2005.54</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-green-400">40100.00</span>
+                <span>0.750</span>
+                <span>30075.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-custom-dark p-2 rounded-md">
+            <h3 class="text-sm font-semibold mb-1.5 heading-golden">Recent Trades</h3>
+            <div class="flex justify-between text-xxs text-gray-400 mb-1">
+              <span>Time</span>
+              <span>Price (USDT)</span>
+              <span>Amount (BTC)</span>
+            </div>
+            <div class="space-y-0.5 text-xxs custom-scrollbar overflow-y-auto h-24 pr-1">
+              <div class="flex justify-between items-center">
+                <span>14:35:12</span>
+                <span class="text-green-400">40128.30</span>
+                <span>0.082</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>14:35:08</span>
+                <span class="text-red-400">40130.10</span>
+                <span>0.150</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>14:34:55</span>
+                <span class="text-green-400">40125.50</span>
+                <span>0.210</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>14:34:50</span>
+                <span class="text-red-400">40129.00</span>
+                <span>0.033</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <aside class="col-span-12 md:col-span-3 space-y-1.5">
+        <div class="bg-custom-dark p-2 rounded-md">
+          <h3 class="text-sm font-semibold mb-1.5 heading-golden">Place Order</h3>
+          <div class="flex mb-1.5">
+            <button
+              class="flex-1 py-1 text-xs bg-green-600 hover:bg-green-700 rounded-l-sm transition-colors text-gray-100 font-medium">Buy</button>
+            <button
+              class="flex-1 py-1 text-xs bg-gray-700 hover:bg-red-700 rounded-r-sm transition-colors text-gray-300 hover:text-gray-100 font-medium">Sell</button>
+          </div>
+          <div class="space-y-1.5">
+            <div>
+              <label class="text-xxs text-gray-400 block mb-0.5" for="price">Price (USDT)</label>
+              <input
+                class="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-sm p-1 focus:ring-1 focus:ring-custom-yellow focus:border-custom-yellow outline-none"
+                id="price" type="text" value="40125.00" />
+            </div>
+            <div>
+              <label class="text-xxs text-gray-400 block mb-0.5" for="amount">Amount (BTC)</label>
+              <input
+                class="w-full bg-gray-700 border border-gray-600 text-gray-100 text-xs rounded-sm p-1 focus:ring-1 focus:ring-custom-yellow focus:border-custom-yellow outline-none"
+                id="amount" placeholder="0.00" type="text" />
+            </div>
+            <div class="flex justify-between text-xxs text-gray-400">
+              <span>Available:</span>
+              <span>2.351 USDT</span>
+            </div>
+            <button
+              class="w-full py-1.5 bg-custom-yellow text-gray-900 font-semibold rounded-sm hover-bg-custom-yellow-darker transition-colors text-xs">
+              Buy BTC
+            </button>
+          </div>
+        </div>
+        <div class="bg-custom-dark p-2 rounded-md">
+          <h3 class="text-sm font-semibold mb-1.5 heading-golden">Watchlist</h3>
+          <div class="space-y-1 custom-scrollbar overflow-y-auto h-48 pr-1">
+            <div
+              class="flex items-center justify-between p-1 hover:bg-gray-700 rounded-sm transition-colors cursor-pointer">
+              <div>
+                <p class="text-xs font-medium text-gray-100">ETH/USDT</p>
+                <p class="text-xxs text-gray-400">Ethereum</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-medium text-gray-100">2,850.75</p>
+                <p class="text-xxs text-red-400">-0.5%</p>
+              </div>
+            </div>
+            <div
+              class="flex items-center justify-between p-1 hover:bg-gray-700 rounded-sm transition-colors cursor-pointer">
+              <div>
+                <p class="text-xs font-medium text-gray-100">LTC/USDT</p>
+                <p class="text-xxs text-gray-400">Litecoin</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-medium text-gray-100">145.20</p>
+                <p class="text-xxs text-green-400">+1.8%</p>
+              </div>
+            </div>
+            <div
+              class="flex items-center justify-between p-1 hover:bg-gray-700 rounded-sm transition-colors cursor-pointer">
+              <div>
+                <p class="text-xs font-medium text-gray-100">ADA/USDT</p>
+                <p class="text-xxs text-gray-400">Cardano</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-medium text-gray-100">1.12</p>
+                <p class="text-xxs text-green-400">+3.2%</p>
+              </div>
+            </div>
+            <div
+              class="flex items-center justify-between p-1 hover:bg-gray-700 rounded-sm transition-colors cursor-pointer">
+              <div>
+                <p class="text-xs font-medium text-gray-100">SOL/USDT</p>
+                <p class="text-xxs text-gray-400">Solana</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-medium text-gray-100">95.60</p>
+                <p class="text-xxs text-red-400">-2.1%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+</body>
+
+</html>
