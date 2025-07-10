@@ -28,7 +28,10 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
 
       setLoading(true);
 
-      const returnCommand = new ReturnFromSwarmCommand(values.targetWallet, wallets);
+      const returnCommand = new ReturnFromSwarmCommand(
+        values.targetWallet,
+        wallets
+      );
 
       await returnCommand.execute();
 
@@ -57,7 +60,9 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
           rules={[{ required: true, message: t('common.validationFailed') }]}
         >
           <Select>
-            <Select.Option value="phantom">{t('swarm.feedModal.phantomWallet')}</Select.Option>
+            <Select.Option value="phantom">
+              {t('swarm.feedModal.phantomWallet')}
+            </Select.Option>
             {wallets.map((wallet) => (
               <Select.Option key={wallet.publicKey} value={wallet.publicKey}>
                 {wallet.publicKey}

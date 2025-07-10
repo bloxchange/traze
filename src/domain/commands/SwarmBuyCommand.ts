@@ -51,18 +51,24 @@ export class SwarmBuyCommand {
     this.broker = broker;
   }
 
-  private async getRandomAmount(wallet: PublicKey, priorityFeeInSol: number): Promise<number> {
+  private async getRandomAmount(
+    wallet: PublicKey,
+    priorityFeeInSol: number
+  ): Promise<number> {
     const randomIndex = Math.floor(Math.random() * this.buyAmounts.length);
 
     const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
 
     const balance =
-      (await ConnectionManager.getInstance().getConnection().getBalance(wallet, 'confirmed')) /
-      LAMPORTS_PER_SOL;
+      (await ConnectionManager.getInstance()
+        .getConnection()
+        .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
 
     const availableBalance = balance - priorityFeeInSol;
 
-    return availableBalance > estimatedAmount ? estimatedAmount : availableBalance;
+    return availableBalance > estimatedAmount
+      ? estimatedAmount
+      : availableBalance;
   }
 
   private delay(ms: number): Promise<void> {

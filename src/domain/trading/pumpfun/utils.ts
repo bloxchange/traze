@@ -22,7 +22,10 @@ import { BondingCurveAccount } from './BondingCurveAccount';
 import { GlobalAccount } from './GlobalAccount';
 import type { PriorityFee, TransactionResult } from './types';
 
-export function getBondingCurvePDA(mint: PublicKey, programId: PublicKey): PublicKey {
+export function getBondingCurvePDA(
+  mint: PublicKey,
+  programId: PublicKey
+): PublicKey {
   return PublicKey.findProgramAddressSync(
     [Buffer.from(BONDING_CURVE_SEED), mint.toBuffer()],
     programId
@@ -34,7 +37,10 @@ export async function getBondingCurveAccount(
   bondingCurvePda: PublicKey,
   commitment: Commitment = DEFAULT_COMMITMENT
 ) {
-  const tokenAccount = await connection.getAccountInfo(bondingCurvePda, commitment);
+  const tokenAccount = await connection.getAccountInfo(
+    bondingCurvePda,
+    commitment
+  );
 
   if (!tokenAccount) {
     return null;
@@ -43,18 +49,27 @@ export async function getBondingCurveAccount(
   return BondingCurveAccount.fromBuffer(tokenAccount!.data);
 }
 
-export async function getGlobalAccount(connection: Connection, commitment: Commitment) {
+export async function getGlobalAccount(
+  connection: Connection,
+  commitment: Commitment
+) {
   const [globalAccountPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from(GLOBAL_ACCOUNT_SEED)],
     new PublicKey(PUMPFUN_PROGRAM_ID)
   );
 
-  const tokenAccount = await connection.getAccountInfo(globalAccountPDA, commitment);
+  const tokenAccount = await connection.getAccountInfo(
+    globalAccountPDA,
+    commitment
+  );
 
   return GlobalAccount.fromBuffer(tokenAccount!.data);
 }
 
-export const calculateWithSlippageBuy = (amount: bigint, basisPoints: bigint) => {
+export const calculateWithSlippageBuy = (
+  amount: bigint,
+  basisPoints: bigint
+) => {
   return amount + (amount * basisPoints) / 10000n;
 };
 
@@ -63,7 +78,10 @@ export function calculateWithSlippageSell(
   slippageBasisPoints: bigint = 500n
 ): bigint {
   // Actually use the slippage basis points for calculation
-  const reduction = Math.max(1, Number((amount * slippageBasisPoints) / 10000n));
+  const reduction = Math.max(
+    1,
+    Number((amount * slippageBasisPoints) / 10000n)
+  );
 
   return amount - BigInt(reduction);
 }
@@ -94,7 +112,12 @@ export async function sendTransaction(
 
   newTx.add(tx);
 
-  const versionedTx = await buildVersionedTx(connection, payer, newTx, commitment);
+  const versionedTx = await buildVersionedTx(
+    connection,
+    payer,
+    newTx,
+    commitment
+  );
 
   versionedTx.sign(signers);
 
@@ -147,13 +170,20 @@ export async function sendTx(
     const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
       microLamports: priorityFees.unitPrice,
     });
+
     newTx.add(modifyComputeUnits);
+
     newTx.add(addPriorityFee);
   }
 
   newTx.add(tx);
 
-  const versionedTx = await buildVersionedTx(connection, payer, newTx, commitment);
+  const versionedTx = await buildVersionedTx(
+    connection,
+    payer,
+    newTx,
+    commitment
+  );
 
   versionedTx.sign(signers);
 
@@ -161,9 +191,9 @@ export async function sendTx(
     const sig = await connection.sendTransaction(versionedTx, {
       skipPreflight: false,
     });
-    console.log('sig:', `https://solscan.io/tx/${sig}`);
 
     const txResult = await getTxDetails(connection, sig, commitment, finality);
+
     if (!txResult) {
       return {
         success: false,

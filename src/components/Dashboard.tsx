@@ -51,10 +51,13 @@ const createDefaultLayout = (t: (key: string) => string) => ({
   },
 });
 
-const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexLayoutRef }) => {
+const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({
+  flexLayoutRef,
+}) => {
   const { t } = useTranslation();
 
   const layoutModel = React.useRef(Model.fromJson(createDefaultLayout(t)));
+
   const model = layoutModel.current;
 
   const handleNameChange = (node: TabNode, newName: string) => {
@@ -66,11 +69,16 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexL
 
     const componentTitle = t('swarm.title');
 
-    node.getModel().doAction(Actions.renameTab(node.getId(), `${componentTitle} - ${newName}`));
+    node
+      .getModel()
+      .doAction(
+        Actions.renameTab(node.getId(), `${componentTitle} - ${newName}`)
+      );
   };
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();
+
     const config = node.getConfig();
 
     switch (component) {
@@ -82,12 +90,16 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({ flexL
             onNameChange={(newName) => handleNameChange(node, newName)}
           />
         );
+
       case 'tokenInformation':
         return <TokenInformation />;
+
       case 'liquidityPools':
         return <LiquidityPools name={config.name} />;
+
       case 'transactions':
         return <Transactions name={config.name} />;
+
       default:
         return config.content;
     }

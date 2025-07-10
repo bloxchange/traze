@@ -50,7 +50,8 @@ export class FeedSwarmCommand {
     // Get recent blockhash
     const connection = ConnectionManager.getInstance().getConnection();
 
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
 
     transaction.recentBlockhash = blockhash;
 
@@ -124,31 +125,41 @@ export class FeedSwarmCommand {
     amount: number
   ): Promise<void> {
     // Emit balance change event for source wallet (negative amount)
-    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${from.toBase58()}`, {
-      tokenMint: '',
-      amount: -amount,
-      owner: from,
-    });
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${from.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: -amount,
+        owner: from,
+      }
+    );
 
     // Emit balance change event for destination wallet (positive amount)
-    globalEventEmitter.emit<BalanceChangeData>(`${EVENTS.BalanceChanged}_${to.toBase58()}`, {
-      tokenMint: '',
-      amount: amount,
-      owner: to,
-    });
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${to.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: amount,
+        owner: to,
+      }
+    );
   }
 
   private async executeSwarmTransfer(): Promise<void> {
-    const sender = this.wallets.find((wallet) => wallet.publicKey === this.sourceWallet);
+    const sender = this.wallets.find(
+      (wallet) => wallet.publicKey === this.sourceWallet
+    );
 
     const remainingWallets = this.wallets.filter(
       (wallet) => wallet.publicKey !== this.sourceWallet
     );
-    const amountPerWallet = (this.amount * LAMPORTS_PER_SOL) / remainingWallets.length;
+    const amountPerWallet =
+      (this.amount * LAMPORTS_PER_SOL) / remainingWallets.length;
 
     const connection = ConnectionManager.getInstance().getConnection();
 
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
 
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,

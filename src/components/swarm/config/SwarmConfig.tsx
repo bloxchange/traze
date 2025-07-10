@@ -13,28 +13,45 @@ interface SwarmConfigProps {
   initialConfig: SwarmConfigFormValues;
 }
 
-const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig }) => {
+const SwarmConfig: React.FC<SwarmConfigProps> = ({
+  onConfigChange,
+  initialConfig,
+}) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState('');
-  const [availableBuyAmounts, setAvailableBuyAmounts] = useState(['0.1', '0.5', '1', '2', '5']);
+  const [availableBuyAmounts, setAvailableBuyAmounts] = useState([
+    '0.1',
+    '0.5',
+    '1',
+    '2',
+    '5',
+  ]);
   const availableSellPercentages = ['25', '50', '75', '100'];
 
   const handleAmountEdit = () => {
     setAmountInput(form.getFieldValue('buyAmounts')?.join(', ') || '');
+
     setIsAmountModalVisible(true);
   };
 
   const handleAmountSave = () => {
     const amounts = amountInput.split(',').map((amount) => amount.trim());
+
     setAvailableBuyAmounts(amounts);
+
     form.setFieldsValue({ buyAmounts: [] });
+
     setIsAmountModalVisible(false);
   };
 
-  const handleValuesChange = (_: Record<string, unknown>, changedValues: SwarmConfigFormValues) => {
+  const handleValuesChange = (
+    _: Record<string, unknown>,
+    changedValues: SwarmConfigFormValues
+  ) => {
     const allValues = { ...initialConfig };
+
     onConfigChange({ ...allValues, ...changedValues });
   };
 
@@ -73,7 +90,9 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({ onConfigChange, initialConfig
             {
               key: 'sell',
               label: t('swarm.sellTab'),
-              children: <SellSection availablePercentages={availableSellPercentages} />,
+              children: (
+                <SellSection availablePercentages={availableSellPercentages} />
+              ),
             },
           ]}
         />

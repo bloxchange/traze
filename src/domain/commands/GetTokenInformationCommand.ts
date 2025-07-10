@@ -3,7 +3,10 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { TokenInformation } from '../../models/token';
 import { getAsset } from '../rpc';
 import { TokenInformationCache } from '../infrastructure/TokenInformationCache';
-import { fetchDigitalAsset, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  fetchDigitalAsset,
+  mplTokenMetadata,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { publicKey as metaplexPublicKey } from '@metaplex-foundation/umi';
 import { getTokenMetadata, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
@@ -66,8 +69,6 @@ export class GetTokenInformationCommand {
   private async getFromAsset(): Promise<TokenInformation | null> {
     const asset = await getAsset(this.tokenMint);
 
-    console.log(asset);
-
     if (asset.error) {
       return null;
     }
@@ -124,7 +125,9 @@ export class GetTokenInformationCommand {
   private async extractJsonUri(jsonUri: string) {
     if (jsonUri.startsWith('data:application/json,')) {
       // Handle inline JSON data
-      const jsonData = decodeURIComponent(jsonUri.replace('data:application/json,', ''));
+      const jsonData = decodeURIComponent(
+        jsonUri.replace('data:application/json,', '')
+      );
 
       return JSON.parse(jsonData);
     } else {
@@ -145,7 +148,10 @@ export class GetTokenInformationCommand {
     const umi = createUmi(connection.rpcEndpoint).use(mplTokenMetadata());
 
     try {
-      const dAsset = await fetchDigitalAsset(umi, metaplexPublicKey(this.tokenMint));
+      const dAsset = await fetchDigitalAsset(
+        umi,
+        metaplexPublicKey(this.tokenMint)
+      );
 
       const jsonUri = dAsset.metadata.uri;
 

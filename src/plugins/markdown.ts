@@ -18,6 +18,7 @@ export function markdownPlugin(): Plugin {
             return next(error);
           }
         }
+
         next();
       });
     },

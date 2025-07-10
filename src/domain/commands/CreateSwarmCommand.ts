@@ -9,7 +9,11 @@ export class CreateSwarmCommand {
   private generateCount: number;
   private tokenMint?: string;
 
-  constructor(privateKeys: string[], generateCount: number, tokenMint?: string) {
+  constructor(
+    privateKeys: string[],
+    generateCount: number,
+    tokenMint?: string
+  ) {
     this.privateKeys = privateKeys;
     this.generateCount = generateCount;
     this.tokenMint = tokenMint;
@@ -30,7 +34,10 @@ export class CreateSwarmCommand {
         let tokenBalance = 0;
 
         if (this.tokenMint) {
-          tokenBalance = await getTokenBalance(keypair.publicKey.toBase58(), this.tokenMint);
+          tokenBalance = await getTokenBalance(
+            keypair.publicKey.toBase58(),
+            this.tokenMint
+          );
         }
 
         newWallets.push({

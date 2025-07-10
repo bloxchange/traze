@@ -5,19 +5,25 @@ import type { CreateSwarmModalProps } from '@/models';
 
 const { TextArea } = Input;
 
-const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onSubmit }) => {
+const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
+  open,
+  onCancel,
+  onSubmit,
+}) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
       const privateKeys = values.privateKeys
         ? values.privateKeys
-            .split('\n')
-            .map((key: string) => key.trim())
-            .filter((key: string) => key.length > 0)
+          .split('\n')
+          .map((key: string) => key.trim())
+          .filter((key: string) => key.length > 0)
         : [];
+
       const generateCount = values.generateCount || 0;
 
       if (privateKeys.length === 0 && generateCount === 0) {
@@ -31,6 +37,7 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onS
       }
 
       await onSubmit(privateKeys, generateCount);
+
       form.resetFields();
     } catch (error) {
       // Form validation error is handled by antd Form
@@ -47,8 +54,14 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({ open, onCancel, onS
       destroyOnHidden
     >
       <Form form={form} layout="vertical" initialValues={{ generateCount: 0 }}>
-        <Form.Item name="privateKeys" label={t('swarm.createModal.privateKeys')}>
-          <TextArea rows={4} placeholder={t('swarm.createModal.privateKeysPlaceholder')} />
+        <Form.Item
+          name="privateKeys"
+          label={t('swarm.createModal.privateKeys')}
+        >
+          <TextArea
+            rows={4}
+            placeholder={t('swarm.createModal.privateKeysPlaceholder')}
+          />
         </Form.Item>
 
         <Form.Item

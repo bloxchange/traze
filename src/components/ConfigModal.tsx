@@ -9,13 +9,19 @@ interface ConfigModalProps {
   initialValues: Configuration;
 }
 
-const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, initialValues }) => {
+const ConfigModal: React.FC<ConfigModalProps> = ({
+  open,
+  onCancel,
+  onSubmit,
+  initialValues,
+}) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+
       onSubmit(values);
     } catch (error) {
       console.error('Validation failed:', error);
@@ -23,7 +29,12 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
   };
 
   return (
-    <Modal title={t('settings.configuration')} open={open} onOk={handleOk} onCancel={onCancel}>
+    <Modal
+      title={t('settings.configuration')}
+      open={open}
+      onOk={handleOk}
+      onCancel={onCancel}
+    >
       <p style={{ marginBottom: 16 }}>{t('settings.description')}</p>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
@@ -36,14 +47,18 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
         <Form.Item
           name="rpcWebsocketUrl"
           label={t('settings.rpcWebsocketUrl')}
-          rules={[{ required: true, message: t('settings.rpcWebsocketUrlRequired') }]}
+          rules={[
+            { required: true, message: t('settings.rpcWebsocketUrlRequired') },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           label={t('settings.jitoEndpoint')}
           name="jitoEndpoint"
-          rules={[{ required: true, message: t('settings.jitoEndpointRequired') }]}
+          rules={[
+            { required: true, message: t('settings.jitoEndpointRequired') },
+          ]}
           extra={t('settings.jitoEndpointDescription')}
         >
           <Input />
@@ -55,7 +70,9 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ open, onCancel, onSubmit, ini
         >
           <Radio.Group>
             <Radio value="rpc">{t('settings.balanceUpdateModeRpc')}</Radio>
-            <Radio value="calculate">{t('settings.balanceUpdateModeCalculate')}</Radio>
+            <Radio value="calculate">
+              {t('settings.balanceUpdateModeCalculate')}
+            </Radio>
           </Radio.Group>
         </Form.Item>
       </Form>

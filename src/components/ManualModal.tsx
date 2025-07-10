@@ -18,6 +18,7 @@ const ManualModal: React.FC<ManualModalProps> = ({ open, onCancel }) => {
     const fetchManual = async () => {
       if (open) {
         setLoading(true);
+
         try {
           const response = await fetch(`/manual/${i18n.language}.md`);
 
@@ -36,7 +37,13 @@ const ManualModal: React.FC<ManualModalProps> = ({ open, onCancel }) => {
   }, [open, i18n.language]);
 
   return (
-    <Modal title={t('manual.title')} open={open} onCancel={onCancel} footer={null} width={800}>
+    <Modal
+      title={t('manual.title')}
+      open={open}
+      onCancel={onCancel}
+      footer={null}
+      width={800}
+    >
       {loading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <Spin />

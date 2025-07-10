@@ -43,7 +43,10 @@ const Transactions: React.FC<TransactionsProps> = () => {
       }
     };
 
-    globalEventEmitter.on<TransactionEventData>(EVENTS.TransactionCreated, handleTransactionEvent);
+    globalEventEmitter.on<TransactionEventData>(
+      EVENTS.TransactionCreated,
+      handleTransactionEvent
+    );
 
     return () => {
       globalEventEmitter.off(EVENTS.TransactionCreated, handleTransactionEvent);
@@ -77,7 +80,16 @@ const Transactions: React.FC<TransactionsProps> = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <span style={{ color: status === 'success' ? '#52c41a' : '#f5222d' }}>{status}</span>
+        <span
+          style={{
+            color:
+              status === 'success'
+                ? 'var(--ant-color-success)'
+                : 'var(--ant-color-error)',
+          }}
+        >
+          {status}
+        </span>
       ),
     },
     {
@@ -86,7 +98,9 @@ const Transactions: React.FC<TransactionsProps> = () => {
       key: 'signature',
       render: (signature: string) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'monospace' }}>{signature.slice(0, 6)}...</span>
+          <span style={{ fontFamily: 'monospace' }}>
+            {signature.slice(0, 6)}...
+          </span>
           <a
             href={`https://solscan.io/tx/${signature}`}
             target="_blank"

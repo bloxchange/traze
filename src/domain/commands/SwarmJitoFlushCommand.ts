@@ -98,7 +98,11 @@ export class SwarmJitoFlushCommand {
     }
 
     if (sellParametersArray.length > 0) {
-      await this.broker.jitoSell(sellParametersArray, this.jitoTipAmount, this.jitoEndpoint);
+      await this.broker.jitoSell(
+        sellParametersArray,
+        this.jitoTipAmount,
+        this.jitoEndpoint
+      );
     }
   }
 }

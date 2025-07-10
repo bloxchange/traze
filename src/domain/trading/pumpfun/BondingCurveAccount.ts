@@ -62,7 +62,8 @@ export class BondingCurveAccount {
     }
 
     // Calculate the proportional amount of virtual sol reserves to be received
-    const n = (amount * this.virtualSolReserves) / (this.virtualTokenReserves + amount);
+    const n =
+      (amount * this.virtualSolReserves) / (this.virtualTokenReserves + amount);
 
     // Calculate the fee amount in the same units
     const a = (n * feeBasisPoints) / 10000n;
@@ -76,15 +77,22 @@ export class BondingCurveAccount {
       return 0n;
     }
 
-    return (this.tokenTotalSupply * this.virtualSolReserves) / this.virtualTokenReserves;
+    return (
+      (this.tokenTotalSupply * this.virtualSolReserves) /
+      this.virtualTokenReserves
+    );
   }
 
   getFinalMarketCapSOL(feeBasisPoints: bigint): bigint {
-    const totalSellValue = this.getBuyOutPrice(this.realTokenReserves, feeBasisPoints);
+    const totalSellValue = this.getBuyOutPrice(
+      this.realTokenReserves,
+      feeBasisPoints
+    );
 
     const totalVirtualValue = this.virtualSolReserves + totalSellValue;
 
-    const totalVirtualTokens = this.virtualTokenReserves - this.realTokenReserves;
+    const totalVirtualTokens =
+      this.virtualTokenReserves - this.realTokenReserves;
 
     if (totalVirtualTokens === 0n) {
       return 0n;
@@ -94,10 +102,13 @@ export class BondingCurveAccount {
   }
 
   getBuyOutPrice(amount: bigint, feeBasisPoints: bigint): bigint {
-    const solTokens = amount < this.virtualTokenReserves ? this.virtualTokenReserves : amount;
+    const solTokens =
+      amount < this.virtualTokenReserves ? this.virtualTokenReserves : amount;
 
     const totalSellValue =
-      (solTokens * this.virtualSolReserves) / (this.virtualTokenReserves - solTokens) + 1n;
+      (solTokens * this.virtualSolReserves) /
+        (this.virtualTokenReserves - solTokens) +
+      1n;
 
     const fee = (totalSellValue * feeBasisPoints) / 10000n;
 

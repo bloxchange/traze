@@ -18,7 +18,9 @@ function App() {
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const savedTheme = localStorage.getItem('theme_preference');
 
-    return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    return savedTheme === 'light' || savedTheme === 'dark'
+      ? savedTheme
+      : 'dark';
   });
   const [showTutorial, setShowTutorial] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -54,8 +56,17 @@ function App() {
         <TokenProvider>
           <ConfigProvider theme={theme === 'light' ? lightTheme : darkTheme}>
             <Layout style={{ minHeight: '100vh', width: '100%' }}>
-              <Header flexLayoutRef={flexLayoutRef} theme={theme} onThemeChange={toggleTheme} />
-              <div style={{ height: 'calc(100vh - var(--ant-layout-header-height))', padding: 6 }}>
+              <Header
+                flexLayoutRef={flexLayoutRef}
+                theme={theme}
+                onThemeChange={toggleTheme}
+              />
+              <div
+                style={{
+                  height: 'calc(100vh - var(--ant-layout-header-height))',
+                  padding: 6,
+                }}
+              >
                 <Content
                   style={{
                     padding: '24px',
@@ -68,7 +79,9 @@ function App() {
                 </Content>
               </div>
               {showDisclaimer && <DisclaimerModal />}
-              {showTutorial && <TutorialOverlay onFinish={handleTutorialFinish} />}
+              {showTutorial && (
+                <TutorialOverlay onFinish={handleTutorialFinish} />
+              )}
             </Layout>
           </ConfigProvider>
         </TokenProvider>

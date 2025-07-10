@@ -13,8 +13,12 @@ export const RpcConnectionContext = createContext<RpcConnectionContextType>(
 
 export const useRpcConnection = () => {
   const context = useContext(RpcConnectionContext);
+
   if (!context) {
-    throw new Error('useRpcConnection must be used within a RpcConnectionProvider');
+    throw new Error(
+      'useRpcConnection must be used within a RpcConnectionProvider'
+    );
   }
+
   return context;
 };

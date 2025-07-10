@@ -1,5 +1,13 @@
 import React from 'react';
-import { Row, Col, Checkbox, Space, Typography, Button, App as AntdApp } from 'antd';
+import {
+  Row,
+  Col,
+  Checkbox,
+  Space,
+  Typography,
+  Button,
+  App as AntdApp,
+} from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -10,15 +18,19 @@ const { Text } = Typography;
 
 const formatBalance = (balance: number, isSOL: boolean = false): string => {
   const decimals = isSOL ? 3 : 2;
+
   if (balance >= 1_000_000_000) {
     return `${(balance / 1_000_000_000).toFixed(decimals)}B`;
   }
+
   if (balance >= 1_000_000) {
     return `${(balance / 1_000_000).toFixed(decimals)}M`;
   }
+
   if (balance >= 1_000) {
     return `${(balance / 1_000).toFixed(decimals)}K`;
   }
+
   return balance.toFixed(decimals);
 };
 
@@ -44,7 +56,8 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
       .catch(() => message.error(t('common.copyFailed')));
   };
 
-  const allSelected = wallets.length > 0 && wallets.every((wallet) => wallet.selected);
+  const allSelected =
+    wallets.length > 0 && wallets.every((wallet) => wallet.selected);
 
   return (
     <>
@@ -53,7 +66,9 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
           <Checkbox
             checked={allSelected}
             onChange={(e) => onSelectAll?.(e.target.checked)}
-            indeterminate={wallets.some((wallet) => wallet.selected) && !allSelected}
+            indeterminate={
+              wallets.some((wallet) => wallet.selected) && !allSelected
+            }
           />
         </Col>
         <Col span={8}>
@@ -72,7 +87,9 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             <Checkbox
               id={wallet.publicKey}
               checked={wallet.selected}
-              onChange={(e) => onWalletSelection(wallet.publicKey, e.target.checked)}
+              onChange={(e) =>
+                onWalletSelection(wallet.publicKey, e.target.checked)
+              }
             />
           </Col>
           <Col span={8}>
@@ -96,7 +113,9 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             </Text>
           </Col>
           <Col span={7}>
-            <Text style={{ fontFamily: 'monospace' }}>{formatBalance(wallet.tokenBalance)}</Text>
+            <Text style={{ fontFamily: 'monospace' }}>
+              {formatBalance(wallet.tokenBalance)}
+            </Text>
           </Col>
         </Row>
       ))}

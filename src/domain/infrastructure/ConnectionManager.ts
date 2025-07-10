@@ -1,11 +1,16 @@
-import { Connection, type LogsFilter, PublicKey, type Logs } from '@solana/web3.js';
+import {
+  Connection,
+  type LogsFilter,
+  PublicKey,
+  type Logs,
+} from '@solana/web3.js';
 
 export class ConnectionManager {
   private static instance: ConnectionManager;
   private connection: Connection | null = null;
   private subscriptionIds: Map<string, number> = new Map();
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): ConnectionManager {
     if (!ConnectionManager.instance) {
@@ -23,8 +28,11 @@ export class ConnectionManager {
 
   public getConnection(): Connection {
     if (!this.connection) {
-      throw new Error('ConnectionManager not initialized. Call initialize() first.');
+      throw new Error(
+        'ConnectionManager not initialized. Call initialize() first.'
+      );
     }
+
     return this.connection;
   }
 
@@ -51,16 +59,21 @@ export class ConnectionManager {
 
       this.subscriptionIds.set(tokenMint, subscriptionId);
 
-      console.log(`Subscribed to logs for token ${tokenMint} with ID ${subscriptionId}`);
+      console.log(
+        `Subscribed to logs for token ${tokenMint} with ID ${subscriptionId}`
+      );
     } catch (error) {
       console.error('Error subscribing to token logs:', error);
+
       throw error;
     }
   }
 
   public async unsubscribeTokenLogs(tokenMint: string): Promise<void> {
     const connection = this.getConnection();
+
     const subscriptionId = this.subscriptionIds.get(tokenMint);
+
     if (subscriptionId !== undefined) {
       try {
         await connection.removeOnLogsListener(subscriptionId);
@@ -80,6 +93,7 @@ export class ConnectionManager {
     );
 
     await Promise.all(unsubscribePromises);
+
     this.subscriptionIds.clear();
   }
 }
