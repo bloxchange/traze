@@ -22,6 +22,8 @@ export interface SwarmWalletListProps {
   showConfig: boolean;
   swarmConfig: SwarmConfigFormValues;
   onConfigChange: (values: SwarmConfigFormValues) => void;
+  availableBuyAmounts: string[];
+  onAvailableBuyAmountsChange: (amounts: string[]) => void;
 }
 
 export interface CreateSwarmModalProps {

@@ -22,6 +22,8 @@ interface SwarmConfigLayoutProps {
   onSelectAll?: (selected: boolean) => void;
   swarmConfig: SwarmConfigFormValues;
   onConfigChange: (values: SwarmConfigFormValues) => void;
+  availableBuyAmounts: string[];
+  onAvailableBuyAmountsChange: (amounts: string[]) => void;
 }
 
 const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
@@ -30,6 +32,8 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
   onSelectAll,
   swarmConfig,
   onConfigChange,
+  availableBuyAmounts,
+  onAvailableBuyAmountsChange,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -105,6 +109,8 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
         <SwarmConfig
           initialConfig={swarmConfig}
           onConfigChange={onConfigChange}
+          availableBuyAmounts={availableBuyAmounts}
+          onAvailableBuyAmountsChange={onAvailableBuyAmountsChange}
         />
       </Col>
     </Row>
