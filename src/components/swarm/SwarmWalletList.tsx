@@ -9,6 +9,8 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({
   showConfig,
   swarmConfig,
   onConfigChange,
+  availableBuyAmounts,
+  onAvailableBuyAmountsChange,
 }) => {
   return (
     <div className="swarm-wallets" style={{ padding: '12px 6px' }}>
@@ -25,6 +27,8 @@ const SwarmWalletList: React.FC<SwarmWalletListProps> = ({
           onSelectAll={onSelectAll}
           swarmConfig={swarmConfig}
           onConfigChange={onConfigChange}
+          availableBuyAmounts={availableBuyAmounts}
+          onAvailableBuyAmountsChange={onAvailableBuyAmountsChange}
         />
       )}
     </div>

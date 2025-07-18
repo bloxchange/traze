@@ -77,20 +77,6 @@ export class SwarmSellCommand {
       throw new Error('No wallets selected');
     }
 
-    const prioritizationFees = await ConnectionManager.getInstance()
-      .getConnection()
-      .getRecentPrioritizationFees({
-        lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-      });
-
-    let maxCurrentPriorityUnitPrice = 0;
-
-    prioritizationFees.forEach(({ prioritizationFee }) => {
-      if (prioritizationFee > maxCurrentPriorityUnitPrice) {
-        maxCurrentPriorityUnitPrice = prioritizationFee;
-      }
-    });
-
     for (const wallet of selectedWallets) {
       const sellAmount = await this.calculateSellAmount(wallet);
 
@@ -104,7 +90,7 @@ export class SwarmSellCommand {
         sellTokenAmount: sellAmount,
         slippageBasisPoints: BigInt(this.slippageBasisPoints),
         priorityFeeInSol: this.priorityFeeInSol,
-        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
+        maxCurrentPriorityFee: this.priorityFeeInSol,
       };
 
       const signature = await this.broker.sell(sellParameters);

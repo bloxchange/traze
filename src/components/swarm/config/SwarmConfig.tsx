@@ -11,23 +11,21 @@ import GeneralSection from './GeneralSection';
 interface SwarmConfigProps {
   onConfigChange: (values: SwarmConfigFormValues) => void;
   initialConfig: SwarmConfigFormValues;
+  availableBuyAmounts: string[];
+  onAvailableBuyAmountsChange: (amounts: string[]) => void;
 }
 
 const SwarmConfig: React.FC<SwarmConfigProps> = ({
   onConfigChange,
   initialConfig,
+  availableBuyAmounts,
+  onAvailableBuyAmountsChange,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState('');
-  const [availableBuyAmounts, setAvailableBuyAmounts] = useState([
-    '0.1',
-    '0.5',
-    '1',
-    '2',
-    '5',
-  ]);
+
   const availableSellPercentages = ['25', '50', '75', '100'];
 
   const handleAmountEdit = () => {
@@ -39,7 +37,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
   const handleAmountSave = () => {
     const amounts = amountInput.split(',').map((amount) => amount.trim());
 
-    setAvailableBuyAmounts(amounts);
+    onAvailableBuyAmountsChange(amounts);
 
     form.setFieldsValue({ buyAmounts: [] });
 

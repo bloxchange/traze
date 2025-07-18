@@ -49,6 +49,13 @@ const Swarm: React.FC<SwarmProps> = ({
     jitoTipAmount: 0.0001,
     useJitoBundle: false,
   });
+  const [availableBuyAmounts, setAvailableBuyAmounts] = useState([
+    '0.1',
+    '0.5',
+    '1',
+    '2',
+    '5',
+  ]);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
 
@@ -394,6 +401,8 @@ const Swarm: React.FC<SwarmProps> = ({
         showConfig={showConfig}
         swarmConfig={swarmConfig}
         onConfigChange={setSwarmConfig}
+        availableBuyAmounts={availableBuyAmounts}
+        onAvailableBuyAmountsChange={setAvailableBuyAmounts}
       />
       <SwarmFooter
         onBuy={handleBuy}
