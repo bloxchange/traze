@@ -2,7 +2,9 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { AssetResponsePayload, RpcResponse } from '../models/rpc';
 
 export async function getAsset(tokenMint: string) {
-  const rpcUrl = ConnectionManager.getInstance().getConnection().rpcEndpoint;
+  // Get the current connection from the round-robin manager
+  const connection = ConnectionManager.getInstance().getConnection();
+  const rpcUrl = connection.rpcEndpoint;
 
   const response = await fetch(rpcUrl, {
     method: 'POST',

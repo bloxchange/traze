@@ -7,7 +7,8 @@ import {
 
 export class ConnectionManager {
   private static instance: ConnectionManager;
-  private connection: Connection | null = null;
+  private connections: Connection[] = [];
+  private currentConnectionIndex: number = 0;
   private subscriptionIds: Map<string, number> = new Map();
 
   private constructor() { }
@@ -19,21 +20,40 @@ export class ConnectionManager {
     return ConnectionManager.instance;
   }
 
-  public initialize(rpcUrl: string, websocketUrl: string): void {
-    this.connection = new Connection(rpcUrl, {
-      wsEndpoint: websocketUrl,
-      commitment: 'confirmed',
+  public initialize(rpcUrls: string[], websocketUrl: string): void {
+    // Create connections for all RPC URLs
+    this.connections = rpcUrls.map(url => {
+      return new Connection(url, {
+        wsEndpoint: websocketUrl,
+        commitment: 'confirmed',
+      });
     });
   }
 
   public getConnection(): Connection {
-    if (!this.connection) {
+    if (this.connections.length === 0) {
       throw new Error(
         'ConnectionManager not initialized. Call initialize() first.'
       );
     }
 
-    return this.connection;
+    // Round-robin selection of connection
+    const connection = this.connections[this.currentConnectionIndex];
+
+    // Update the index for the next call
+    this.currentConnectionIndex = (this.currentConnectionIndex + 1) % this.connections.length;
+
+    return connection;
+  }
+
+  public getAllConnections(): Connection[] {
+    if (this.connections.length === 0) {
+      throw new Error(
+        'ConnectionManager not initialized. Call initialize() first.'
+      );
+    }
+
+    return this.connections;
   }
 
   public async subscribeTokenLogs(

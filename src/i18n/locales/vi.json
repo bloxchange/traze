@@ -2,8 +2,9 @@
   "settings": {
     "configuration": "Cấu hình",
     "description": "Các giá trị cấu hình được lưu trữ an toàn trong bộ nhớ cục bộ của trình duyệt để thuận tiện. Cài đặt của bạn sẽ tự động được khôi phục vào lần truy cập tiếp theo, đảm bảo trải nghiệm liền mạch.",
-    "rpcUrl": "URL RPC",
+    "rpcUrl": "URLs RPC",
     "rpcUrlRequired": "Vui lòng nhập URL RPC!",
+    "addRpcUrl": "Thêm URL RPC",
     "rpcWebsocketUrl": "URL RPC Websocket",
     "rpcWebsocketUrlRequired": "Vui lòng nhập URL RPC Websocket!",
     "jitoEndpoint": "Điểm cuối Jito",
