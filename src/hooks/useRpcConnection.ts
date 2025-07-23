@@ -3,7 +3,7 @@ import type { RpcConnectionState } from '../models';
 
 export interface RpcConnectionContextType {
   connectionState: RpcConnectionState;
-  updateConnection: (rpcUrl: string) => void;
+  updateConnection: (rpcUrl?: string) => void;
   resetConnection: () => void;
 }
 

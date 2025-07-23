@@ -2,8 +2,9 @@
   "settings": {
     "configuration": "Configuration",
     "description": "Configuration values are securely stored in your browser's local storage for convenience. Your settings will be automatically restored the next time you visit, ensuring a seamless experience.",
-    "rpcUrl": "RPC URL",
+    "rpcUrl": "RPC URLs",
     "rpcUrlRequired": "Please input RPC URL!",
+    "addRpcUrl": "Add RPC URL",
     "rpcWebsocketUrl": "RPC Websocket URL",
     "rpcWebsocketUrlRequired": "Please input RPC Websocket URL!",
     "jitoEndpoint": "Jito Endpoint",

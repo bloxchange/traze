@@ -2,8 +2,9 @@
   "settings": {
     "configuration": "配置",
     "description": "配置值安全地存储在浏览器的本地存储中以方便使用。您的设置将在下次访问时自动恢复，确保流畅的使用体验。",
-    "rpcUrl": "RPC URL",
+    "rpcUrl": "RPC URLs",
     "rpcUrlRequired": "请输入 RPC URL！",
+    "addRpcUrl": "添加 RPC URL",
     "rpcWebsocketUrl": "RPC Websocket URL",
     "rpcWebsocketUrlRequired": "请输入 RPC Websocket URL！",
     "jitoEndpoint": "Jito 端点",
