@@ -166,7 +166,7 @@ export class PumpFunBroker implements IBroker {
       `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
       {
         tokenMint: sellParameters.mint.toBase58(),
-        amount: averageTokenAmount,
+        amount: -averageTokenAmount,
         owner: sellParameters.seller.publicKey,
       }
     );
@@ -184,7 +184,7 @@ export class PumpFunBroker implements IBroker {
 
     const bondingAccount = await getBondingCurveAccount(
       this.connection,
-      mint,
+      bondingCurvePDA,
       commitment
     );
 
@@ -400,7 +400,7 @@ export class PumpFunBroker implements IBroker {
 
     const bondingAccount = await getBondingCurveAccount(
       this.connection,
-      mint,
+      bondingCurvePDA,
       commitment
     );
 

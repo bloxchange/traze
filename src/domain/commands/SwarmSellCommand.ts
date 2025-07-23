@@ -93,14 +93,17 @@ export class SwarmSellCommand {
         maxCurrentPriorityFee: this.priorityFeeInSol,
       };
 
-      const signature = await this.broker.sell(sellParameters);
-      if (signature) {
-        globalEventEmitter.emit(EVENTS.TransactionCreated, {
-          signature,
-          type: 'sell',
-          owner: wallet.keypair.publicKey,
+      this.broker
+        .sell(sellParameters)
+        .then(signature => {
+          if (signature) {
+            globalEventEmitter.emit(EVENTS.TransactionCreated, {
+              signature,
+              type: 'sell',
+              owner: wallet.keypair.publicKey,
+            });
+          }
         });
-      }
 
       if (
         this.sellDelay > 0 &&
