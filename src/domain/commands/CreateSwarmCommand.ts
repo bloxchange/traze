@@ -24,32 +24,44 @@ export class CreateSwarmCommand {
 
     // Create wallets from provided private keys
     for (const privateKey of this.privateKeys) {
+      const wallet = {} as WalletInfo;
+
+      wallet.selected = false;
+
       try {
         const keypair = Keypair.fromSecretKey(bs58.decode(privateKey));
 
-        const connection = ConnectionManager.getInstance().getConnection();
+        wallet.publicKey = keypair.publicKey.toBase58();
 
-        const solBalance = await connection.getBalance(keypair.publicKey);
+        wallet.keypair = keypair;
+      } catch {
+        throw new Error('Invalid private key format');
+      }
+
+      const connection = ConnectionManager.getInstance().getConnection();
+
+      try {
+        const solBalance = await connection.getBalance(wallet.keypair.publicKey);
+
+        wallet.solBalance = solBalance;
 
         let tokenBalance = 0;
 
         if (this.tokenMint) {
           tokenBalance = await getTokenBalance(
-            keypair.publicKey.toBase58(),
+            wallet.publicKey,
             this.tokenMint
           );
         }
 
-        newWallets.push({
-          publicKey: keypair.publicKey.toBase58(),
-          keypair,
-          solBalance: solBalance,
-          tokenBalance,
-          selected: false,
-        });
+        wallet.tokenBalance = tokenBalance
       } catch {
-        throw new Error('Invalid private key format');
+        wallet.solBalance = 0;
+
+        wallet.tokenBalance = 0;
       }
+
+      newWallets.push(wallet);
     }
 
     // Generate additional wallets if requested
