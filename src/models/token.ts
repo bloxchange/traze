@@ -17,4 +17,8 @@ export interface TokenState {
   currentToken: TokenInformation | null;
   loading: boolean;
   error: string | null;
+  totalInvestedSol: number;
+  totalReservedSol: number;
+  currentPrice: number;
+  currentHoldAmount: number;
 }

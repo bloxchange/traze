@@ -102,7 +102,7 @@ export class PumpFunBroker implements IBroker {
     );
 
     if (result) {
-      this.dispatchBuyEvents(buyParameters, buyAmount, buyAmountWithSlippage);
+      this.dispatchBuyEvents(buyParameters, buyAmount);
     }
 
     return result;
@@ -110,16 +110,11 @@ export class PumpFunBroker implements IBroker {
 
   private dispatchBuyEvents(
     buyParameters: IBuyParameters,
-    buyAmount: bigint,
-    buyAmountWithSlippage: bigint
+    buyAmount: bigint
   ) {
     const totalSolSpent =
       (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
       LAMPORTS_PER_SOL;
-
-    const averageTokenAmount = Math.ceil(
-      (Number(buyAmount) + Number(buyAmountWithSlippage)) / 2
-    );
 
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
@@ -136,7 +131,7 @@ export class PumpFunBroker implements IBroker {
       `${EVENTS.BalanceChanged}_${buyParameters.buyer.publicKey.toBase58()}`,
       {
         tokenMint: buyParameters.tokenMint,
-        amount: averageTokenAmount,
+        amount: Number(buyAmount),
         owner: buyParameters.buyer.publicKey,
       }
     );
@@ -144,13 +139,8 @@ export class PumpFunBroker implements IBroker {
 
   private dispatchSellEvents(
     sellParameters: ISellParameters,
-    minSolOutput: bigint,
-    sellAmountWithSlippage: bigint
+    minSolOutput: bigint
   ) {
-    const averageTokenAmount = Math.ceil(
-      Number(sellParameters.sellTokenAmount + sellAmountWithSlippage) / 2
-    );
-
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
@@ -166,7 +156,7 @@ export class PumpFunBroker implements IBroker {
       `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
       {
         tokenMint: sellParameters.mint.toBase58(),
-        amount: -averageTokenAmount,
+        amount: -Number(sellParameters.sellTokenAmount),
         owner: sellParameters.seller.publicKey,
       }
     );
@@ -349,8 +339,7 @@ export class PumpFunBroker implements IBroker {
     if (result) {
       this.dispatchSellEvents(
         sellParameters,
-        minSolOutput,
-        sellAmountWithSlippage
+        minSolOutput
       );
     }
 
