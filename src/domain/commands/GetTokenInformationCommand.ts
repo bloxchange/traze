@@ -10,6 +10,7 @@ import {
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { publicKey as metaplexPublicKey } from '@metaplex-foundation/umi';
 import { getTokenMetadata, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
+import { DEFAULT_DECIMALS } from '../infrastructure/consts';
 
 export class GetTokenInformationCommand {
   private tokenMint: string;
@@ -67,6 +68,7 @@ export class GetTokenInformationCommand {
   }
 
   private async getFromAsset(): Promise<TokenInformation | null> {
+    try{
     const asset = await getAsset(this.tokenMint);
 
     if (asset.error) {
@@ -120,6 +122,20 @@ export class GetTokenInformationCommand {
     };
 
     return tokenInfo;
+  }
+  catch(err){
+    console.log(err as Error);
+
+    return {
+      mint: this.tokenMint,
+      name: 'UNKNOWN',
+      symbol: 'UNK',
+      decimals: DEFAULT_DECIMALS,
+      totalSupply: 1_000_000_000,
+      icon: '',
+      externalUrl: '',
+    }
+  }
   }
 
   private async extractJsonUri(jsonUri: string) {

@@ -9,6 +9,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     currentToken: null,
     loading: false,
     error: null,
+    totalInvestedSol: 0,
+    totalReservedSol: 0,
+    currentPrice: 0,
+    currentHoldAmount: 0,
   });
 
   const getTokenInfo = async (mint: string) => {
@@ -72,6 +76,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       currentToken: null,
       loading: false,
       error: null,
+      totalInvestedSol: 0,
+      totalReservedSol: 0,
+      currentPrice: 0,
+      currentHoldAmount: 0,
     });
   };
 
