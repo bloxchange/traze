@@ -88,7 +88,7 @@ export class PumpFunBroker implements IBroker {
 
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice
+      unitPrice: estimatedUnitPrice,
     };
 
     // Send the transaction
@@ -108,10 +108,7 @@ export class PumpFunBroker implements IBroker {
     return result;
   }
 
-  private dispatchBuyEvents(
-    buyParameters: IBuyParameters,
-    buyAmount: bigint
-  ) {
+  private dispatchBuyEvents(buyParameters: IBuyParameters, buyAmount: bigint) {
     const totalSolSpent =
       (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
       LAMPORTS_PER_SOL;
@@ -324,7 +321,7 @@ export class PumpFunBroker implements IBroker {
 
     const priorityFees = {
       unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice
+      unitPrice: estimatedUnitPrice,
     };
 
     const result = await sendTransaction(
@@ -337,10 +334,7 @@ export class PumpFunBroker implements IBroker {
     );
 
     if (result) {
-      this.dispatchSellEvents(
-        sellParameters,
-        minSolOutput
-      );
+      this.dispatchSellEvents(sellParameters, minSolOutput);
     }
 
     return result;

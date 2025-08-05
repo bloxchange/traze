@@ -11,7 +11,7 @@ export type PumpFun = {
       name: 'adminSetCreator';
       discriminator: [69, 25, 171, 142, 57, 239, 13, 4];
       docs: [
-        'Allows Global::admin_set_creator_authority to override the bonding curve creator'
+        'Allows Global::admin_set_creator_authority to override the bonding curve creator',
       ];
       accounts: [
         {
@@ -26,7 +26,7 @@ export type PumpFun = {
               {
                 kind: 'const';
                 value: [103, 108, 111, 98, 97, 108];
-              }
+              },
             ];
           };
         },
@@ -40,12 +40,26 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101];
+                value: [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101,
+                ];
               },
               {
                 kind: 'account';
                 path: 'mint';
-              }
+              },
             ];
           };
         },
@@ -55,20 +69,38 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121];
-              }
+                value: [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121,
+                ];
+              },
             ];
           };
         },
         {
           name: 'program';
-        }
+        },
       ];
       args: [
         {
           name: 'creator';
           type: 'pubkey';
-        }
+        },
       ];
     },
     {
@@ -83,7 +115,7 @@ export type PumpFun = {
               {
                 kind: 'const';
                 value: [103, 108, 111, 98, 97, 108];
-              }
+              },
             ];
           };
         },
@@ -101,12 +133,26 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101];
+                value: [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101,
+                ];
               },
               {
                 kind: 'account';
                 path: 'mint';
-              }
+              },
             ];
           };
         },
@@ -122,18 +168,80 @@ export type PumpFun = {
               {
                 kind: 'const';
                 value: [
-                  6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235, 121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126, 255, 0, 169
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169,
                 ];
               },
               {
                 kind: 'account';
                 path: 'mint';
-              }
+              },
             ];
             program: {
               kind: 'const';
               value: [
-                140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89,
               ];
             };
           };
@@ -162,13 +270,27 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [99, 114, 101, 97, 116, 111, 114, 45, 118, 97, 117, 108, 116];
+                value: [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                ];
               },
               {
                 kind: 'account';
                 path: 'bondingCurve.creator';
                 account: 'BondingCurve';
-              }
+              },
             ];
           };
         },
@@ -178,8 +300,26 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121];
-              }
+                value: [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121,
+                ];
+              },
             ];
           };
         },
@@ -193,8 +333,34 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114];
-              }
+                value: [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  118,
+                  111,
+                  108,
+                  117,
+                  109,
+                  101,
+                  95,
+                  97,
+                  99,
+                  99,
+                  117,
+                  109,
+                  117,
+                  108,
+                  97,
+                  116,
+                  111,
+                  114,
+                ];
+              },
             ];
           };
         },
@@ -205,15 +371,39 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114];
+                value: [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  118,
+                  111,
+                  108,
+                  117,
+                  109,
+                  101,
+                  95,
+                  97,
+                  99,
+                  99,
+                  117,
+                  109,
+                  117,
+                  108,
+                  97,
+                  116,
+                  111,
+                  114,
+                ];
               },
               {
                 kind: 'account';
                 path: 'user';
-              }
+              },
             ];
           };
-        }
+        },
       ];
       args: [
         {
@@ -223,7 +413,7 @@ export type PumpFun = {
         {
           name: 'maxSolCost';
           type: 'u64';
-        }
+        },
       ];
     },
     {
@@ -242,8 +432,23 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [109, 105, 110, 116, 45, 97, 117, 116, 104, 111, 114, 105, 116, 121];
-              }
+                value: [
+                  109,
+                  105,
+                  110,
+                  116,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121,
+                ];
+              },
             ];
           };
         },
@@ -254,12 +459,26 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101];
+                value: [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101,
+                ];
               },
               {
                 kind: 'account';
                 path: 'mint';
-              }
+              },
             ];
           };
         },
@@ -274,7 +493,7 @@ export type PumpFun = {
               {
                 kind: 'const';
                 value: [103, 108, 111, 98, 97, 108];
-              }
+              },
             ];
           };
         },
@@ -314,7 +533,7 @@ export type PumpFun = {
         {
           name: 'program';
           address: '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
-        }
+        },
       ];
       args: [
         {
@@ -332,7 +551,7 @@ export type PumpFun = {
         {
           name: 'creator';
           type: 'pubkey';
-        }
+        },
       ];
     },
     {
@@ -347,7 +566,7 @@ export type PumpFun = {
               {
                 kind: 'const';
                 value: [103, 108, 111, 98, 97, 108];
-              }
+              },
             ];
           };
         },
@@ -365,12 +584,26 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101];
+                value: [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101,
+                ];
               },
               {
                 kind: 'account';
                 path: 'mint';
-              }
+              },
             ];
           };
         },
@@ -398,13 +631,27 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [99, 114, 101, 97, 116, 111, 114, 45, 118, 97, 117, 108, 116];
+                value: [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                ];
               },
               {
                 kind: 'account';
                 path: 'bondingCurve.creator';
                 account: 'BondingCurve';
-              }
+              },
             ];
           };
         },
@@ -427,8 +674,34 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114];
-              }
+                value: [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  118,
+                  111,
+                  108,
+                  117,
+                  109,
+                  101,
+                  95,
+                  97,
+                  99,
+                  99,
+                  117,
+                  109,
+                  117,
+                  108,
+                  97,
+                  116,
+                  111,
+                  114,
+                ];
+              },
             ];
           };
         },
@@ -439,15 +712,39 @@ export type PumpFun = {
             seeds: [
               {
                 kind: 'const';
-                value: [117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114];
+                value: [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  118,
+                  111,
+                  108,
+                  117,
+                  109,
+                  101,
+                  95,
+                  97,
+                  99,
+                  99,
+                  117,
+                  109,
+                  117,
+                  108,
+                  97,
+                  116,
+                  111,
+                  114,
+                ];
               },
               {
                 kind: 'account';
                 path: 'user';
-              }
+              },
             ];
           };
-        }
+        },
       ];
       args: [
         {
@@ -457,9 +754,9 @@ export type PumpFun = {
         {
           name: 'minSolOutput';
           type: 'u64';
-        }
+        },
       ];
-    }
+    },
   ];
   accounts: [
     {
@@ -477,7 +774,7 @@ export type PumpFun = {
     {
       name: 'userVolumeAccumulator';
       discriminator: [197, 94, 159, 156, 62, 70, 225, 44];
-    }
+    },
   ];
   events: [
     {
@@ -499,7 +796,7 @@ export type PumpFun = {
     {
       name: 'setParamsEvent';
       discriminator: [223, 195, 159, 246, 62, 48, 143, 131];
-    }
+    },
   ];
   types: [
     {
@@ -530,7 +827,7 @@ export type PumpFun = {
           {
             name: 'newCreator';
             type: 'pubkey';
-          }
+          },
         ];
       };
     },
@@ -566,7 +863,7 @@ export type PumpFun = {
           {
             name: 'creator';
             type: 'pubkey';
-          }
+          },
         ];
       };
     },
@@ -622,7 +919,7 @@ export type PumpFun = {
           {
             name: 'tokenTotalSupply';
             type: 'u64';
-          }
+          },
         ];
       };
     },
@@ -694,7 +991,7 @@ export type PumpFun = {
           {
             name: 'adminSetCreatorAuthority';
             type: 'pubkey';
-          }
+          },
         ];
       };
     },
@@ -730,7 +1027,7 @@ export type PumpFun = {
             type: {
               array: ['u64', 30];
             };
-          }
+          },
         ];
       };
     },
@@ -802,7 +1099,7 @@ export type PumpFun = {
           {
             name: 'creatorFee';
             type: 'u64';
-          }
+          },
         ];
       };
     },
@@ -838,7 +1135,7 @@ export type PumpFun = {
           {
             name: 'hasTotalClaimedTokens';
             type: 'bool';
-          }
+          },
         ];
       };
     },
@@ -862,7 +1159,7 @@ export type PumpFun = {
           {
             name: 'timestamp';
             type: 'i64';
-          }
+          },
         ];
       };
     },
@@ -928,10 +1225,10 @@ export type PumpFun = {
           {
             name: 'adminSetCreatorAuthority';
             type: 'pubkey';
-          }
+          },
         ];
       };
-    }
+    },
   ];
   errors: [
     {
@@ -978,6 +1275,6 @@ export type PumpFun = {
       code: 6008;
       name: 'WithdrawTooFrequent';
       msg: 'Withdraw too frequent';
-    }
+    },
   ];
 };

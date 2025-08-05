@@ -8,7 +8,8 @@ const { Title } = Typography;
 const PumpState: React.FC = () => {
   const { t } = useTranslation();
   const { tokenState } = useToken();
-  const { totalInvestedSol, totalReservedSol, currentPrice, bondingCompleted } = tokenState;
+  const { totalInvestedSol, totalReservedSol, currentPrice, bondingCompleted } =
+    tokenState;
 
   return (
     <Card variant="borderless">
@@ -17,24 +18,29 @@ const PumpState: React.FC = () => {
       </Title>
 
       <Descriptions bordered column={1}>
-        <Descriptions.Item label={t('pumpState.totalInvestedSol', 'Total Invested SOL')}>
+        <Descriptions.Item
+          label={t('pumpState.totalInvestedSol', 'Total Invested SOL')}
+        >
           {totalInvestedSol.toFixed(4)} SOL
         </Descriptions.Item>
-        
-        <Descriptions.Item label={t('pumpState.totalReservedSol', 'Total Reserved SOL')}>
+
+        <Descriptions.Item
+          label={t('pumpState.totalReservedSol', 'Total Reserved SOL')}
+        >
           {totalReservedSol.toFixed(4)} SOL
         </Descriptions.Item>
-        
+
         <Descriptions.Item label={t('pumpState.currentPrice', 'Current Price')}>
           {currentPrice.toFixed(8)} SOL
         </Descriptions.Item>
-        
-        <Descriptions.Item label={t('pumpState.bondingCompleted', 'Bonding Completed')}>
+
+        <Descriptions.Item
+          label={t('pumpState.bondingCompleted', 'Bonding Completed')}
+        >
           <Tag color={bondingCompleted ? 'green' : 'orange'}>
-            {bondingCompleted 
-              ? t('pumpState.completed', 'Completed') 
-              : t('pumpState.inProgress', 'In Progress')
-            }
+            {bondingCompleted
+              ? t('pumpState.completed', 'Completed')
+              : t('pumpState.inProgress', 'In Progress')}
           </Tag>
         </Descriptions.Item>
       </Descriptions>

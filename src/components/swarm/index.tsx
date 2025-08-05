@@ -210,9 +210,9 @@ const Swarm: React.FC<SwarmProps> = ({
               getBalance(wallet.publicKey),
               tokenState.currentToken
                 ? getTokenBalance(
-                  wallet.publicKey,
-                  tokenState.currentToken.mint
-                )
+                    wallet.publicKey,
+                    tokenState.currentToken.mint
+                  )
                 : Promise.resolve(0),
             ]);
 
@@ -228,18 +228,18 @@ const Swarm: React.FC<SwarmProps> = ({
               prevList.map((w) =>
                 w.publicKey === wallet.publicKey
                   ? {
-                    ...w,
-                    solBalance:
-                      data.tokenMint === ''
-                        ? w.solBalance + data.amount
-                        : w.solBalance,
-                    tokenBalance:
-                      data.tokenMint !== '' &&
+                      ...w,
+                      solBalance:
+                        data.tokenMint === ''
+                          ? w.solBalance + data.amount
+                          : w.solBalance,
+                      tokenBalance:
+                        data.tokenMint !== '' &&
                         tokenState.currentToken &&
                         data.tokenMint === tokenState.currentToken.mint
-                        ? w.tokenBalance + data.amount
-                        : w.tokenBalance,
-                  }
+                          ? w.tokenBalance + data.amount
+                          : w.tokenBalance,
+                    }
                   : w
               )
             );
@@ -260,11 +260,7 @@ const Swarm: React.FC<SwarmProps> = ({
         globalEventEmitter.off<BalanceChangeData>(eventName, callback);
       });
     };
-  }, [
-    walletList,
-    tokenState.currentToken,
-    configuration.balanceUpdateMode,
-  ]);
+  }, [walletList, tokenState.currentToken, configuration.balanceUpdateMode]);
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {

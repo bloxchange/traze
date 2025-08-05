@@ -11,7 +11,7 @@ export class ConnectionManager {
   private currentConnectionIndex: number = 0;
   private subscriptionIds: Map<string, number> = new Map();
 
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): ConnectionManager {
     if (!ConnectionManager.instance) {
@@ -22,7 +22,7 @@ export class ConnectionManager {
 
   public initialize(rpcUrls: string[], websocketUrl: string): void {
     // Create connections for all RPC URLs
-    this.connections = rpcUrls.map(url => {
+    this.connections = rpcUrls.map((url) => {
       return new Connection(url, {
         wsEndpoint: websocketUrl,
         commitment: 'confirmed',
@@ -41,7 +41,8 @@ export class ConnectionManager {
     const connection = this.connections[this.currentConnectionIndex];
 
     // Update the index for the next call
-    this.currentConnectionIndex = (this.currentConnectionIndex + 1) % this.connections.length;
+    this.currentConnectionIndex =
+      (this.currentConnectionIndex + 1) % this.connections.length;
 
     return connection;
   }

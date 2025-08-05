@@ -87,17 +87,15 @@ export class SwarmFlushCommand {
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
       };
 
-      this.broker
-        .sell(sellParameters)
-        .then(signature => {
-          if (signature) {
-            globalEventEmitter.emit(EVENTS.TransactionCreated, {
-              signature,
-              type: 'sell',
-              owner: wallet.keypair.publicKey,
-            });
-          }
-        });
+      this.broker.sell(sellParameters).then((signature) => {
+        if (signature) {
+          globalEventEmitter.emit(EVENTS.TransactionCreated, {
+            signature,
+            type: 'sell',
+            owner: wallet.keypair.publicKey,
+          });
+        }
+      });
     }
   }
 }

@@ -101,19 +101,15 @@ export class SwarmBuyCommand {
         maxCurrentPriorityFee: this.priorityFeeInSol,
       };
 
-      this.broker
-        .buy(buyParameters)
-        .then(signature => {
-          ;
-
-          if (signature) {
-            globalEventEmitter.emit(EVENTS.TransactionCreated, {
-              signature,
-              type: 'buy',
-              owner: wallet.keypair.publicKey,
-            });
-          }
-        });
+      this.broker.buy(buyParameters).then((signature) => {
+        if (signature) {
+          globalEventEmitter.emit(EVENTS.TransactionCreated, {
+            signature,
+            type: 'buy',
+            owner: wallet.keypair.publicKey,
+          });
+        }
+      });
 
       if (this.buyDelay > 0) {
         await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds

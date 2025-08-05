@@ -41,7 +41,9 @@ export class CreateSwarmCommand {
       const connection = ConnectionManager.getInstance().getConnection();
 
       try {
-        const solBalance = await connection.getBalance(wallet.keypair.publicKey);
+        const solBalance = await connection.getBalance(
+          wallet.keypair.publicKey
+        );
 
         wallet.solBalance = solBalance;
 
@@ -54,7 +56,7 @@ export class CreateSwarmCommand {
           );
         }
 
-        wallet.tokenBalance = tokenBalance
+        wallet.tokenBalance = tokenBalance;
       } catch {
         wallet.solBalance = 0;
 
