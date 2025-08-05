@@ -91,6 +91,17 @@ export class PumpFunBroker implements IBroker {
       unitPrice: estimatedUnitPrice,
     };
 
+    const totalSolSpent =
+      (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
+      LAMPORTS_PER_SOL;
+
+    this.dispatchBuyEvents(
+      buyParameters.tokenMint,
+      buyParameters.buyer.publicKey,
+      totalSolSpent,
+      buyAmount
+    );
+
     // Send the transaction
     const result = await sendTransaction(
       this.connection,
@@ -101,60 +112,68 @@ export class PumpFunBroker implements IBroker {
       'finalized'
     );
 
-    if (result) {
-      this.dispatchBuyEvents(buyParameters, buyAmount);
+    if (!result) {
+      this.dispatchBuyEvents(
+        buyParameters.tokenMint,
+        buyParameters.buyer.publicKey,
+        -totalSolSpent,
+        -buyAmount
+      );
     }
 
     return result;
   }
 
-  private dispatchBuyEvents(buyParameters: IBuyParameters, buyAmount: bigint) {
-    const totalSolSpent =
-      (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
-      LAMPORTS_PER_SOL;
-
+  private dispatchBuyEvents(
+    tokenMint: string,
+    buyerPubKey: PublicKey,
+    totalSolSpent: number,
+    buyAmount: bigint
+  ) {
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
-      `${EVENTS.BalanceChanged}_${buyParameters.buyer.publicKey.toBase58()}`,
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: '',
         amount: -totalSolSpent,
-        owner: buyParameters.buyer.publicKey,
+        owner: buyerPubKey,
       }
     );
 
     // Emit token balance change (positive as tokens are received)
     globalEventEmitter.emit<BalanceChangeData>(
-      `${EVENTS.BalanceChanged}_${buyParameters.buyer.publicKey.toBase58()}`,
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
-        tokenMint: buyParameters.tokenMint,
+        tokenMint: tokenMint,
         amount: Number(buyAmount),
-        owner: buyParameters.buyer.publicKey,
+        owner: buyerPubKey,
       }
     );
   }
 
   private dispatchSellEvents(
-    sellParameters: ISellParameters,
+    tokenMint: string,
+    seller: PublicKey,
+    sellTokenAmount: bigint,
     minSolOutput: bigint
   ) {
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
-      `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: '',
         amount: Number(minSolOutput),
-        owner: sellParameters.seller.publicKey,
+        owner: seller,
       }
     );
 
     // Emit token balance change (positive as tokens are received)
     globalEventEmitter.emit<BalanceChangeData>(
-      `${EVENTS.BalanceChanged}_${sellParameters.seller.publicKey.toBase58()}`,
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
-        tokenMint: sellParameters.mint.toBase58(),
-        amount: -Number(sellParameters.sellTokenAmount),
-        owner: sellParameters.seller.publicKey,
+        tokenMint: tokenMint,
+        amount: -Number(sellTokenAmount),
+        owner: seller,
       }
     );
   }
@@ -324,6 +343,14 @@ export class PumpFunBroker implements IBroker {
       unitPrice: estimatedUnitPrice,
     };
 
+    // Dispatch events before sending transaction
+    this.dispatchSellEvents(
+      sellParameters.mint.toBase58(),
+      sellParameters.seller.publicKey,
+      sellParameters.sellTokenAmount,
+      minSolOutput
+    );
+
     const result = await sendTransaction(
       this.connection,
       transaction,
@@ -333,8 +360,15 @@ export class PumpFunBroker implements IBroker {
       'finalized'
     );
 
-    if (result) {
-      this.dispatchSellEvents(sellParameters, minSolOutput);
+    // If transaction failed, dispatch reverse events
+    if (!result) {
+      // Reverse the sell events: negative SOL becomes positive, positive tokens become negative
+      this.dispatchSellEvents(
+        sellParameters.mint.toBase58(),
+        sellParameters.seller.publicKey,
+        -sellParameters.sellTokenAmount,
+        -minSolOutput
+      );
     }
 
     return result;
