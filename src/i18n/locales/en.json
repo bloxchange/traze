@@ -140,6 +140,15 @@
     "lastUpdated": "Last Updated",
     "totalSupply": "Total Supply"
   },
+  "pumpState": {
+    "title": "Pump State",
+    "totalInvestedSol": "Total Invested SOL",
+    "totalReservedSol": "Total Reserved SOL",
+    "currentPrice": "Current Price",
+    "bondingCompleted": "Bonding Completed",
+    "completed": "Completed",
+    "inProgress": "In Progress"
+  },
   "liquidityPools": {
     "title": "Liquidity Pools",
     "description": "Monitor and manage liquidity pool positions."

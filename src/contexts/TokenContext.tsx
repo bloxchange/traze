@@ -13,6 +13,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     totalReservedSol: 0,
     currentPrice: 0,
     currentHoldAmount: 0,
+    bondingCompleted: false,
   });
 
   const getTokenInfo = async (mint: string) => {
@@ -80,6 +81,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       totalReservedSol: 0,
       currentPrice: 0,
       currentHoldAmount: 0,
+      bondingCompleted: false,
     });
   };
 

@@ -5,6 +5,7 @@ import {
   DollarOutlined,
   BankOutlined,
   SwapOutlined,
+  RocketOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Layout as FlexLayout } from 'flexlayout-react';
@@ -78,6 +79,11 @@ const ComponentList: React.FC<{
       <DraggableIcon
         type="transactions"
         icon={<SwapOutlined style={{ fontSize: '24px' }} />}
+        flexLayoutRef={flexLayoutRef}
+      />
+      <DraggableIcon
+        type="pumpState"
+        icon={<RocketOutlined style={{ fontSize: '24px' }} />}
         flexLayoutRef={flexLayoutRef}
       />
     </Space>

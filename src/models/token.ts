@@ -21,4 +21,5 @@ export interface TokenState {
   totalReservedSol: number;
   currentPrice: number;
   currentHoldAmount: number;
+  bondingCompleted: boolean;
 }
