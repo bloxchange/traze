@@ -32,6 +32,26 @@ export interface BalanceChangeData {
   owner: PublicKey;
 }
 
+export interface BalanceFetchedData {
+  owner: PublicKey;
+  solBalance: number;
+  tokenBalance: number;
+  tokenMint: string;
+}
+
+export interface SwarmCreatedData {
+  wallets: Array<{
+    publicKey: string;
+    solBalance: number;
+    tokenBalance: number;
+  }>;
+  tokenMint: string;
+}
+
+export interface SwarmClearedData {
+  walletPublicKeys: string[];
+}
+
 export interface TransactionEventData {
   signature: string;
   type: 'buy' | 'sell';
@@ -40,6 +60,9 @@ export interface TransactionEventData {
 
 export type EventData =
   | BalanceChangeData
+  | BalanceFetchedData
+  | SwarmCreatedData
+  | SwarmClearedData
   | TransferEventData
   | TradeEventData
   | ErrorEventData
@@ -54,5 +77,8 @@ export const EVENTS = {
   SellSuccess: 'sellSuccess',
   SellError: 'sellError',
   BalanceChanged: 'balanceChanged',
+  BalanceFetched: 'balanceFetched',
+  SwarmCreated: 'swarmCreated',
+  SwarmCleared: 'swarmCleared',
   TransactionCreated: 'transactionCreated',
 } as const;

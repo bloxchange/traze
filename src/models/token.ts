@@ -23,4 +23,5 @@ export interface TokenState {
   currentHoldAmount: number;
   bondingCompleted: boolean;
   lastUpdated: Date | null;
+  wallets: Record<string, { solBalance: number; tokenBalance: number }>;
 }

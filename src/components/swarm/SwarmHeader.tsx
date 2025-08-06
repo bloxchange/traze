@@ -12,6 +12,7 @@ import {
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
+import { formatBalance } from '../../utils/formatBalance';
 
 const { Text } = Typography;
 
@@ -69,21 +70,11 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
     setNewName(e.target.value);
   };
 
-  const formatBalance = (balance: number, isSOL: boolean = false) => {
-    const actualBalance = isSOL ? balance / LAMPORTS_PER_SOL : balance;
-    if (actualBalance >= 1000000000) {
-      return `${(actualBalance / 1000000000).toFixed(2)}B`;
-    } else if (actualBalance >= 1000000) {
-      return `${(actualBalance / 1000000).toFixed(2)}M`;
-    } else if (actualBalance >= 1000) {
-      return `${(actualBalance / 1000).toFixed(2)}K`;
-    }
-    return actualBalance.toFixed(isSOL ? 3 : 4);
-  };
+
 
   const balanceTooltip = (
     <div>
-      <div>SOL: {formatBalance(totalSolBalance, true)}</div>
+      <div>SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)}</div>
       <div>Token: {formatBalance(totalTokenBalance)}</div>
       <div>Wallets: {walletCount}</div>
     </div>
@@ -140,7 +131,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                     minWidth: 0,
                   }}
                 >
-                   SOL: {formatBalance(totalSolBalance, true)} | Token: {formatBalance(totalTokenBalance)} | {walletCount}w
+                   SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)} | Token: {formatBalance(totalTokenBalance)} | {walletCount}w
                  </Text>
               )}
             </div>
