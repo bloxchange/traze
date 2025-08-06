@@ -27,7 +27,7 @@ import {
 } from '@solana/spl-token';
 import type { ISellParameters } from '../ISellParameters';
 import type { PumpFunSellParameters } from './SellParameters';
-import { DEFAULT_COMMITMENT } from '@/domain/infrastructure/consts';
+import { DEFAULT_COMMITMENT, DEFAULT_GAS_FEE } from '@/domain/infrastructure/consts';
 import type { BondingCurveAccount } from './BondingCurveAccount';
 import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
 import {
@@ -93,7 +93,7 @@ export class PumpFunBroker implements IBroker {
 
     const totalSolSpent =
       (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
-      LAMPORTS_PER_SOL;
+      LAMPORTS_PER_SOL + DEFAULT_GAS_FEE;
 
     this.dispatchBuyEvents(
       buyParameters.tokenMint,
@@ -155,7 +155,7 @@ export class PumpFunBroker implements IBroker {
     tokenMint: string,
     seller: PublicKey,
     sellTokenAmount: bigint,
-    minSolOutput: bigint
+    minSolOutput: number
   ) {
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
@@ -343,12 +343,16 @@ export class PumpFunBroker implements IBroker {
       unitPrice: estimatedUnitPrice,
     };
 
+    const totalSolReceived = Number(minSolOutput)
+     - (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL) 
+     - DEFAULT_GAS_FEE;
+
     // Dispatch events before sending transaction
     this.dispatchSellEvents(
       sellParameters.mint.toBase58(),
       sellParameters.seller.publicKey,
       sellParameters.sellTokenAmount,
-      minSolOutput
+      totalSolReceived
     );
 
     const result = await sendTransaction(
@@ -367,7 +371,7 @@ export class PumpFunBroker implements IBroker {
         sellParameters.mint.toBase58(),
         sellParameters.seller.publicKey,
         -sellParameters.sellTokenAmount,
-        -minSolOutput
+        -totalSolReceived
       );
     }
 

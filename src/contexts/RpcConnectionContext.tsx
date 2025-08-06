@@ -18,6 +18,12 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     updateConnection();
   }, [configuration.rpcUrls]);
 
+  useEffect(() => {
+    return () => {
+      resetConnection();
+    };
+  }, []);
+
   const updateConnection = (specificRpcUrl?: string) => {
     try {
       const connectionManager = ConnectionManager.getInstance();

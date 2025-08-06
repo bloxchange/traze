@@ -58,6 +58,16 @@ const Swarm: React.FC<SwarmProps> = ({
   ]);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
+  const [totalSolBalance, setTotalSolBalance] = useState(0);
+  const [totalTokenBalance, setTotalTokenBalance] = useState(0);
+
+  // Calculate total balances from wallet list
+  const calculateTotalBalances = (wallets: WalletInfo[]) => {
+    const solTotal = wallets.reduce((sum, wallet) => sum + wallet.solBalance, 0);
+    const tokenTotal = wallets.reduce((sum, wallet) => sum + wallet.tokenBalance, 0);
+    setTotalSolBalance(solTotal);
+    setTotalTokenBalance(tokenTotal);
+  };
 
   const handleFeed = () => {
     setIsFeedModalOpen(true);
@@ -86,6 +96,8 @@ const Swarm: React.FC<SwarmProps> = ({
       setIsCreateModalOpen(true);
     } else {
       setWalletList([]);
+      setTotalSolBalance(0);
+      setTotalTokenBalance(0);
 
       message.success(t('Wallets cleared successfully'));
     }
@@ -136,6 +148,7 @@ const Swarm: React.FC<SwarmProps> = ({
       }
 
       setWalletList(newWallets);
+      calculateTotalBalances(newWallets);
 
       setIsCreateModalOpen(false);
 
@@ -191,6 +204,7 @@ const Swarm: React.FC<SwarmProps> = ({
       );
 
       setWalletList(updatedWallets);
+      calculateTotalBalances(updatedWallets);
 
       message.success(t('common.refreshSuccess'));
     } catch (error) {
@@ -216,16 +230,18 @@ const Swarm: React.FC<SwarmProps> = ({
                 : Promise.resolve(0),
             ]);
 
-            setWalletList((prevList) =>
-              prevList.map((w) =>
+            setWalletList((prevList) => {
+              const updatedList = prevList.map((w) =>
                 w.publicKey === wallet.publicKey
                   ? { ...w, solBalance, tokenBalance }
                   : w
-              )
-            );
+              );
+              calculateTotalBalances(updatedList);
+              return updatedList;
+            });
           } else {
-            setWalletList((prevList) =>
-              prevList.map((w) =>
+            setWalletList((prevList) => {
+              const updatedList = prevList.map((w) =>
                 w.publicKey === wallet.publicKey
                   ? {
                       ...w,
@@ -241,8 +257,10 @@ const Swarm: React.FC<SwarmProps> = ({
                           : w.tokenBalance,
                     }
                   : w
-              )
-            );
+              );
+              calculateTotalBalances(updatedList);
+              return updatedList;
+            });
           }
         }
       };
@@ -261,6 +279,11 @@ const Swarm: React.FC<SwarmProps> = ({
       });
     };
   }, [walletList, tokenState.currentToken, configuration.balanceUpdateMode]);
+
+  // Calculate total balances when wallet list changes
+  useEffect(() => {
+    calculateTotalBalances(walletList);
+  }, [walletList.length]); // Only recalculate when wallet count changes, not on balance updates
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -388,6 +411,8 @@ const Swarm: React.FC<SwarmProps> = ({
         onRefresh={handleRefresh}
         showConfig={showConfig}
         walletCount={walletList.length}
+        totalSolBalance={totalSolBalance}
+        totalTokenBalance={totalTokenBalance}
       />
       <SwarmWalletList
         wallets={walletList}

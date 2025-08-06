@@ -22,4 +22,5 @@ export interface TokenState {
   currentPrice: number;
   currentHoldAmount: number;
   bondingCompleted: boolean;
+  lastUpdated: Date | null;
 }
