@@ -24,6 +24,9 @@ const PumpState: React.FC = () => {
     0
   );
 
+  // Calculate total outside SOL
+  const totalOutsideSol = (totalReservedSol - totalInvestedSol) / LAMPORTS_PER_SOL;
+
   return (
     <Card variant="borderless">
       <Title level={4} style={{ marginBottom: '24px' }}>
@@ -38,9 +41,9 @@ const PumpState: React.FC = () => {
           </Descriptions.Item>
 
           <Descriptions.Item
-            label={t('pumpState.totalReservedSol', 'Total Reserved SOL')}
+            label={t('pumpState.totalOutsideSol', 'Total Outside SOL')}
           >
-            {formatPumpStateBalance(totalReservedSol / LAMPORTS_PER_SOL, true)} SOL
+            {formatPumpStateBalance(totalOutsideSol, true)} SOL
           </Descriptions.Item>
 
           <Descriptions.Item

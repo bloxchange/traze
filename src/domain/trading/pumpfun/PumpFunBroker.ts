@@ -137,6 +137,7 @@ export class PumpFunBroker implements IBroker {
         tokenMint: '',
         amount: -totalSolSpent,
         owner: buyerPubKey,
+        source: 'swap',
       }
     );
 
@@ -147,6 +148,7 @@ export class PumpFunBroker implements IBroker {
         tokenMint: tokenMint,
         amount: Number(buyAmount),
         owner: buyerPubKey,
+        source: 'swap',
       }
     );
   }
@@ -164,6 +166,7 @@ export class PumpFunBroker implements IBroker {
         tokenMint: '',
         amount: Number(minSolOutput),
         owner: seller,
+        source: 'swap',
       }
     );
 
@@ -174,6 +177,7 @@ export class PumpFunBroker implements IBroker {
         tokenMint: tokenMint,
         amount: -Number(sellTokenAmount),
         owner: seller,
+        source: 'swap',
       }
     );
   }

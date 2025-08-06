@@ -13,6 +13,7 @@ import {
   type SwarmClearedData,
   type BalanceFetchedData,
   type BalanceChangeData,
+  type BondingCurveFetchedData,
 } from '../domain/infrastructure/events/types';
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -244,7 +245,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       setTokenState(prev => {
         const currentWallet = prev.wallets[publicKey];
         if (currentWallet) {
-          return {
+          let updatedState = {
             ...prev,
             wallets: {
               ...prev.wallets,
@@ -258,21 +259,40 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
               },
             },
           };
+
+          // Track totalInvestedSol for swap operations with SOL
+          if (data.source === 'swap' && data.tokenMint === '') {
+            updatedState.totalInvestedSol = prev.totalInvestedSol - data.amount;
+          }
+
+          return updatedState;
         }
         return prev;
       });
+    };
+
+    const handleBondingCurveFetched = (data: BondingCurveFetchedData) => {
+      console.log(data);
+      setTokenState(prev => ({
+        ...prev,
+        bondingCompleted: data.complete,
+        lastUpdated: new Date(),
+        totalReservedSol: Number(data.realSolReserves),
+      }));
     };
 
     globalEventEmitter.on(EVENTS.SwarmCreated, handleSwarmCreated);
     globalEventEmitter.on(EVENTS.SwarmCleared, handleSwarmCleared);
     globalEventEmitter.on(EVENTS.BalanceFetched, handleBalanceFetched);
     globalEventEmitter.on(EVENTS.BalanceChanged, handleBalanceChanged);
+    globalEventEmitter.on(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
 
     return () => {
       globalEventEmitter.off(EVENTS.SwarmCreated, handleSwarmCreated);
       globalEventEmitter.off(EVENTS.SwarmCleared, handleSwarmCleared);
       globalEventEmitter.off(EVENTS.BalanceFetched, handleBalanceFetched);
       globalEventEmitter.off(EVENTS.BalanceChanged, handleBalanceChanged);
+      globalEventEmitter.off(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
     };
   }, []);
 
@@ -286,6 +306,9 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
         if (currentWallet) {
           return {
             ...prev,
+            totalInvestedSol: data.source === 'swap' && data.tokenMint === '' 
+              ? prev.totalInvestedSol - data.amount 
+              : prev.totalInvestedSol,
             wallets: {
               ...prev.wallets,
               [publicKey]: {

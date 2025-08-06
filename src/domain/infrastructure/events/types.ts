@@ -30,6 +30,7 @@ export interface BalanceChangeData {
   tokenMint: string;
   amount: number;
   owner: PublicKey;
+  source: 'swap' | 'transfer';
 }
 
 export interface BalanceFetchedData {
@@ -58,6 +59,14 @@ export interface TransactionEventData {
   owner: PublicKey;
 }
 
+export interface BondingCurveFetchedData {
+  virtualSolReserves: bigint;
+  complete: boolean;
+  realSolReserves: bigint;
+  virtualTokenReserves: bigint;
+  realTokenReserves: bigint;
+}
+
 export type EventData =
   | BalanceChangeData
   | BalanceFetchedData
@@ -66,7 +75,8 @@ export type EventData =
   | TransferEventData
   | TradeEventData
   | ErrorEventData
-  | TransactionEventData;
+  | TransactionEventData
+  | BondingCurveFetchedData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -81,4 +91,5 @@ export const EVENTS = {
   SwarmCreated: 'swarmCreated',
   SwarmCleared: 'swarmCleared',
   TransactionCreated: 'transactionCreated',
+  BondingCurveFetched: 'bondingCurveFetched',
 } as const;
