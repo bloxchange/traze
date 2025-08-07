@@ -3,7 +3,7 @@ import { Typography, Card, Descriptions, Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useToken } from '../../hooks';
-import { formatPumpStateBalance } from '../../utils/formatBalance';
+import { formatPumpStateBalance, formatSmallNumber, getSmallNumberFormatData } from '../../utils/formatBalance';
 
 const { Title } = Typography;
 
@@ -68,7 +68,22 @@ const PumpState: React.FC = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t('pumpState.currentPrice', 'Current Price')}>
-            {formatPumpStateBalance(currentPrice / LAMPORTS_PER_SOL, true)} SOL
+            {(() => {
+              const priceInSol = currentPrice / LAMPORTS_PER_SOL;
+              const formatData = getSmallNumberFormatData(priceInSol);
+              
+              if (formatData) {
+                return (
+                  <span>
+                    {formatData.prefix}
+                    <sub style={{ fontSize: '0.75em', verticalAlign: 'sub' }}>{formatData.zerosCount}</sub>
+                    {formatData.digits} SOL
+                  </span>
+                );
+              }
+              
+              return `${formatSmallNumber(priceInSol)} SOL`;
+            })()} 
           </Descriptions.Item>
 
           <Descriptions.Item label={t('pumpState.currentHoldAmount', 'Current Hold Amount')}>
