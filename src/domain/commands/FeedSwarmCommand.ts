@@ -131,6 +131,7 @@ export class FeedSwarmCommand {
         tokenMint: '',
         amount: -amount,
         owner: from,
+        source: 'transfer',
       }
     );
 
@@ -141,6 +142,7 @@ export class FeedSwarmCommand {
         tokenMint: '',
         amount: amount,
         owner: to,
+        source: 'transfer',
       }
     );
   }

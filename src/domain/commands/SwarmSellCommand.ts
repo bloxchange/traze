@@ -93,17 +93,10 @@ export class SwarmSellCommand {
         maxCurrentPriorityFee: this.priorityFeeInSol,
       };
 
-      this.broker
-        .sell(sellParameters)
-        .then(signature => {
-          if (signature) {
-            globalEventEmitter.emit(EVENTS.TransactionCreated, {
-              signature,
-              type: 'sell',
-              owner: wallet.keypair.publicKey,
-            });
-          }
-        });
+      this.broker.sell(sellParameters).then((signature) => {
+        // Transaction signature is now handled by logs subscription in TokenContext
+        console.log('💸 Sell transaction completed with signature:', signature);
+      });
 
       if (
         this.sellDelay > 0 &&

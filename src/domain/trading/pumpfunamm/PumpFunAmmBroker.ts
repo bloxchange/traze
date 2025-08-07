@@ -1,6 +1,17 @@
-import { Connection, PublicKey, Transaction, TransactionInstruction, Keypair, SystemProgram } from '@solana/web3.js';
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  Keypair,
+  SystemProgram,
+} from '@solana/web3.js';
 import { Program, type Provider, BN } from '@coral-xyz/anchor';
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
+import {
+  TOKEN_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
 import IDL from './idl/idl.json';
 
 export interface PumpFunAmmConfig {
@@ -55,7 +66,9 @@ export class PumpFunAmmBroker {
   private programId: PublicKey;
 
   constructor(config: PumpFunAmmConfig) {
-    this.programId = config.programId || new PublicKey('pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA');
+    this.programId =
+      config.programId ||
+      new PublicKey('pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA');
     this.program = new Program(IDL as any, config.provider);
     this.connection = this.program.provider.connection;
   }
@@ -69,7 +82,9 @@ export class PumpFunAmmBroker {
       this.programId
     );
 
-    const globalConfig = await (this.program.account as any).globalConfig.fetch(globalConfigPda);
+    const globalConfig = await (this.program.account as any).globalConfig.fetch(
+      globalConfigPda
+    );
     return globalConfig as GlobalConfigInfo;
   }
 
@@ -128,9 +143,11 @@ export class PumpFunAmmBroker {
   /**
    * Create a buy instruction
    */
-  async createBuyInstruction(params: BuyParams): Promise<TransactionInstruction> {
+  async createBuyInstruction(
+    params: BuyParams
+  ): Promise<TransactionInstruction> {
     const globalConfig = await this.getGlobalConfig();
-    
+
     const userPublicKey = this.program.provider.publicKey!;
 
     const protocolFeeRecipient = globalConfig.protocolFeeRecipients[0];
@@ -140,7 +157,8 @@ export class PumpFunAmmBroker {
     );
 
     const globalVolumeAccumulator = this.getGlobalVolumeAccumulatorPda();
-    const userVolumeAccumulator = this.getUserVolumeAccumulatorPda(userPublicKey);
+    const userVolumeAccumulator =
+      this.getUserVolumeAccumulatorPda(userPublicKey);
 
     return await this.program.methods
       .buy(params.baseAmountOut, params.maxQuoteAmountIn)
@@ -158,9 +176,11 @@ export class PumpFunAmmBroker {
   /**
    * Create a sell instruction
    */
-  async createSellInstruction(params: SellParams): Promise<TransactionInstruction> {
+  async createSellInstruction(
+    params: SellParams
+  ): Promise<TransactionInstruction> {
     const globalConfig = await this.getGlobalConfig();
-    
+
     const userPublicKey = this.program.provider.publicKey!;
 
     const protocolFeeRecipient = globalConfig.protocolFeeRecipients[0];
@@ -170,7 +190,8 @@ export class PumpFunAmmBroker {
     );
 
     const globalVolumeAccumulator = this.getGlobalVolumeAccumulatorPda();
-    const userVolumeAccumulator = this.getUserVolumeAccumulatorPda(userPublicKey);
+    const userVolumeAccumulator =
+      this.getUserVolumeAccumulatorPda(userPublicKey);
 
     return await this.program.methods
       .sell(params.baseAmountIn, params.minQuoteAmountOut)
@@ -191,9 +212,9 @@ export class PumpFunAmmBroker {
   async buy(params: BuyParams): Promise<string> {
     const instruction = await this.createBuyInstruction(params);
     const transaction = new Transaction().add(instruction);
-    
+
     const signature = await this.program.provider.sendAndConfirm!(transaction);
-    
+
     return signature;
   }
 
@@ -203,10 +224,10 @@ export class PumpFunAmmBroker {
   async sell(params: SellParams): Promise<string> {
     const instruction = await this.createSellInstruction(params);
     const transaction = new Transaction().add(instruction);
-    
+
     const signature = await this.program.provider.sendAndConfirm!(transaction);
     await this.connection.confirmTransaction(signature, 'confirmed');
-    
+
     return signature;
   }
 
@@ -227,30 +248,40 @@ export class PumpFunAmmBroker {
   async calculateBuyQuote(pool: PublicKey, baseAmountOut: BN): Promise<BN> {
     const poolInfo = await this.getPool(pool);
     const globalConfig = await this.getGlobalConfig();
-    
+
     // Get current pool reserves
-    const baseReserves = await this.connection.getTokenAccountBalance(poolInfo.poolBaseTokenAccount);
-    const quoteReserves = await this.connection.getTokenAccountBalance(poolInfo.poolQuoteTokenAccount);
-    
+    const baseReserves = await this.connection.getTokenAccountBalance(
+      poolInfo.poolBaseTokenAccount
+    );
+    const quoteReserves = await this.connection.getTokenAccountBalance(
+      poolInfo.poolQuoteTokenAccount
+    );
+
     const baseReservesAmount = new BN(baseReserves.value.amount);
     const quoteReservesAmount = new BN(quoteReserves.value.amount);
-    
+
     // Simple constant product formula: x * y = k
     // quoteAmountIn = (quoteReserves * baseAmountOut) / (baseReserves - baseAmountOut)
     const numerator = quoteReservesAmount.mul(baseAmountOut);
     const denominator = baseReservesAmount.sub(baseAmountOut);
-    
+
     if (denominator.lte(new BN(0))) {
       throw new Error('Insufficient liquidity');
     }
-    
+
     let quoteAmountIn = numerator.div(denominator);
-    
+
     // Add fees
-    const lpFee = quoteAmountIn.mul(globalConfig.lpFeeBasisPoints).div(new BN(10000));
-    const protocolFee = quoteAmountIn.mul(globalConfig.protocolFeeBasisPoints).div(new BN(10000));
-    const coinCreatorFee = quoteAmountIn.mul(globalConfig.coinCreatorFeeBasisPoints).div(new BN(10000));
-    
+    const lpFee = quoteAmountIn
+      .mul(globalConfig.lpFeeBasisPoints)
+      .div(new BN(10000));
+    const protocolFee = quoteAmountIn
+      .mul(globalConfig.protocolFeeBasisPoints)
+      .div(new BN(10000));
+    const coinCreatorFee = quoteAmountIn
+      .mul(globalConfig.coinCreatorFeeBasisPoints)
+      .div(new BN(10000));
+
     return quoteAmountIn.add(lpFee).add(protocolFee).add(coinCreatorFee);
   }
 
@@ -260,26 +291,36 @@ export class PumpFunAmmBroker {
   async calculateSellQuote(pool: PublicKey, baseAmountIn: BN): Promise<BN> {
     const poolInfo = await this.getPool(pool);
     const globalConfig = await this.getGlobalConfig();
-    
+
     // Get current pool reserves
-    const baseReserves = await this.connection.getTokenAccountBalance(poolInfo.poolBaseTokenAccount);
-    const quoteReserves = await this.connection.getTokenAccountBalance(poolInfo.poolQuoteTokenAccount);
-    
+    const baseReserves = await this.connection.getTokenAccountBalance(
+      poolInfo.poolBaseTokenAccount
+    );
+    const quoteReserves = await this.connection.getTokenAccountBalance(
+      poolInfo.poolQuoteTokenAccount
+    );
+
     const baseReservesAmount = new BN(baseReserves.value.amount);
     const quoteReservesAmount = new BN(quoteReserves.value.amount);
-    
+
     // Simple constant product formula: x * y = k
     // quoteAmountOut = (quoteReserves * baseAmountIn) / (baseReserves + baseAmountIn)
     const numerator = quoteReservesAmount.mul(baseAmountIn);
     const denominator = baseReservesAmount.add(baseAmountIn);
-    
+
     let quoteAmountOut = numerator.div(denominator);
-    
+
     // Subtract fees
-    const lpFee = quoteAmountOut.mul(globalConfig.lpFeeBasisPoints).div(new BN(10000));
-    const protocolFee = quoteAmountOut.mul(globalConfig.protocolFeeBasisPoints).div(new BN(10000));
-    const coinCreatorFee = quoteAmountOut.mul(globalConfig.coinCreatorFeeBasisPoints).div(new BN(10000));
-    
+    const lpFee = quoteAmountOut
+      .mul(globalConfig.lpFeeBasisPoints)
+      .div(new BN(10000));
+    const protocolFee = quoteAmountOut
+      .mul(globalConfig.protocolFeeBasisPoints)
+      .div(new BN(10000));
+    const coinCreatorFee = quoteAmountOut
+      .mul(globalConfig.coinCreatorFeeBasisPoints)
+      .div(new BN(10000));
+
     return quoteAmountOut.sub(lpFee).sub(protocolFee).sub(coinCreatorFee);
   }
 
@@ -289,7 +330,9 @@ export class PumpFunAmmBroker {
   async getUserVolumeAccumulator(user: PublicKey) {
     const userVolumeAccumulatorPda = this.getUserVolumeAccumulatorPda(user);
     try {
-      return await (this.program.account as any).userVolumeAccumulator.fetch(userVolumeAccumulatorPda);
+      return await (this.program.account as any).userVolumeAccumulator.fetch(
+        userVolumeAccumulatorPda
+      );
     } catch (error) {
       // Account doesn't exist yet
       return null;
@@ -302,7 +345,9 @@ export class PumpFunAmmBroker {
   async getGlobalVolumeAccumulator() {
     const globalVolumeAccumulatorPda = this.getGlobalVolumeAccumulatorPda();
     try {
-      return await (this.program.account as any).globalVolumeAccumulator.fetch(globalVolumeAccumulatorPda);
+      return await (this.program.account as any).globalVolumeAccumulator.fetch(
+        globalVolumeAccumulatorPda
+      );
     } catch (error) {
       // Account doesn't exist yet
       return null;

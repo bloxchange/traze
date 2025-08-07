@@ -18,6 +18,12 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     updateConnection();
   }, [configuration.rpcUrls]);
 
+  useEffect(() => {
+    return () => {
+      resetConnection();
+    };
+  }, []);
+
   const updateConnection = (specificRpcUrl?: string) => {
     try {
       const connectionManager = ConnectionManager.getInstance();
@@ -25,10 +31,7 @@ export const RpcConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
       // If a specific RPC URL is provided, use only that one, otherwise use all configured URLs
       const rpcUrls = specificRpcUrl ? [specificRpcUrl] : configuration.rpcUrls;
 
-      connectionManager.initialize(
-        rpcUrls,
-        configuration.rpcWebsocketUrl
-      );
+      connectionManager.initialize(rpcUrls, configuration.rpcWebsocketUrl);
 
       setConnectionState({
         connectionManager,

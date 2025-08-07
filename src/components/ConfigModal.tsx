@@ -43,17 +43,33 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
             <>
               <Form.Item label={t('settings.rpcUrl')} required>
                 {fields.map((field, index) => (
-                  <div key={field.key} style={{ display: 'flex', alignItems: 'center', marginBottom: 8, gap: 8 }}>
+                  <div
+                    key={field.key}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: 8,
+                      gap: 8,
+                    }}
+                  >
                     <Form.Item
                       name={field.name}
                       fieldKey={field.fieldKey}
-                      rules={[{ required: true, message: t('settings.rpcUrlRequired') }]}
+                      rules={[
+                        {
+                          required: true,
+                          message: t('settings.rpcUrlRequired'),
+                        },
+                      ]}
                       style={{ flex: 1, marginBottom: 0 }}
                     >
                       <Input placeholder={`RPC URL ${index + 1}`} />
                     </Form.Item>
                     {fields.length > 1 ? (
-                      <MinusCircleOutlined onClick={() => remove(field.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />
+                      <MinusCircleOutlined
+                        onClick={() => remove(field.name)}
+                        style={{ color: '#ff4d4f', cursor: 'pointer' }}
+                      />
                     ) : null}
                   </div>
                 ))}

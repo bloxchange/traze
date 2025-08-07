@@ -4,3 +4,4 @@ export { SwarmBuyCommand } from './SwarmBuyCommand';
 export { SwarmSellCommand } from './SwarmSellCommand';
 export * from './ReturnFromSwarmCommand';
 export * from './GetTokenInformationCommand';
+export { GetWalletBalanceCommand } from './GetWalletBalanceCommand';

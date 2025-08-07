@@ -5,6 +5,7 @@ import Swarm from './swarm';
 import TokenInformation from './token-information';
 import LiquidityPools from './liquidity-pools';
 import Transactions from './transactions';
+import PumpState from './pump-state';
 import 'flexlayout-react/style/dark.css';
 import './Dashboard.css';
 
@@ -99,6 +100,9 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({
 
       case 'transactions':
         return <Transactions name={config.name} />;
+
+      case 'pumpState':
+        return <PumpState />;
 
       default:
         return config.content;

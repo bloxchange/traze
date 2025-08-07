@@ -30,6 +30,27 @@ export interface BalanceChangeData {
   tokenMint: string;
   amount: number;
   owner: PublicKey;
+  source: 'swap' | 'transfer';
+}
+
+export interface BalanceFetchedData {
+  owner: PublicKey;
+  solBalance: number;
+  tokenBalance: number;
+  tokenMint: string;
+}
+
+export interface SwarmCreatedData {
+  wallets: Array<{
+    publicKey: string;
+    solBalance: number;
+    tokenBalance: number;
+  }>;
+  tokenMint: string;
+}
+
+export interface SwarmClearedData {
+  walletPublicKeys: string[];
 }
 
 export interface TransactionEventData {
@@ -38,12 +59,29 @@ export interface TransactionEventData {
   owner: PublicKey;
 }
 
+export interface BondingCurveFetchedData {
+  virtualSolReserves: bigint;
+  complete: boolean;
+  realSolReserves: bigint;
+  virtualTokenReserves: bigint;
+  realTokenReserves: bigint;
+}
+
+export interface TradeInfoFetchedData {
+  tradeInfo: TradeEventData;
+}
+
 export type EventData =
   | BalanceChangeData
+  | BalanceFetchedData
+  | SwarmCreatedData
+  | SwarmClearedData
   | TransferEventData
   | TradeEventData
   | ErrorEventData
-  | TransactionEventData;
+  | TransactionEventData
+  | BondingCurveFetchedData
+  | TradeInfoFetchedData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -54,5 +92,10 @@ export const EVENTS = {
   SellSuccess: 'sellSuccess',
   SellError: 'sellError',
   BalanceChanged: 'balanceChanged',
+  BalanceFetched: 'balanceFetched',
+  SwarmCreated: 'swarmCreated',
+  SwarmCleared: 'swarmCleared',
   TransactionCreated: 'transactionCreated',
+  BondingCurveFetched: 'bondingCurveFetched',
+  TradeInfoFetched: 'tradeInfoFetched',
 } as const;

@@ -14,3 +14,7 @@ export const EVENT_AUTHORITY_SEED = '__event_authority';
 export const DEFAULT_DECIMALS = 6;
 export const DEFAULT_COMMITMENT: Commitment = 'confirmed';
 export const DEFAULT_FINALITY: Finality = 'confirmed';
+export const DEFAULT_GAS_FEE = 50000;
+
+export const RAYDIUM_LAUNCHPAD_PROGRAM_ID =
+  'LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj';

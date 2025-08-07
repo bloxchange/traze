@@ -19,9 +19,9 @@ const CreateSwarmModal: React.FC<CreateSwarmModalProps> = ({
 
       const privateKeys = values.privateKeys
         ? values.privateKeys
-          .split('\n')
-          .map((key: string) => key.trim())
-          .filter((key: string) => key.length > 0)
+            .split('\n')
+            .map((key: string) => key.trim())
+            .filter((key: string) => key.length > 0)
         : [];
 
       const generateCount = values.generateCount || 0;

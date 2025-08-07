@@ -13,6 +13,7 @@ import {
   CreateSwarmCommand,
   SwarmBuyCommand,
   SwarmSellCommand,
+  GetWalletBalanceCommand,
 } from '../../domain/commands';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
@@ -23,8 +24,10 @@ import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmit
 import {
   EVENTS,
   type BalanceChangeData,
+  type BalanceFetchedData,
+  type SwarmCreatedData,
+  type SwarmClearedData,
 } from '../../domain/infrastructure/events/types';
-import { getBalance, getTokenBalance } from '../../domain/rpc';
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
@@ -58,6 +61,22 @@ const Swarm: React.FC<SwarmProps> = ({
   ]);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
+  const [totalSolBalance, setTotalSolBalance] = useState(0);
+  const [totalTokenBalance, setTotalTokenBalance] = useState(0);
+
+  // Calculate total balances from wallet list
+  const calculateTotalBalances = (wallets: WalletInfo[]) => {
+    const solTotal = wallets.reduce(
+      (sum, wallet) => sum + wallet.solBalance,
+      0
+    );
+    const tokenTotal = wallets.reduce(
+      (sum, wallet) => sum + wallet.tokenBalance,
+      0
+    );
+    setTotalSolBalance(solTotal);
+    setTotalTokenBalance(tokenTotal);
+  };
 
   const handleFeed = () => {
     setIsFeedModalOpen(true);
@@ -85,7 +104,17 @@ const Swarm: React.FC<SwarmProps> = ({
     if (walletList.length === 0) {
       setIsCreateModalOpen(true);
     } else {
+      // Emit SwarmCleared event before clearing
+      if (walletList.length > 0) {
+        const swarmClearedData: SwarmClearedData = {
+          walletPublicKeys: walletList.map((wallet) => wallet.publicKey),
+        };
+        globalEventEmitter.emit(EVENTS.SwarmCleared, swarmClearedData);
+      }
+
       setWalletList([]);
+      setTotalSolBalance(0);
+      setTotalTokenBalance(0);
 
       message.success(t('Wallets cleared successfully'));
     }
@@ -136,6 +165,20 @@ const Swarm: React.FC<SwarmProps> = ({
       }
 
       setWalletList(newWallets);
+      calculateTotalBalances(newWallets);
+
+      // Emit SwarmCreated event
+      if (tokenState.currentToken && newWallets.length > 0) {
+        const swarmCreatedData: SwarmCreatedData = {
+          wallets: newWallets.map((wallet) => ({
+            publicKey: wallet.publicKey,
+            solBalance: wallet.solBalance,
+            tokenBalance: wallet.tokenBalance,
+          })),
+          tokenMint: tokenState.currentToken.mint,
+        };
+        globalEventEmitter.emit(EVENTS.SwarmCreated, swarmCreatedData);
+      }
 
       setIsCreateModalOpen(false);
 
@@ -169,102 +212,119 @@ const Swarm: React.FC<SwarmProps> = ({
 
   const handleRefresh = async () => {
     try {
-      const updatedWallets = await Promise.all(
+      if (!tokenState.currentToken) {
+        message.error(t('swarm.noTokenSelected'));
+        return;
+      }
+
+      // Execute GetWalletBalanceCommand for each wallet
+      await Promise.all(
         walletList.map(async (wallet) => {
-          const newSolBalance = await getBalance(wallet.publicKey);
-
-          let newTokenBalance = wallet.tokenBalance;
-
-          if (tokenState.currentToken) {
-            newTokenBalance = await getTokenBalance(
-              wallet.publicKey,
-              tokenState.currentToken.mint
-            );
-          }
-
-          return {
-            ...wallet,
-            solBalance: newSolBalance,
-            tokenBalance: newTokenBalance,
-          };
+          const command = new GetWalletBalanceCommand(
+            wallet.publicKey,
+            tokenState.currentToken!.mint
+          );
+          await command.execute();
         })
       );
-
-      setWalletList(updatedWallets);
 
       message.success(t('common.refreshSuccess'));
     } catch (error) {
       console.error('Refresh error:', error);
-
       message.error(t('common.refreshError'));
     }
   };
 
   useEffect(() => {
     // Subscribe to balance changes for each wallet
-    const subscriptions = walletList.map((wallet) => {
+    const balanceChangeSubscriptions = walletList.map((wallet) => {
       const callback = async (data: BalanceChangeData) => {
         if (data.owner.toBase58() === wallet.publicKey) {
           if (configuration.balanceUpdateMode === 'rpc') {
-            const [solBalance, tokenBalance] = await Promise.all([
-              getBalance(wallet.publicKey),
-              tokenState.currentToken
-                ? getTokenBalance(
-                  wallet.publicKey,
-                  tokenState.currentToken.mint
-                )
-                : Promise.resolve(0),
-            ]);
-
-            setWalletList((prevList) =>
-              prevList.map((w) =>
-                w.publicKey === wallet.publicKey
-                  ? { ...w, solBalance, tokenBalance }
-                  : w
-              )
-            );
+            // Use GetWalletBalanceCommand to fetch fresh balances
+            if (tokenState.currentToken) {
+              const command = new GetWalletBalanceCommand(
+                wallet.publicKey,
+                tokenState.currentToken.mint
+              );
+              await command.execute();
+            }
           } else {
-            setWalletList((prevList) =>
-              prevList.map((w) =>
+            setWalletList((prevList) => {
+              const updatedList = prevList.map((w) =>
                 w.publicKey === wallet.publicKey
                   ? {
-                    ...w,
-                    solBalance:
-                      data.tokenMint === ''
-                        ? w.solBalance + data.amount
-                        : w.solBalance,
-                    tokenBalance:
-                      data.tokenMint !== '' &&
+                      ...w,
+                      solBalance:
+                        data.tokenMint === ''
+                          ? w.solBalance + data.amount
+                          : w.solBalance,
+                      tokenBalance:
+                        data.tokenMint !== '' &&
                         tokenState.currentToken &&
                         data.tokenMint === tokenState.currentToken.mint
-                        ? w.tokenBalance + data.amount
-                        : w.tokenBalance,
-                  }
+                          ? w.tokenBalance + data.amount
+                          : w.tokenBalance,
+                    }
                   : w
-              )
-            );
+              );
+              calculateTotalBalances(updatedList);
+              return updatedList;
+            });
           }
         }
       };
 
       const eventName = `${EVENTS.BalanceChanged}_${wallet.publicKey}`;
-
       globalEventEmitter.on<BalanceChangeData>(eventName, callback);
-
       return { eventName, callback };
     });
 
+    // Subscribe to balance fetched events for each wallet
+    const balanceFetchedSubscriptions = walletList.map((wallet) => {
+      const callback = (data: BalanceFetchedData) => {
+        if (data.owner.toBase58() === wallet.publicKey) {
+          setWalletList((prevList) => {
+            const updatedList = prevList.map((w) =>
+              w.publicKey === wallet.publicKey
+                ? {
+                    ...w,
+                    solBalance: data.solBalance,
+                    tokenBalance: data.tokenBalance,
+                  }
+                : w
+            );
+            calculateTotalBalances(updatedList);
+            return updatedList;
+          });
+        }
+      };
+
+      const eventName = `${EVENTS.BalanceFetched}_${wallet.publicKey}`;
+      globalEventEmitter.on<BalanceFetchedData>(eventName, callback);
+      return { eventName, callback };
+    });
+
+    const allSubscriptions = [
+      ...balanceChangeSubscriptions,
+      ...balanceFetchedSubscriptions,
+    ];
+
     // Cleanup subscriptions
     return () => {
-      subscriptions.forEach(({ eventName, callback }) => {
+      balanceChangeSubscriptions.forEach(({ eventName, callback }) => {
         globalEventEmitter.off<BalanceChangeData>(eventName, callback);
       });
+      balanceFetchedSubscriptions.forEach(({ eventName, callback }) => {
+        globalEventEmitter.off<BalanceFetchedData>(eventName, callback);
+      });
     };
-  }, [
-    walletList,
-    tokenState.currentToken,
-    configuration.balanceUpdateMode,
-  ]);
+  }, [walletList, tokenState.currentToken, configuration.balanceUpdateMode]);
+
+  // Calculate total balances when wallet list changes
+  useEffect(() => {
+    calculateTotalBalances(walletList);
+  }, [walletList.length]); // Only recalculate when wallet count changes, not on balance updates
 
   const handleBuy = async () => {
     if (!tokenState.currentToken) {
@@ -392,6 +452,8 @@ const Swarm: React.FC<SwarmProps> = ({
         onRefresh={handleRefresh}
         showConfig={showConfig}
         walletCount={walletList.length}
+        totalSolBalance={totalSolBalance}
+        totalTokenBalance={totalTokenBalance}
       />
       <SwarmWalletList
         wallets={walletList}

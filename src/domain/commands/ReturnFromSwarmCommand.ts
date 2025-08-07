@@ -107,6 +107,7 @@ export class ReturnFromSwarmCommand {
         tokenMint: '',
         amount: -amount,
         owner: from,
+        source: 'transfer',
       }
     );
 
@@ -117,6 +118,7 @@ export class ReturnFromSwarmCommand {
         tokenMint: '',
         amount: amount,
         owner: to,
+        source: 'transfer',
       }
     );
   }

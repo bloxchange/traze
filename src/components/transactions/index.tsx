@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
 import {
   EVENTS,
   type TradeEventData,
-  type TransactionEventData,
+  type TradeInfoFetchedData,
 } from '../../domain/infrastructure/events/types';
-import { GetTradeInfoCommand } from '../../domain/commands/GetTradeInfoCommand';
+import { formatBalance } from '../../utils/formatBalance';
 
 const { Paragraph } = Typography;
 
@@ -20,36 +21,21 @@ const Transactions: React.FC<TransactionsProps> = () => {
   const [transactions, setTransactions] = useState<TradeEventData[]>([]);
 
   useEffect(() => {
-    const handleTransactionEvent = async (data: TransactionEventData) => {
-      const command = new GetTradeInfoCommand(data.signature);
+    const handleTradeInfoEvent = (data: TradeInfoFetchedData) => {
+      setTransactions((prev) => {
+        const newTransactions = [data.tradeInfo, ...prev];
 
-      const tradeInfo = await command.execute();
-
-      if (tradeInfo) {
-        const tradeEvent: TradeEventData = {
-          fromTokenMint: '',
-          toTokenMint: '',
-          fromAccount: data.owner,
-          toAccount: data.owner,
-          fromTokenAmount: tradeInfo.fromTokenAmount,
-          toTokenAmount: tradeInfo.toTokenAmount,
-          timestamp: Date.now(),
-          status: 'success',
-          signature: data.signature,
-          type: data.type,
-        };
-
-        setTransactions((prev) => [tradeEvent, ...prev]);
-      }
+        return newTransactions;
+      });
     };
 
-    globalEventEmitter.on<TransactionEventData>(
-      EVENTS.TransactionCreated,
-      handleTransactionEvent
+    globalEventEmitter.on<TradeInfoFetchedData>(
+      EVENTS.TradeInfoFetched,
+      handleTradeInfoEvent
     );
 
     return () => {
-      globalEventEmitter.off(EVENTS.TransactionCreated, handleTransactionEvent);
+      globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoEvent);
     };
   }, []);
 
@@ -68,11 +54,18 @@ const Transactions: React.FC<TransactionsProps> = () => {
     },
     {
       title: t('transactions.amount') + ' (SOL)',
-      key: 'amount',
+      key: 'solAmount',
       render: (_: unknown, record: TradeEventData) => {
-        const solAmount = (record.fromTokenAmount - record.toTokenAmount) / 1e9;
-
-        return `${Math.abs(solAmount).toFixed(3)}`;
+        const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
+        return formatBalance(solAmount, true);
+      },
+    },
+    {
+      title: t('transactions.tokenAmount'),
+      key: 'tokenAmount',
+      render: (_: unknown, record: TradeEventData) => {
+        const tokenAmount = Math.abs(record.toTokenAmount);
+        return formatBalance(tokenAmount, false);
       },
     },
     {

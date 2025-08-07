@@ -140,6 +140,15 @@
     "lastUpdated": "Cập nhật lần cuối",
     "totalSupply": "Tổng cung"
   },
+  "pumpState": {
+    "title": "Trạng thái Pump",
+    "totalInvestedSol": "Tổng SOL đầu tư",
+    "totalReservedSol": "Tổng SOL dự trữ",
+    "currentPrice": "Giá hiện tại",
+    "bondingCompleted": "Hoàn thành liên kết",
+    "completed": "Đã hoàn thành",
+    "inProgress": "Đang tiến hành"
+  },
   "liquidityPools": {
     "title": "Pool thanh khoản",
     "description": "Theo dõi và quản lý vị thế trong pool thanh khoản."
@@ -149,6 +158,7 @@
     "timestamp": "Thời gian",
     "type": "Loại",
     "amount": "Số lượng",
+    "tokenAmount": "Số lượng Token",
     "status": "Trạng thái",
     "signature": "Chữ ký",
     "buy": "Mua",

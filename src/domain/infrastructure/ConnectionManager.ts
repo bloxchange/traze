@@ -11,7 +11,7 @@ export class ConnectionManager {
   private currentConnectionIndex: number = 0;
   private subscriptionIds: Map<string, number> = new Map();
 
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): ConnectionManager {
     if (!ConnectionManager.instance) {
@@ -21,12 +21,25 @@ export class ConnectionManager {
   }
 
   public initialize(rpcUrls: string[], websocketUrl: string): void {
+    console.log('🔌 Initializing ConnectionManager with:', {
+      rpcUrls,
+      websocketUrl,
+    });
+
     // Create connections for all RPC URLs
-    this.connections = rpcUrls.map(url => {
-      return new Connection(url, {
+    this.connections = rpcUrls.map((url) => {
+      const connection = new Connection(url, {
         wsEndpoint: websocketUrl,
         commitment: 'confirmed',
       });
+
+      console.log(
+        '✅ Created connection for RPC:',
+        url,
+        'with WebSocket:',
+        websocketUrl
+      );
+      return connection;
     });
   }
 
@@ -41,7 +54,8 @@ export class ConnectionManager {
     const connection = this.connections[this.currentConnectionIndex];
 
     // Update the index for the next call
-    this.currentConnectionIndex = (this.currentConnectionIndex + 1) % this.connections.length;
+    this.currentConnectionIndex =
+      (this.currentConnectionIndex + 1) % this.connections.length;
 
     return connection;
   }
@@ -66,12 +80,11 @@ export class ConnectionManager {
     await this.unsubscribeTokenLogs(tokenMint);
 
     try {
-      const filter: LogsFilter = new PublicKey(tokenMint);
+      const filter = new PublicKey(tokenMint);
 
       const subscriptionId = await connection.onLogs(
         filter,
         (logs) => {
-          console.log('Received logs for token:', tokenMint, logs);
           callback(logs);
         },
         'confirmed'
@@ -79,11 +92,19 @@ export class ConnectionManager {
 
       this.subscriptionIds.set(tokenMint, subscriptionId);
 
-      console.log(
-        `Subscribed to logs for token ${tokenMint} with ID ${subscriptionId}`
-      );
+      // Test if websocket is actually connected
+      setTimeout(() => {
+        console.log(
+          '⏰ Websocket connection test - checking if we receive any logs in the next 30 seconds...'
+        );
+      }, 1000);
     } catch (error) {
-      console.error('Error subscribing to token logs:', error);
+      console.error('💥 Error subscribing to token logs:', error);
+
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+      });
 
       throw error;
     }
