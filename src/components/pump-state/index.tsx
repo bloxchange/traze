@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Typography, Card, Descriptions, Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -13,28 +13,53 @@ const PumpState: React.FC = () => {
   const { totalInvestedSol, totalReservedSol, currentPrice, bondingCompleted, wallets, currentHoldAmount } =
     tokenState;
 
-  // Calculate total balances from all wallets (convert lamports to SOL)
-  const totalWalletSolBalance = Object.values(wallets).reduce(
-    (sum, wallet) => sum + (wallet.solBalance / LAMPORTS_PER_SOL),
-    0
-  );
-  
-  const totalWalletTokenBalance = Object.values(wallets).reduce(
-    (sum, wallet) => sum + wallet.tokenBalance,
-    0
-  );
+  // Memoize calculations to ensure UI updates when tokenState changes
+  const calculations = useMemo(() => {
+    // Calculate total balances from all wallets (convert lamports to SOL)
+    const totalWalletSolBalance = Object.values(wallets).reduce(
+      (sum, wallet) => sum + (wallet.solBalance / LAMPORTS_PER_SOL),
+      0
+    );
+    
+    const totalWalletTokenBalance = Object.values(wallets).reduce(
+      (sum, wallet) => sum + wallet.tokenBalance,
+      0
+    );
 
-  // Calculate total outside SOL
-  const totalOutsideSol = (totalReservedSol - totalInvestedSol) / LAMPORTS_PER_SOL;
-  
-  // Calculate portfolio value and profit/loss
-  const portfolioValue = currentHoldAmount * currentPrice; // Value in lamports
-  const portfolioValueSol = portfolioValue / LAMPORTS_PER_SOL; // Convert to SOL
-  const investedSol = totalInvestedSol / LAMPORTS_PER_SOL; // Convert to SOL
-  const profitLoss = portfolioValueSol - investedSol;
-  const profitLossPercentage = investedSol > 0 ? (profitLoss / investedSol) * 100 : 0;
-  
-  const isProfitable = profitLoss >= 0;
+    // Calculate total outside SOL
+    const totalOutsideSol = (totalReservedSol - totalInvestedSol) / LAMPORTS_PER_SOL;
+    
+    // Calculate portfolio value and profit/loss
+    const portfolioValue = totalWalletSolBalance * currentPrice; // Value in lamports
+    const portfolioValueSol = portfolioValue / LAMPORTS_PER_SOL; // Convert to SOL
+    const investedSol = totalInvestedSol / LAMPORTS_PER_SOL; // Convert to SOL
+    const profitLoss = portfolioValueSol - investedSol;
+    const profitLossPercentage = investedSol > 0 ? (profitLoss / investedSol) * 100 : 0;
+    const isProfitable = profitLoss >= 0;
+
+    return {
+      totalWalletSolBalance,
+      totalWalletTokenBalance,
+      totalOutsideSol,
+      portfolioValue,
+      portfolioValueSol,
+      investedSol,
+      profitLoss,
+      profitLossPercentage,
+      isProfitable
+    };
+  }, [wallets, totalReservedSol, totalInvestedSol, currentHoldAmount, currentPrice]);
+
+  const {
+    totalWalletSolBalance,
+    totalWalletTokenBalance,
+    totalOutsideSol,
+    portfolioValueSol,
+    investedSol,
+    profitLoss,
+    profitLossPercentage,
+    isProfitable
+  } = calculations;
 
   return (
     <Card variant="borderless">

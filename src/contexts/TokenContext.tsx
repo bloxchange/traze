@@ -4,7 +4,7 @@ import { GetTokenInformationCommand } from '../domain/commands/GetTokenInformati
 import { GetTradeInfoCommand } from '../domain/commands/GetTradeInfoCommand';
 import { TokenContext } from '../hooks';
 import { useRpcConnection } from '../hooks/useRpcConnection';
-import type { Logs } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, type Logs } from '@solana/web3.js';
 import { globalEventEmitter } from '../domain/infrastructure/events/EventEmitter';
 import {
   EVENTS,
@@ -307,40 +307,17 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
         
         // Calculate price from trade data
         // For buy: price = SOL spent / tokens received
-        // For sell: price = SOL received / tokens spent
+        // Calculate price as absolute value of fromAmount / toAmount
         let calculatedPrice = 0;
         
-        if (tradeInfo.type === 'buy' && tradeInfo.toTokenAmount > 0) {
-          // SOL to Token trade: price = SOL amount / token amount
-          calculatedPrice = tradeInfo.fromTokenAmount / tradeInfo.toTokenAmount;
-        } else if (tradeInfo.type === 'sell' && tradeInfo.fromTokenAmount > 0) {
-          // Token to SOL trade: price = SOL amount / token amount
-          calculatedPrice = tradeInfo.toTokenAmount / tradeInfo.fromTokenAmount;
+        if (tradeInfo.toTokenAmount !== 0) {
+          // Price = absolute value of fromAmount / toAmount
+          calculatedPrice = Math.abs(tradeInfo.fromTokenAmount) / Math.abs(tradeInfo.toTokenAmount);
         }
         
-        if (calculatedPrice > 0) {
-          newState.currentPrice = calculatedPrice;
-          console.log('📈 Updated token price:', calculatedPrice);
-        }
-        
-        // Update investment tracking
-        if (tradeInfo.type === 'buy') {
-          // Add to total invested SOL
-          newState.totalInvestedSol = prev.totalInvestedSol + tradeInfo.fromTokenAmount;
-          // Add to current hold amount
-          newState.currentHoldAmount = prev.currentHoldAmount + tradeInfo.toTokenAmount;
-        } else if (tradeInfo.type === 'sell') {
-          // Subtract from current hold amount
-          newState.currentHoldAmount = Math.max(0, prev.currentHoldAmount - tradeInfo.fromTokenAmount);
-        }
+        newState.currentPrice = calculatedPrice;
         
         newState.lastUpdated = new Date();
-        
-        console.log('📊 Updated token state:', {
-          currentPrice: newState.currentPrice,
-          totalInvestedSol: newState.totalInvestedSol,
-          currentHoldAmount: newState.currentHoldAmount
-        });
         
         return newState;
       });
