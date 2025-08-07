@@ -17,8 +17,6 @@ import { formatBalance } from '../../../utils/formatBalance';
 
 const { Text } = Typography;
 
-
-
 interface SwarmBalanceLayoutProps {
   wallets: WalletInfo[];
   onWalletSelection: (publicKey: string, selected: boolean) => void;

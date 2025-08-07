@@ -22,7 +22,10 @@ import { BondingCurveAccount } from './BondingCurveAccount';
 import { GlobalAccount } from './GlobalAccount';
 import type { PriorityFee, TransactionResult } from './types';
 import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
-import { EVENTS, type BondingCurveFetchedData } from '../../infrastructure/events/types';
+import {
+  EVENTS,
+  type BondingCurveFetchedData,
+} from '../../infrastructure/events/types';
 
 export function getBondingCurvePDA(
   mint: PublicKey,
@@ -48,8 +51,10 @@ export async function getBondingCurveAccount(
     return null;
   }
 
-  const bondingCurveAccount = BondingCurveAccount.fromBuffer(tokenAccount!.data);
-  
+  const bondingCurveAccount = BondingCurveAccount.fromBuffer(
+    tokenAccount!.data
+  );
+
   // Emit BondingCurveFetchedEvent
   const eventData: BondingCurveFetchedData = {
     virtualSolReserves: bondingCurveAccount.virtualSolReserves,
@@ -58,9 +63,9 @@ export async function getBondingCurveAccount(
     virtualTokenReserves: bondingCurveAccount.virtualTokenReserves,
     realTokenReserves: bondingCurveAccount.realTokenReserves,
   };
-  
+
   globalEventEmitter.emit(EVENTS.BondingCurveFetched, eventData);
-  
+
   return bondingCurveAccount;
 }
 

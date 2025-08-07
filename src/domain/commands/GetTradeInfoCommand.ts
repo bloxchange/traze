@@ -24,14 +24,19 @@ export class GetTradeInfoCommand {
     // Extract SOL balance changes (index 0 is usually the user's SOL account)
     const preBalances = transaction.meta.preBalances;
     const postBalances = transaction.meta.postBalances;
-    
+
     // Extract token balance changes
     const preTokenBalances = transaction.meta.preTokenBalances;
     const postTokenBalances = transaction.meta.postTokenBalances;
 
-    if (preBalances.length < 1 || postBalances.length < 1 || 
-        !preTokenBalances || !postTokenBalances || 
-        preTokenBalances.length < 2 || postTokenBalances.length < 2) {
+    if (
+      preBalances.length < 1 ||
+      postBalances.length < 1 ||
+      !preTokenBalances ||
+      !postTokenBalances ||
+      preTokenBalances.length < 2 ||
+      postTokenBalances.length < 2
+    ) {
       return null;
     }
 
@@ -44,12 +49,14 @@ export class GetTradeInfoCommand {
     // Index 1 is typically the token account
     const tokenBalanceBefore = preTokenBalances[1]?.uiTokenAmount?.amount;
     const tokenBalanceAfter = postTokenBalances[1]?.uiTokenAmount?.amount;
-    
+
     if (!tokenBalanceBefore || !tokenBalanceAfter) {
       return null;
     }
-    
-    const toTokenAmount = Math.abs(parseFloat(tokenBalanceAfter) - parseFloat(tokenBalanceBefore));
+
+    const toTokenAmount = Math.abs(
+      parseFloat(tokenBalanceAfter) - parseFloat(tokenBalanceBefore)
+    );
 
     return {
       fromTokenMint: '',

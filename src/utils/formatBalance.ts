@@ -4,7 +4,10 @@
  * @param isSOL - Whether this is a SOL balance (affects decimal places)
  * @returns Formatted balance string
  */
-export const formatBalance = (balance: number, isSOL: boolean = false): string => {
+export const formatBalance = (
+  balance: number,
+  isSOL: boolean = false
+): string => {
   const decimals = isSOL ? 3 : 2;
 
   if (balance >= 1_000_000_000) {
@@ -37,7 +40,10 @@ export const formatSolBalance = (balance: number): string => {
  * @param symbol - Token symbol (optional)
  * @returns Formatted token balance string
  */
-export const formatTokenBalance = (balance: number, symbol?: string): string => {
+export const formatTokenBalance = (
+  balance: number,
+  symbol?: string
+): string => {
   const formatted = formatBalance(balance, false);
   return symbol ? `${formatted} ${symbol}` : formatted;
 };
@@ -50,20 +56,20 @@ export const formatTokenBalance = (balance: number, symbol?: string): string => 
 export const formatSmallNumber = (value: number): string => {
   if (value === 0) return '0';
   if (value >= 0.001) return value.toFixed(6).replace(/\.?0+$/, '');
-  
+
   const str = value.toExponential();
   const [mantissa, exponent] = str.split('e');
   const exp = parseInt(exponent);
-  
+
   if (exp >= -3) {
     return value.toFixed(Math.abs(exp) + 2).replace(/\.?0+$/, '');
   }
-  
+
   // For very small numbers, use the 0.0(n)digits format
   const mantissaNum = parseFloat(mantissa);
   const significantDigits = mantissa.replace('.', '').replace('-', '');
   const zerosCount = Math.abs(exp) - 1;
-  
+
   return `0.0${zerosCount}${significantDigits.substring(0, 4)}`;
 };
 
@@ -72,22 +78,24 @@ export const formatSmallNumber = (value: number): string => {
  * @param value - The number to format
  * @returns Object with formatting data or null for regular formatting
  */
-export const getSmallNumberFormatData = (value: number): { prefix: string; zerosCount: number; digits: string } | null => {
+export const getSmallNumberFormatData = (
+  value: number
+): { prefix: string; zerosCount: number; digits: string } | null => {
   if (value === 0 || value >= 0.001) return null;
-  
+
   const str = value.toExponential();
   const [mantissa, exponent] = str.split('e');
   const exp = parseInt(exponent);
-  
+
   if (exp >= -3) return null;
-  
+
   const significantDigits = mantissa.replace('.', '').replace('-', '');
   const zerosCount = Math.abs(exp) - 1;
-  
+
   return {
     prefix: '0.0',
     zerosCount,
-    digits: significantDigits.substring(0, 4)
+    digits: significantDigits.substring(0, 4),
   };
 };
 
@@ -97,6 +105,9 @@ export const getSmallNumberFormatData = (value: number): { prefix: string; zeros
  * @param isSOL - Whether this is a SOL balance
  * @returns Formatted balance string without suffix
  */
-export const formatPumpStateBalance = (balance: number, isSOL: boolean = false): string => {
+export const formatPumpStateBalance = (
+  balance: number,
+  isSOL: boolean = false
+): string => {
   return formatBalance(balance, isSOL);
 };

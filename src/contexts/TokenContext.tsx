@@ -84,11 +84,14 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     // Cleanup function to unsubscribe when component unmounts or dependencies change
     return () => {
       if (connectionState.connectionManager && tokenState.currentToken) {
-        connectionState.connectionManager.unsubscribeTokenLogs(
-          tokenState.currentToken.mint
-        ).catch((error) => {
-          console.error('Error unsubscribing from token logs during cleanup:', error);
-        });
+        connectionState.connectionManager
+          .unsubscribeTokenLogs(tokenState.currentToken.mint)
+          .catch((error) => {
+            console.error(
+              'Error unsubscribing from token logs during cleanup:',
+              error
+            );
+          });
       }
     };
   }, [connectionState]);
@@ -218,9 +221,9 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   // Subscribe to swarm and balance events
   useEffect(() => {
     const handleSwarmCreated = (data: SwarmCreatedData) => {
-      setTokenState(prev => {
+      setTokenState((prev) => {
         const newWallets = { ...prev.wallets };
-        data.wallets.forEach(wallet => {
+        data.wallets.forEach((wallet) => {
           // Only add if wallet doesn't exist
           if (!newWallets[wallet.publicKey]) {
             newWallets[wallet.publicKey] = {
@@ -234,9 +237,9 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const handleSwarmCleared = (data: SwarmClearedData) => {
-      setTokenState(prev => {
+      setTokenState((prev) => {
         const newWallets = { ...prev.wallets };
-        data.walletPublicKeys.forEach(publicKey => {
+        data.walletPublicKeys.forEach((publicKey) => {
           delete newWallets[publicKey];
         });
         return { ...prev, wallets: newWallets };
@@ -245,7 +248,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleBalanceFetched = (data: BalanceFetchedData) => {
       const publicKey = data.owner.toString();
-      setTokenState(prev => ({
+      setTokenState((prev) => ({
         ...prev,
         wallets: {
           ...prev.wallets,
@@ -259,7 +262,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleBalanceChanged = (data: BalanceChangeData) => {
       const publicKey = data.owner.toString();
-      setTokenState(prev => {
+      setTokenState((prev) => {
         const currentWallet = prev.wallets[publicKey];
         if (currentWallet) {
           let updatedState = {
@@ -267,12 +270,14 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
             wallets: {
               ...prev.wallets,
               [publicKey]: {
-                solBalance: data.tokenMint === '' 
-                  ? currentWallet.solBalance + data.amount
-                  : currentWallet.solBalance,
-                tokenBalance: data.tokenMint !== '' 
-                  ? currentWallet.tokenBalance + data.amount 
-                  : currentWallet.tokenBalance,
+                solBalance:
+                  data.tokenMint === ''
+                    ? currentWallet.solBalance + data.amount
+                    : currentWallet.solBalance,
+                tokenBalance:
+                  data.tokenMint !== ''
+                    ? currentWallet.tokenBalance + data.amount
+                    : currentWallet.tokenBalance,
               },
             },
           };
@@ -290,7 +295,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleBondingCurveFetched = (data: BondingCurveFetchedData) => {
       console.log(data);
-      setTokenState(prev => ({
+      setTokenState((prev) => ({
         ...prev,
         bondingCompleted: data.complete,
         lastUpdated: new Date(),
@@ -301,24 +306,26 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleTradeInfoFetched = (data: TradeInfoFetchedData) => {
       const { tradeInfo } = data;
       console.log('💰 Processing trade info for price calculation:', tradeInfo);
-      
-      setTokenState(prev => {
+
+      setTokenState((prev) => {
         let newState = { ...prev };
-        
+
         // Calculate price from trade data
         // For buy: price = SOL spent / tokens received
         // Calculate price as absolute value of fromAmount / toAmount
         let calculatedPrice = 0;
-        
+
         if (tradeInfo.toTokenAmount !== 0) {
           // Price = absolute value of fromAmount / toAmount
-          calculatedPrice = Math.abs(tradeInfo.fromTokenAmount) / Math.abs(tradeInfo.toTokenAmount);
+          calculatedPrice =
+            Math.abs(tradeInfo.fromTokenAmount) /
+            Math.abs(tradeInfo.toTokenAmount);
         }
-        
+
         newState.currentPrice = calculatedPrice;
-        
+
         newState.lastUpdated = new Date();
-        
+
         return newState;
       });
     };
@@ -327,7 +334,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     globalEventEmitter.on(EVENTS.SwarmCleared, handleSwarmCleared);
     globalEventEmitter.on(EVENTS.BalanceFetched, handleBalanceFetched);
     globalEventEmitter.on(EVENTS.BalanceChanged, handleBalanceChanged);
-    globalEventEmitter.on(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
+    globalEventEmitter.on(
+      EVENTS.BondingCurveFetched,
+      handleBondingCurveFetched
+    );
     globalEventEmitter.on(EVENTS.TradeInfoFetched, handleTradeInfoFetched);
 
     return () => {
@@ -335,43 +345,53 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       globalEventEmitter.off(EVENTS.SwarmCleared, handleSwarmCleared);
       globalEventEmitter.off(EVENTS.BalanceFetched, handleBalanceFetched);
       globalEventEmitter.off(EVENTS.BalanceChanged, handleBalanceChanged);
-      globalEventEmitter.off(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
+      globalEventEmitter.off(
+        EVENTS.BondingCurveFetched,
+        handleBondingCurveFetched
+      );
       globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoFetched);
     };
   }, []);
 
   // Subscribe to wallet-specific balance change events
   useEffect(() => {
-    const walletEventHandlers = new Map<string, (data: BalanceChangeData) => void>();
+    const walletEventHandlers = new Map<
+      string,
+      (data: BalanceChangeData) => void
+    >();
 
-    const handleWalletBalanceChanged = (publicKey: string) => (data: BalanceChangeData) => {
-      setTokenState(prev => {
-        const currentWallet = prev.wallets[publicKey];
-        if (currentWallet) {
-          return {
-            ...prev,
-            totalInvestedSol: data.source === 'swap' && data.tokenMint === '' 
-              ? prev.totalInvestedSol - data.amount 
-              : prev.totalInvestedSol,
-            wallets: {
-              ...prev.wallets,
-              [publicKey]: {
-                solBalance: data.tokenMint === '' 
-                  ? currentWallet.solBalance + data.amount // Convert lamports to SOL
-                  : currentWallet.solBalance,
-                tokenBalance: data.tokenMint !== '' 
-                  ? currentWallet.tokenBalance + data.amount 
-                  : currentWallet.tokenBalance,
+    const handleWalletBalanceChanged =
+      (publicKey: string) => (data: BalanceChangeData) => {
+        setTokenState((prev) => {
+          const currentWallet = prev.wallets[publicKey];
+          if (currentWallet) {
+            return {
+              ...prev,
+              totalInvestedSol:
+                data.source === 'swap' && data.tokenMint === ''
+                  ? prev.totalInvestedSol - data.amount
+                  : prev.totalInvestedSol,
+              wallets: {
+                ...prev.wallets,
+                [publicKey]: {
+                  solBalance:
+                    data.tokenMint === ''
+                      ? currentWallet.solBalance + data.amount // Convert lamports to SOL
+                      : currentWallet.solBalance,
+                  tokenBalance:
+                    data.tokenMint !== ''
+                      ? currentWallet.tokenBalance + data.amount
+                      : currentWallet.tokenBalance,
+                },
               },
-            },
-          };
-        }
-        return prev;
-      });
-    };
+            };
+          }
+          return prev;
+        });
+      };
 
     // Subscribe to balance change events for each wallet
-    Object.keys(tokenState.wallets).forEach(publicKey => {
+    Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceChanged}_${publicKey}`;
       const handler = handleWalletBalanceChanged(publicKey);
       walletEventHandlers.set(publicKey, handler);
@@ -389,23 +409,27 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Subscribe to wallet-specific balance fetched events
   useEffect(() => {
-    const walletFetchedHandlers = new Map<string, (data: BalanceFetchedData) => void>();
+    const walletFetchedHandlers = new Map<
+      string,
+      (data: BalanceFetchedData) => void
+    >();
 
-    const handleWalletBalanceFetched = (publicKey: string) => (data: BalanceFetchedData) => {
-      setTokenState(prev => ({
-        ...prev,
-        wallets: {
-          ...prev.wallets,
-          [publicKey]: {
-            solBalance: data.solBalance,
-            tokenBalance: data.tokenBalance,
+    const handleWalletBalanceFetched =
+      (publicKey: string) => (data: BalanceFetchedData) => {
+        setTokenState((prev) => ({
+          ...prev,
+          wallets: {
+            ...prev.wallets,
+            [publicKey]: {
+              solBalance: data.solBalance,
+              tokenBalance: data.tokenBalance,
+            },
           },
-        },
-      }));
-    };
+        }));
+      };
 
     // Subscribe to balance fetched events for each wallet
-    Object.keys(tokenState.wallets).forEach(publicKey => {
+    Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceFetched}_${publicKey}`;
       const handler = handleWalletBalanceFetched(publicKey);
       walletFetchedHandlers.set(publicKey, handler);

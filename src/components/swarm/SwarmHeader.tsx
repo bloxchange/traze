@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Space, Input, Button, Tooltip, theme, Popconfirm, Modal, Typography } from 'antd';
+import {
+  Space,
+  Input,
+  Button,
+  Tooltip,
+  theme,
+  Popconfirm,
+  Modal,
+  Typography,
+} from 'antd';
 import {
   ClearOutlined,
   PlusCircleOutlined,
@@ -70,8 +79,6 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
     setNewName(e.target.value);
   };
 
-
-
   const balanceTooltip = (
     <div>
       <div>SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)}</div>
@@ -131,8 +138,9 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                     minWidth: 0,
                   }}
                 >
-                   SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)} | Token: {formatBalance(totalTokenBalance)} | {walletCount}w
-                 </Text>
+                  SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)}{' '}
+                  | Token: {formatBalance(totalTokenBalance)} | {walletCount}w
+                </Text>
               )}
             </div>
           </Tooltip>
@@ -151,7 +159,9 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
             </Tooltip>
             <Tooltip title={t('swarm.return')}>
               <Button
-                icon={<CoinBackOutlined style={{ color: token.colorWarning }} />}
+                icon={
+                  <CoinBackOutlined style={{ color: token.colorWarning }} />
+                }
                 onClick={onReturn}
                 type="text"
               />

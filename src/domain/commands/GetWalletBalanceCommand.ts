@@ -2,7 +2,10 @@ import { PublicKey } from '@solana/web3.js';
 import { getBalance } from '../rpc/getBalance';
 import { getTokenBalance } from '../rpc/getTokenBalance';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
-import { EVENTS, type BalanceFetchedData } from '../infrastructure/events/types';
+import {
+  EVENTS,
+  type BalanceFetchedData,
+} from '../infrastructure/events/types';
 
 export class GetWalletBalanceCommand {
   private walletAddress: string;

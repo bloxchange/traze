@@ -23,17 +23,22 @@ export class ConnectionManager {
   public initialize(rpcUrls: string[], websocketUrl: string): void {
     console.log('🔌 Initializing ConnectionManager with:', {
       rpcUrls,
-      websocketUrl
+      websocketUrl,
     });
-    
+
     // Create connections for all RPC URLs
     this.connections = rpcUrls.map((url) => {
       const connection = new Connection(url, {
         wsEndpoint: websocketUrl,
         commitment: 'confirmed',
       });
-      
-      console.log('✅ Created connection for RPC:', url, 'with WebSocket:', websocketUrl);
+
+      console.log(
+        '✅ Created connection for RPC:',
+        url,
+        'with WebSocket:',
+        websocketUrl
+      );
       return connection;
     });
   }
@@ -75,7 +80,7 @@ export class ConnectionManager {
     await this.unsubscribeTokenLogs(tokenMint);
 
     try {
-      const filter= new PublicKey(tokenMint);
+      const filter = new PublicKey(tokenMint);
 
       const subscriptionId = await connection.onLogs(
         filter,
@@ -89,15 +94,16 @@ export class ConnectionManager {
 
       // Test if websocket is actually connected
       setTimeout(() => {
-        console.log('⏰ Websocket connection test - checking if we receive any logs in the next 30 seconds...');
+        console.log(
+          '⏰ Websocket connection test - checking if we receive any logs in the next 30 seconds...'
+        );
       }, 1000);
-      
     } catch (error) {
       console.error('💥 Error subscribing to token logs:', error);
-      
+
       console.error('Error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace'
+        stack: error instanceof Error ? error.stack : 'No stack trace',
       });
 
       throw error;

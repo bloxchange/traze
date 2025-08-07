@@ -24,7 +24,7 @@ const Transactions: React.FC<TransactionsProps> = () => {
     const handleTradeInfoEvent = (data: TradeInfoFetchedData) => {
       setTransactions((prev) => {
         const newTransactions = [data.tradeInfo, ...prev];
-      
+
         return newTransactions;
       });
     };

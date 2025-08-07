@@ -66,8 +66,14 @@ const Swarm: React.FC<SwarmProps> = ({
 
   // Calculate total balances from wallet list
   const calculateTotalBalances = (wallets: WalletInfo[]) => {
-    const solTotal = wallets.reduce((sum, wallet) => sum + wallet.solBalance, 0);
-    const tokenTotal = wallets.reduce((sum, wallet) => sum + wallet.tokenBalance, 0);
+    const solTotal = wallets.reduce(
+      (sum, wallet) => sum + wallet.solBalance,
+      0
+    );
+    const tokenTotal = wallets.reduce(
+      (sum, wallet) => sum + wallet.tokenBalance,
+      0
+    );
     setTotalSolBalance(solTotal);
     setTotalTokenBalance(tokenTotal);
   };
@@ -101,7 +107,7 @@ const Swarm: React.FC<SwarmProps> = ({
       // Emit SwarmCleared event before clearing
       if (walletList.length > 0) {
         const swarmClearedData: SwarmClearedData = {
-          walletPublicKeys: walletList.map(wallet => wallet.publicKey),
+          walletPublicKeys: walletList.map((wallet) => wallet.publicKey),
         };
         globalEventEmitter.emit(EVENTS.SwarmCleared, swarmClearedData);
       }
@@ -164,7 +170,7 @@ const Swarm: React.FC<SwarmProps> = ({
       // Emit SwarmCreated event
       if (tokenState.currentToken && newWallets.length > 0) {
         const swarmCreatedData: SwarmCreatedData = {
-          wallets: newWallets.map(wallet => ({
+          wallets: newWallets.map((wallet) => ({
             publicKey: wallet.publicKey,
             solBalance: wallet.solBalance,
             tokenBalance: wallet.tokenBalance,
@@ -281,7 +287,11 @@ const Swarm: React.FC<SwarmProps> = ({
           setWalletList((prevList) => {
             const updatedList = prevList.map((w) =>
               w.publicKey === wallet.publicKey
-                ? { ...w, solBalance: data.solBalance, tokenBalance: data.tokenBalance }
+                ? {
+                    ...w,
+                    solBalance: data.solBalance,
+                    tokenBalance: data.tokenBalance,
+                  }
                 : w
             );
             calculateTotalBalances(updatedList);
@@ -295,7 +305,10 @@ const Swarm: React.FC<SwarmProps> = ({
       return { eventName, callback };
     });
 
-    const allSubscriptions = [...balanceChangeSubscriptions, ...balanceFetchedSubscriptions];
+    const allSubscriptions = [
+      ...balanceChangeSubscriptions,
+      ...balanceFetchedSubscriptions,
+    ];
 
     // Cleanup subscriptions
     return () => {

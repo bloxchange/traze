@@ -27,7 +27,10 @@ import {
 } from '@solana/spl-token';
 import type { ISellParameters } from '../ISellParameters';
 import type { PumpFunSellParameters } from './SellParameters';
-import { DEFAULT_COMMITMENT, DEFAULT_GAS_FEE } from '@/domain/infrastructure/consts';
+import {
+  DEFAULT_COMMITMENT,
+  DEFAULT_GAS_FEE,
+} from '@/domain/infrastructure/consts';
 import type { BondingCurveAccount } from './BondingCurveAccount';
 import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
 import {
@@ -93,7 +96,8 @@ export class PumpFunBroker implements IBroker {
 
     const totalSolSpent =
       (buyParameters.amountInSol + buyParameters.priorityFeeInSol) *
-      LAMPORTS_PER_SOL + DEFAULT_GAS_FEE;
+        LAMPORTS_PER_SOL +
+      DEFAULT_GAS_FEE;
 
     this.dispatchBuyEvents(
       buyParameters.tokenMint,
@@ -347,9 +351,10 @@ export class PumpFunBroker implements IBroker {
       unitPrice: estimatedUnitPrice,
     };
 
-    const totalSolReceived = Number(minSolOutput)
-     - (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL) 
-     - DEFAULT_GAS_FEE;
+    const totalSolReceived =
+      Number(minSolOutput) -
+      sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL -
+      DEFAULT_GAS_FEE;
 
     // Dispatch events before sending transaction
     this.dispatchSellEvents(
