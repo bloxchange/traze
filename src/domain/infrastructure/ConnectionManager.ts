@@ -21,12 +21,20 @@ export class ConnectionManager {
   }
 
   public initialize(rpcUrls: string[], websocketUrl: string): void {
+    console.log('🔌 Initializing ConnectionManager with:', {
+      rpcUrls,
+      websocketUrl
+    });
+    
     // Create connections for all RPC URLs
     this.connections = rpcUrls.map((url) => {
-      return new Connection(url, {
+      const connection = new Connection(url, {
         wsEndpoint: websocketUrl,
         commitment: 'confirmed',
       });
+      
+      console.log('✅ Created connection for RPC:', url, 'with WebSocket:', websocketUrl);
+      return connection;
     });
   }
 
@@ -67,35 +75,30 @@ export class ConnectionManager {
     await this.unsubscribeTokenLogs(tokenMint);
 
     try {
-      // Subscribe to PumpFun program logs instead of token-specific logs
-      // This will catch all transactions involving the PumpFun program
-      const pumpFunProgramId = new PublicKey('6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P');
-      const filter: LogsFilter = pumpFunProgramId;
+      const filter= new PublicKey(tokenMint);
 
       const subscriptionId = await connection.onLogs(
         filter,
         (logs) => {
-          // Filter logs to only include transactions that mention our token mint
-          const logString = logs.logs.join(' ');
-          if (logString.includes(tokenMint)) {
-            console.log('🔊 ConnectionManager received relevant logs for token:', tokenMint, {
-              signature: logs.signature,
-              err: logs.err,
-              logsCount: logs.logs.length
-            });
-            callback(logs);
-          }
+          callback(logs);
         },
         'confirmed'
       );
 
       this.subscriptionIds.set(tokenMint, subscriptionId);
 
-      console.log(
-        `Subscribed to PumpFun program logs for token ${tokenMint} with ID ${subscriptionId}`
-      );
+      // Test if websocket is actually connected
+      setTimeout(() => {
+        console.log('⏰ Websocket connection test - checking if we receive any logs in the next 30 seconds...');
+      }, 1000);
+      
     } catch (error) {
-      console.error('Error subscribing to token logs:', error);
+      console.error('💥 Error subscribing to token logs:', error);
+      
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
 
       throw error;
     }

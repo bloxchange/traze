@@ -5,7 +5,6 @@ import { GetTradeInfoCommand } from '../domain/commands/GetTradeInfoCommand';
 import { TokenContext } from '../hooks';
 import { useRpcConnection } from '../hooks/useRpcConnection';
 import type { Logs } from '@solana/web3.js';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { globalEventEmitter } from '../domain/infrastructure/events/EventEmitter';
 import {
   EVENTS,
@@ -81,6 +80,17 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
           }));
         });
     }
+
+    // Cleanup function to unsubscribe when component unmounts or dependencies change
+    return () => {
+      if (connectionState.connectionManager && tokenState.currentToken) {
+        connectionState.connectionManager.unsubscribeTokenLogs(
+          tokenState.currentToken.mint
+        ).catch((error) => {
+          console.error('Error unsubscribing from token logs during cleanup:', error);
+        });
+      }
+    };
   }, [connectionState]);
 
   const getTokenInfo = async (mint: string) => {

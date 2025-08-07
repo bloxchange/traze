@@ -158,6 +158,7 @@
     "timestamp": "时间",
     "type": "类型",
     "amount": "数量",
+    "tokenAmount": "代币数量",
     "status": "状态",
     "signature": "签名",
     "buy": "买入",

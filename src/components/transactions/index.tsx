@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
 import {
   EVENTS,
   type TradeEventData,
   type TradeInfoFetchedData,
 } from '../../domain/infrastructure/events/types';
+import { formatBalance } from '../../utils/formatBalance';
 
 const { Paragraph } = Typography;
 
@@ -20,22 +22,19 @@ const Transactions: React.FC<TransactionsProps> = () => {
 
   useEffect(() => {
     const handleTradeInfoEvent = (data: TradeInfoFetchedData) => {
-      console.log('🎯 Transaction component received TradeInfoFetched event:', data);
       setTransactions((prev) => {
         const newTransactions = [data.tradeInfo, ...prev];
-        console.log('📊 Updated transactions list:', newTransactions);
+      
         return newTransactions;
       });
     };
 
-    console.log('🔗 Transaction component subscribing to TradeInfoFetched events');
     globalEventEmitter.on<TradeInfoFetchedData>(
       EVENTS.TradeInfoFetched,
       handleTradeInfoEvent
     );
 
     return () => {
-      console.log('🔌 Transaction component unsubscribing from TradeInfoFetched events');
       globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoEvent);
     };
   }, []);
@@ -55,11 +54,18 @@ const Transactions: React.FC<TransactionsProps> = () => {
     },
     {
       title: t('transactions.amount') + ' (SOL)',
-      key: 'amount',
+      key: 'solAmount',
       render: (_: unknown, record: TradeEventData) => {
-        const solAmount = (record.fromTokenAmount - record.toTokenAmount) / 1e9;
-
-        return `${Math.abs(solAmount).toFixed(3)}`;
+        const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
+        return formatBalance(solAmount, true);
+      },
+    },
+    {
+      title: t('transactions.tokenAmount'),
+      key: 'tokenAmount',
+      render: (_: unknown, record: TradeEventData) => {
+        const tokenAmount = Math.abs(record.toTokenAmount);
+        return formatBalance(tokenAmount, false);
       },
     },
     {

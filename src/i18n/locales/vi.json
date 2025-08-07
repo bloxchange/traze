@@ -158,6 +158,7 @@
     "timestamp": "Thời gian",
     "type": "Loại",
     "amount": "Số lượng",
+    "tokenAmount": "Số lượng Token",
     "status": "Trạng thái",
     "signature": "Chữ ký",
     "buy": "Mua",

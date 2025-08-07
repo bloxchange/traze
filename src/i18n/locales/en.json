@@ -158,6 +158,7 @@
     "timestamp": "Time",
     "type": "Type",
     "amount": "Amount",
+    "tokenAmount": "Token Amount",
     "status": "Status",
     "signature": "Signature",
     "buy": "Buy",
