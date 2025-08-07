@@ -10,7 +10,7 @@ const { Title } = Typography;
 const PumpState: React.FC = () => {
   const { t } = useTranslation();
   const { tokenState } = useToken();
-  const { totalInvestedSol, totalReservedSol, currentPrice, bondingCompleted, wallets } =
+  const { totalInvestedSol, totalReservedSol, currentPrice, bondingCompleted, wallets, currentHoldAmount } =
     tokenState;
 
   // Calculate total balances from all wallets (convert lamports to SOL)
@@ -26,6 +26,15 @@ const PumpState: React.FC = () => {
 
   // Calculate total outside SOL
   const totalOutsideSol = (totalReservedSol - totalInvestedSol) / LAMPORTS_PER_SOL;
+  
+  // Calculate portfolio value and profit/loss
+  const portfolioValue = currentHoldAmount * currentPrice; // Value in lamports
+  const portfolioValueSol = portfolioValue / LAMPORTS_PER_SOL; // Convert to SOL
+  const investedSol = totalInvestedSol / LAMPORTS_PER_SOL; // Convert to SOL
+  const profitLoss = portfolioValueSol - investedSol;
+  const profitLossPercentage = investedSol > 0 ? (profitLoss / investedSol) * 100 : 0;
+  
+  const isProfitable = profitLoss >= 0;
 
   return (
     <Card variant="borderless">
@@ -60,6 +69,25 @@ const PumpState: React.FC = () => {
 
           <Descriptions.Item label={t('pumpState.currentPrice', 'Current Price')}>
             {formatPumpStateBalance(currentPrice / LAMPORTS_PER_SOL, true)} SOL
+          </Descriptions.Item>
+
+          <Descriptions.Item label={t('pumpState.currentHoldAmount', 'Current Hold Amount')}>
+            {formatPumpStateBalance(currentHoldAmount, false)}
+          </Descriptions.Item>
+
+          <Descriptions.Item label={t('pumpState.portfolioValue', 'Portfolio Value')}>
+            {formatPumpStateBalance(portfolioValueSol, true)} SOL
+          </Descriptions.Item>
+
+          <Descriptions.Item label={t('pumpState.profitLoss', 'Profit/Loss')}>
+            <span style={{ color: isProfitable ? '#52c41a' : '#ff4d4f' }}>
+              {isProfitable ? '+' : ''}{formatPumpStateBalance(Math.abs(profitLoss), true)} SOL
+              {investedSol > 0 && (
+                <span style={{ marginLeft: '8px' }}>
+                  ({isProfitable ? '+' : '-'}{Math.abs(profitLossPercentage).toFixed(2)}%)
+                </span>
+              )}
+            </span>
           </Descriptions.Item>
 
         <Descriptions.Item

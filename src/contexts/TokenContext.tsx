@@ -298,11 +298,60 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       }));
     };
 
+    const handleTradeInfoFetched = (data: TradeInfoFetchedData) => {
+      const { tradeInfo } = data;
+      console.log('💰 Processing trade info for price calculation:', tradeInfo);
+      
+      setTokenState(prev => {
+        let newState = { ...prev };
+        
+        // Calculate price from trade data
+        // For buy: price = SOL spent / tokens received
+        // For sell: price = SOL received / tokens spent
+        let calculatedPrice = 0;
+        
+        if (tradeInfo.type === 'buy' && tradeInfo.toTokenAmount > 0) {
+          // SOL to Token trade: price = SOL amount / token amount
+          calculatedPrice = tradeInfo.fromTokenAmount / tradeInfo.toTokenAmount;
+        } else if (tradeInfo.type === 'sell' && tradeInfo.fromTokenAmount > 0) {
+          // Token to SOL trade: price = SOL amount / token amount
+          calculatedPrice = tradeInfo.toTokenAmount / tradeInfo.fromTokenAmount;
+        }
+        
+        if (calculatedPrice > 0) {
+          newState.currentPrice = calculatedPrice;
+          console.log('📈 Updated token price:', calculatedPrice);
+        }
+        
+        // Update investment tracking
+        if (tradeInfo.type === 'buy') {
+          // Add to total invested SOL
+          newState.totalInvestedSol = prev.totalInvestedSol + tradeInfo.fromTokenAmount;
+          // Add to current hold amount
+          newState.currentHoldAmount = prev.currentHoldAmount + tradeInfo.toTokenAmount;
+        } else if (tradeInfo.type === 'sell') {
+          // Subtract from current hold amount
+          newState.currentHoldAmount = Math.max(0, prev.currentHoldAmount - tradeInfo.fromTokenAmount);
+        }
+        
+        newState.lastUpdated = new Date();
+        
+        console.log('📊 Updated token state:', {
+          currentPrice: newState.currentPrice,
+          totalInvestedSol: newState.totalInvestedSol,
+          currentHoldAmount: newState.currentHoldAmount
+        });
+        
+        return newState;
+      });
+    };
+
     globalEventEmitter.on(EVENTS.SwarmCreated, handleSwarmCreated);
     globalEventEmitter.on(EVENTS.SwarmCleared, handleSwarmCleared);
     globalEventEmitter.on(EVENTS.BalanceFetched, handleBalanceFetched);
     globalEventEmitter.on(EVENTS.BalanceChanged, handleBalanceChanged);
     globalEventEmitter.on(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
+    globalEventEmitter.on(EVENTS.TradeInfoFetched, handleTradeInfoFetched);
 
     return () => {
       globalEventEmitter.off(EVENTS.SwarmCreated, handleSwarmCreated);
@@ -310,6 +359,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       globalEventEmitter.off(EVENTS.BalanceFetched, handleBalanceFetched);
       globalEventEmitter.off(EVENTS.BalanceChanged, handleBalanceChanged);
       globalEventEmitter.off(EVENTS.BondingCurveFetched, handleBondingCurveFetched);
+      globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoFetched);
     };
   }, []);
 
