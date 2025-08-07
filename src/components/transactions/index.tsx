@@ -5,9 +5,8 @@ import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmit
 import {
   EVENTS,
   type TradeEventData,
-  type TransactionEventData,
+  type TradeInfoFetchedData,
 } from '../../domain/infrastructure/events/types';
-import { GetTradeInfoCommand } from '../../domain/commands/GetTradeInfoCommand';
 
 const { Paragraph } = Typography;
 
@@ -20,36 +19,24 @@ const Transactions: React.FC<TransactionsProps> = () => {
   const [transactions, setTransactions] = useState<TradeEventData[]>([]);
 
   useEffect(() => {
-    const handleTransactionEvent = async (data: TransactionEventData) => {
-      const command = new GetTradeInfoCommand(data.signature);
-
-      const tradeInfo = await command.execute();
-
-      if (tradeInfo) {
-        const tradeEvent: TradeEventData = {
-          fromTokenMint: '',
-          toTokenMint: '',
-          fromAccount: data.owner,
-          toAccount: data.owner,
-          fromTokenAmount: tradeInfo.fromTokenAmount,
-          toTokenAmount: tradeInfo.toTokenAmount,
-          timestamp: Date.now(),
-          status: 'success',
-          signature: data.signature,
-          type: data.type,
-        };
-
-        setTransactions((prev) => [tradeEvent, ...prev]);
-      }
+    const handleTradeInfoEvent = (data: TradeInfoFetchedData) => {
+      console.log('🎯 Transaction component received TradeInfoFetched event:', data);
+      setTransactions((prev) => {
+        const newTransactions = [data.tradeInfo, ...prev];
+        console.log('📊 Updated transactions list:', newTransactions);
+        return newTransactions;
+      });
     };
 
-    globalEventEmitter.on<TransactionEventData>(
-      EVENTS.TransactionCreated,
-      handleTransactionEvent
+    console.log('🔗 Transaction component subscribing to TradeInfoFetched events');
+    globalEventEmitter.on<TradeInfoFetchedData>(
+      EVENTS.TradeInfoFetched,
+      handleTradeInfoEvent
     );
 
     return () => {
-      globalEventEmitter.off(EVENTS.TransactionCreated, handleTransactionEvent);
+      console.log('🔌 Transaction component unsubscribing from TradeInfoFetched events');
+      globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoEvent);
     };
   }, []);
 

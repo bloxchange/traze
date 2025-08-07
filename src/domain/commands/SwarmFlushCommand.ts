@@ -88,13 +88,7 @@ export class SwarmFlushCommand {
       };
 
       this.broker.sell(sellParameters).then((signature) => {
-        if (signature) {
-          globalEventEmitter.emit(EVENTS.TransactionCreated, {
-            signature,
-            type: 'sell',
-            owner: wallet.keypair.publicKey,
-          });
-        }
+        // Transaction signature is handled by logs subscription in TokenContext
       });
     }
   }

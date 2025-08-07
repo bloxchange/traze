@@ -14,6 +14,7 @@ import {
   type BalanceFetchedData,
   type BalanceChangeData,
   type BondingCurveFetchedData,
+  type TradeInfoFetchedData,
 } from '../domain/infrastructure/events/types';
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -91,7 +92,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const handleTokenLogs = (logs: Logs) => {
-    console.log('Token transaction logs received:', {
+    console.log('🔔 Token transaction logs received:', {
       signature: logs.signature,
       logs: logs.logs,
       err: logs.err,
@@ -103,13 +104,19 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       .execute()
       .then((tradeInfo) => {
         if (tradeInfo) {
-          console.log('Trade info:', tradeInfo);
+          console.log('✅ Trade info fetched successfully:', tradeInfo);
+          // Emit the new TradeInfoFetched event
+          globalEventEmitter.emit<TradeInfoFetchedData>(
+            EVENTS.TradeInfoFetched,
+            { tradeInfo }
+          );
+          console.log('📡 TradeInfoFetched event emitted');
         } else {
-          console.log('No trade info found for signature:', logs.signature);
+          console.log('❌ No trade info found for signature:', logs.signature);
         }
       })
       .catch((error) => {
-        console.error('Error fetching trade info:', error);
+        console.error('💥 Error fetching trade info:', error);
       });
   };
 

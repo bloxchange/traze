@@ -67,13 +67,24 @@ export class ConnectionManager {
     await this.unsubscribeTokenLogs(tokenMint);
 
     try {
-      const filter: LogsFilter = new PublicKey(tokenMint);
+      // Subscribe to PumpFun program logs instead of token-specific logs
+      // This will catch all transactions involving the PumpFun program
+      const pumpFunProgramId = new PublicKey('6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P');
+      const filter: LogsFilter = pumpFunProgramId;
 
       const subscriptionId = await connection.onLogs(
         filter,
         (logs) => {
-          console.log('Received logs for token:', tokenMint, logs);
-          callback(logs);
+          // Filter logs to only include transactions that mention our token mint
+          const logString = logs.logs.join(' ');
+          if (logString.includes(tokenMint)) {
+            console.log('🔊 ConnectionManager received relevant logs for token:', tokenMint, {
+              signature: logs.signature,
+              err: logs.err,
+              logsCount: logs.logs.length
+            });
+            callback(logs);
+          }
         },
         'confirmed'
       );
@@ -81,7 +92,7 @@ export class ConnectionManager {
       this.subscriptionIds.set(tokenMint, subscriptionId);
 
       console.log(
-        `Subscribed to logs for token ${tokenMint} with ID ${subscriptionId}`
+        `Subscribed to PumpFun program logs for token ${tokenMint} with ID ${subscriptionId}`
       );
     } catch (error) {
       console.error('Error subscribing to token logs:', error);

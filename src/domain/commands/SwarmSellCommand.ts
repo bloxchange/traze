@@ -94,13 +94,8 @@ export class SwarmSellCommand {
       };
 
       this.broker.sell(sellParameters).then((signature) => {
-        if (signature) {
-          globalEventEmitter.emit(EVENTS.TransactionCreated, {
-            signature,
-            type: 'sell',
-            owner: wallet.keypair.publicKey,
-          });
-        }
+        // Transaction signature is now handled by logs subscription in TokenContext
+        console.log('💸 Sell transaction completed with signature:', signature);
       });
 
       if (

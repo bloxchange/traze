@@ -67,6 +67,10 @@ export interface BondingCurveFetchedData {
   realTokenReserves: bigint;
 }
 
+export interface TradeInfoFetchedData {
+  tradeInfo: TradeEventData;
+}
+
 export type EventData =
   | BalanceChangeData
   | BalanceFetchedData
@@ -76,7 +80,8 @@ export type EventData =
   | TradeEventData
   | ErrorEventData
   | TransactionEventData
-  | BondingCurveFetchedData;
+  | BondingCurveFetchedData
+  | TradeInfoFetchedData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -92,4 +97,5 @@ export const EVENTS = {
   SwarmCleared: 'swarmCleared',
   TransactionCreated: 'transactionCreated',
   BondingCurveFetched: 'bondingCurveFetched',
+  TradeInfoFetched: 'tradeInfoFetched',
 } as const;
