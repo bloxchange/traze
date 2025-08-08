@@ -3,13 +3,20 @@ import type { IBuyParameters } from '../IBuyParameters';
 import type { ISellParameters } from '../ISellParameters';
 import type TradeEventInfo from '../../models/TradeEventInfo';
 import { PumpFunAmmBroker, type PumpFunAmmConfig, type BuyParams, type SellParams } from './PumpFunAmmBroker';
-import { PublicKey,  LAMPORTS_PER_SOL, Connection, type AccountInfo, type GetProgramAccountsResponse, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
+import { PublicKey, LAMPORTS_PER_SOL, Connection, type AccountInfo, type GetProgramAccountsResponse, Transaction, sendAndConfirmTransaction, ComputeBudgetProgram } from '@solana/web3.js';
 import { BN } from '@coral-xyz/anchor';
+import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
+import {
+  EVENTS,
+  type BalanceChangeData,
+} from '../../infrastructure/events/types';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { PUMPFUN_AMM_PROGRAM_ID, WRAPPED_SOL_MINT } from '../../infrastructure/consts';
 import { PoolAccount } from './PoolAccount';
 import { getBalance } from '@/domain/rpc';
 import { PumpAmmSdk } from '@pump-fun/pump-swap-sdk';
+import type { PriorityFee } from '../pumpfun/types';
+import * as borsh from '@coral-xyz/borsh';
 
 export class PumpFunAmmBrokerWrapper implements IBroker {
   private ammBroker: PumpFunAmmBroker;
@@ -20,6 +27,133 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     this.ammBroker = new PumpFunAmmBroker(config);
     this.connection = config.provider.connection;
     this.pumpAmmSdk = new PumpAmmSdk(this.connection);
+  }
+
+  // Instruction discriminators from IDL
+  private static readonly BUY_DISCRIMINATOR = Buffer.from([102, 6, 61, 18, 1, 218, 235, 234]);
+  private static readonly SELL_DISCRIMINATOR = Buffer.from([51, 230, 133, 164, 1, 127, 131, 173]);
+
+  // Borsh schemas for instruction arguments
+  private static readonly buyArgsSchema = borsh.struct([
+    borsh.u64('baseAmountOut'),
+    borsh.u64('maxQuoteAmountIn')
+  ]);
+
+  private static readonly sellArgsSchema = borsh.struct([
+    borsh.u64('baseAmountIn'),
+    borsh.u64('minQuoteAmountOut')
+  ]);
+
+  /**
+   * Decodes the 4th instruction data to extract amount information
+   * @param instructions Array of instructions from buyQuoteInput or sellBaseInput result
+   * @returns Decoded amounts or null if decoding fails
+   */
+  private decodeInstructionAmounts(instructions: any[]): {
+    type: 'buy' | 'sell';
+    baseAmount: bigint;
+    quoteAmount: bigint;
+  } | null {
+    if (!instructions || instructions.length < 4) {
+      console.warn('Not enough instructions to decode (need at least 4)');
+      return null;
+    }
+
+    const fourthInstruction = instructions[3];
+    if (!fourthInstruction?.data) {
+      console.warn('Fourth instruction has no data');
+      return null;
+    }
+
+    try {
+      const instructionData = Buffer.from(fourthInstruction.data, 'base64');
+      
+      // Check if it's a buy instruction
+      if (instructionData.subarray(0, 8).equals(PumpFunAmmBrokerWrapper.BUY_DISCRIMINATOR)) {
+        const argsData = instructionData.subarray(8);
+        const decoded = PumpFunAmmBrokerWrapper.buyArgsSchema.decode(argsData);
+        return {
+          type: 'buy',
+          baseAmount: decoded.baseAmountOut,
+          quoteAmount: decoded.maxQuoteAmountIn
+        };
+      }
+      
+      // Check if it's a sell instruction
+      if (instructionData.subarray(0, 8).equals(PumpFunAmmBrokerWrapper.SELL_DISCRIMINATOR)) {
+        const argsData = instructionData.subarray(8);
+        const decoded = PumpFunAmmBrokerWrapper.sellArgsSchema.decode(argsData);
+        return {
+          type: 'sell',
+          baseAmount: decoded.baseAmountIn,
+          quoteAmount: decoded.minQuoteAmountOut
+        };
+      }
+
+      console.warn('Fourth instruction is not a buy or sell instruction');
+      return null;
+    } catch (error) {
+      console.error('Failed to decode instruction data:', error);
+      return null;
+    }
+  }
+
+  private dispatchBuyEvents(
+    tokenMint: string,
+    buyerPubKey: PublicKey,
+    totalSolSpent: number,
+    buyAmount: number
+  ) {
+    // Emit SOL balance change (negative as SOL is spent)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: -totalSolSpent,
+        owner: buyerPubKey,
+        source: 'swap',
+      }
+    );
+
+    // Emit token balance change (positive as tokens are received)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
+      {
+        tokenMint: tokenMint,
+        amount: buyAmount,
+        owner: buyerPubKey,
+        source: 'swap',
+      }
+    );
+  }
+
+  private dispatchSellEvents(
+    tokenMint: string,
+    seller: PublicKey,
+    sellTokenAmount: number,
+    solReceived: number
+  ) {
+    // Emit token balance change (negative as tokens are sold)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
+      {
+        tokenMint: tokenMint,
+        amount: -sellTokenAmount,
+        owner: seller,
+        source: 'swap',
+      }
+    );
+
+    // Emit SOL balance change (positive as SOL is received)
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
+      {
+        tokenMint: '',
+        amount: solReceived,
+        owner: seller,
+        source: 'swap',
+      }
+    );
   }
 
   /**
@@ -160,10 +294,29 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
          slippage
        );
        
-       console.log(`Generated ${instructions.length} buy instructions`);
-       
        // Create and send the transaction
        const transaction = new Transaction();
+       
+       // Add priority fee instructions if specified
+       if (buyParameters.priorityFeeInSol && buyParameters.priorityFeeInSol > 0) {
+         const estimatedUnitPrice = buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+         const priorityFees: PriorityFee = {
+           unitLimit: 1_000_000,
+           unitPrice: estimatedUnitPrice,
+         };
+         
+         const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+           units: priorityFees.unitLimit,
+         });
+         
+         const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+           microLamports: priorityFees.unitPrice,
+         });
+         
+         transaction.add(modifyComputeUnits);
+         transaction.add(addPriorityFee);
+       }
+       
        instructions.forEach(instruction => transaction.add(instruction));
        
        // Get recent blockhash
@@ -183,7 +336,35 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
        );
        
        console.log(`Buy transaction sent with signature: ${signature}`);
-       return signature;
+        
+        // Decode instruction amounts from the 4th instruction
+        const decodedAmounts = this.decodeInstructionAmounts(instructions);
+        
+        // Emit balance change events
+        const solSpentLamports = buyParameters.amountInSol * LAMPORTS_PER_SOL;
+        const priorityFeeLamports = (buyParameters.priorityFeeInSol || 0) * LAMPORTS_PER_SOL;
+        const gasFee = 5000; // Default gas fee in lamports
+        const totalSolSpentLamports = solSpentLamports + priorityFeeLamports + gasFee;
+        
+        // Extract token amount from decoded instruction data
+        let tokensReceived: number;
+        if (decodedAmounts && decodedAmounts.type === 'buy') {
+          // For buy instructions, baseAmountOut represents tokens received
+          tokensReceived = Number(decodedAmounts.baseAmount);
+        } else {
+          // Fallback to previous calculation if decoding fails
+          console.warn('Failed to decode instruction amounts, using fallback calculation');
+          tokensReceived = quoteAmount.toNumber() * 1000000;
+        }
+        
+        this.dispatchBuyEvents(
+          buyParameters.tokenMint,
+          buyParameters.buyer.publicKey,
+          totalSolSpentLamports,
+          tokensReceived
+        );
+        
+        return signature;
       
     } catch (error) {
       console.error('Error in buy operation:', error);
@@ -245,6 +426,27 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
        
        // Create and send the transaction
        const transaction = new Transaction();
+       
+       // Add priority fee instructions if specified
+       if (sellParameters.priorityFeeInSol && sellParameters.priorityFeeInSol > 0) {
+         const estimatedUnitPrice = sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+         const priorityFees: PriorityFee = {
+           unitLimit: 1_000_000,
+           unitPrice: estimatedUnitPrice,
+         };
+         
+         const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+           units: priorityFees.unitLimit,
+         });
+         
+         const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+           microLamports: priorityFees.unitPrice,
+         });
+         
+         transaction.add(modifyComputeUnits);
+         transaction.add(addPriorityFee);
+       }
+       
        instructions.forEach(instruction => transaction.add(instruction));
        
        // Get recent blockhash
@@ -264,7 +466,41 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
        );
        
        console.log(`Sell transaction sent with signature: ${signature}`);
-       return signature;
+        
+        // Decode instruction amounts from the 4th instruction
+        const decodedAmounts = this.decodeInstructionAmounts(instructions);
+        
+        // Emit balance change events
+        const priorityFeeLamports = (sellParameters.priorityFeeInSol || 0) * LAMPORTS_PER_SOL;
+        const gasFee = 5000; // Default gas fee in lamports
+        
+        // Extract amounts from decoded instruction data
+        let tokensSold: number;
+        let solReceivedLamports: number;
+        
+        if (decodedAmounts && decodedAmounts.type === 'sell') {
+          // For sell instructions, baseAmountIn represents tokens sold
+          tokensSold = Number(decodedAmounts.baseAmount);
+          // minQuoteAmountOut represents minimum SOL expected (we'll use this as estimate)
+          solReceivedLamports = Number(decodedAmounts.quoteAmount);
+        } else {
+          // Fallback to previous calculation if decoding fails
+          console.warn('Failed to decode instruction amounts, using fallback calculation');
+          tokensSold = Number(sellParameters.sellTokenAmount);
+          solReceivedLamports = baseAmount.toNumber() / 1000000 * LAMPORTS_PER_SOL;
+        }
+        
+        const netSolReceivedLamports = solReceivedLamports - priorityFeeLamports - gasFee;
+        const netSolReceived = netSolReceivedLamports / LAMPORTS_PER_SOL;
+         
+         this.dispatchSellEvents(
+           sellParameters.mint.toBase58(),
+           sellParameters.seller.publicKey,
+           tokensSold,
+           netSolReceived
+         );
+        
+        return signature;
       
     } catch (error) {
       console.error('Error in sell operation:', error);
