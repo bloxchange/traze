@@ -1,6 +1,12 @@
 import { PublicKey, type Connection, type Commitment } from '@solana/web3.js';
-import { getBondingCurveAccount, getBondingCurvePDA } from '../trading/pumpfun/utils';
-import { PUMPFUN_PROGRAM_ID, PUMPFUN_AMM_PROGRAM_ID } from '../infrastructure/consts';
+import {
+  getBondingCurveAccount,
+  getBondingCurvePDA,
+} from '../trading/pumpfun/utils';
+import {
+  PUMPFUN_PROGRAM_ID,
+  PUMPFUN_AMM_PROGRAM_ID,
+} from '../infrastructure/consts';
 import { DEFAULT_COMMITMENT } from '../infrastructure/consts';
 
 /**
@@ -22,17 +28,17 @@ export async function checkBondingCurveStatus(
   try {
     const mint = new PublicKey(tokenMint);
     const pumpFunProgramId = new PublicKey(PUMPFUN_PROGRAM_ID);
-    
+
     // Get bonding curve PDA for PumpFun
     const bondingCurvePDA = getBondingCurvePDA(mint, pumpFunProgramId);
-    
+
     // Try to fetch the bonding curve account
     const bondingAccount = await getBondingCurveAccount(
       connection,
       bondingCurvePDA,
       commitment
     );
-    
+
     if (!bondingAccount) {
       // No bonding curve found, this might be a token that was never on PumpFun
       // or it's already graduated and the bonding curve was closed
@@ -42,10 +48,10 @@ export async function checkBondingCurveStatus(
         bondingCurveExists: false,
       };
     }
-    
+
     // Check if the bonding curve is completed
     const isCompleted = bondingAccount.complete;
-    
+
     return {
       isCompleted,
       programId: isCompleted ? PUMPFUN_AMM_PROGRAM_ID : PUMPFUN_PROGRAM_ID,
@@ -53,7 +59,7 @@ export async function checkBondingCurveStatus(
     };
   } catch (error) {
     console.error('Error checking bonding curve status:', error);
-    
+
     // In case of error, default to using PumpFun (safer option)
     return {
       isCompleted: false,
@@ -75,6 +81,10 @@ export async function getBrokerProgramId(
   tokenMint: string,
   commitment: Commitment = DEFAULT_COMMITMENT
 ): Promise<string> {
-  const status = await checkBondingCurveStatus(connection, tokenMint, commitment);
+  const status = await checkBondingCurveStatus(
+    connection,
+    tokenMint,
+    commitment
+  );
   return status.programId;
 }

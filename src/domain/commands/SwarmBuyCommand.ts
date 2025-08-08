@@ -85,9 +85,11 @@ export class SwarmBuyCommand {
     // Check bonding curve status and get appropriate broker
     const connection = ConnectionManager.getInstance().getConnection();
     const programId = await getBrokerProgramId(connection, this.tokenMint);
-    
-    console.log(`🔍 Bonding curve status check: Using ${programId === PUMPFUN_PROGRAM_ID ? 'PumpFun' : 'PumpFunAmm'} broker for token ${this.tokenMint}`);
-    
+
+    console.log(
+      `🔍 Bonding curve status check: Using ${programId === PUMPFUN_PROGRAM_ID ? 'PumpFun' : 'PumpFunAmm'} broker for token ${this.tokenMint}`
+    );
+
     // Create provider and broker based on bonding curve status
     const provider: AnchorProvider = new AnchorProvider(
       connection,
@@ -96,13 +98,13 @@ export class SwarmBuyCommand {
         commitment: 'confirmed',
       }
     );
-    
+
     const broker = BrokerFactory.create(programId, provider);
-    
+
     if (!broker) {
       throw new Error(`Failed to create broker for program ID: ${programId}`);
     }
-    
+
     this.broker = broker;
 
     for (const wallet of selectedWallets) {
