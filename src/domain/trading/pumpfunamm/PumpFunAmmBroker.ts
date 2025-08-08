@@ -13,6 +13,16 @@ import {
   getAssociatedTokenAddress,
 } from '@solana/spl-token';
 import IDL from './idl/idl.json';
+import {
+  BUY_DISCRIMINATOR,
+  SELL_DISCRIMINATOR,
+  TOKEN_DECIMALS,
+  FEE_RECIPIENT,
+  GLOBAL,
+  EVENT_AUTHORITY,
+  WRAPPED_SOL_MINT,
+  PUMPFUN_AMM_PROGRAM_ID
+} from '../../infrastructure/consts';
 
 export interface PumpFunAmmConfig {
   provider: Provider;
@@ -26,6 +36,10 @@ export interface BuyParams {
   maxQuoteAmountIn: BN;
   userBaseTokenAccount: PublicKey;
   userQuoteTokenAccount: PublicKey;
+  poolId: PublicKey;
+  poolData: PoolInfo;
+  tokenAmount: number;
+  wsolTokenAccount: PublicKey;
 }
 
 export interface SellParams {
@@ -146,31 +160,98 @@ export class PumpFunAmmBroker {
   async createBuyInstruction(
     params: BuyParams
   ): Promise<TransactionInstruction> {
-    const globalConfig = await this.getGlobalConfig();
-
     const userPublicKey = this.program.provider.publicKey!;
-
-    const protocolFeeRecipient = globalConfig.protocolFeeRecipients[0];
-    const protocolFeeRecipientTokenAccount = await getAssociatedTokenAddress(
-      params.quoteMint,
-      protocolFeeRecipient
+    
+    // Determine user token accounts based on base mint
+    let userBaseTokenAccount: PublicKey;
+    let userQuoteTokenAccount: PublicKey;
+    let instructionData: Buffer;
+    
+    if (params.poolData.baseMint.equals(new PublicKey(WRAPPED_SOL_MINT))) {
+      // Selling case: base is WSOL, quote is token
+      userBaseTokenAccount = params.wsolTokenAccount;
+      userQuoteTokenAccount = await getAssociatedTokenAddress(
+        params.poolData.quoteMint,
+        userPublicKey
+      );
+      
+      // Create sell instruction data
+      const maxAmountLamports = Buffer.alloc(8);
+      maxAmountLamports.writeBigUInt64LE(BigInt(params.maxQuoteAmountIn.toString()), 0);
+      
+      const tokenAmountBuffer = Buffer.alloc(8);
+      tokenAmountBuffer.writeBigUInt64LE(BigInt(params.tokenAmount * TOKEN_DECIMALS), 0);
+      
+      instructionData = Buffer.concat([
+        Buffer.from(SELL_DISCRIMINATOR),
+        maxAmountLamports,
+        tokenAmountBuffer
+      ]);
+    } else {
+      // Buying case: base is token, quote is WSOL
+      userBaseTokenAccount = await getAssociatedTokenAddress(
+        params.poolData.baseMint,
+        userPublicKey
+      );
+      userQuoteTokenAccount = params.wsolTokenAccount;
+      
+      // Create buy instruction data
+      const tokenAmountBuffer = Buffer.alloc(8);
+      tokenAmountBuffer.writeBigUInt64LE(BigInt(params.tokenAmount * TOKEN_DECIMALS), 0);
+      
+      const maxAmountLamports = Buffer.alloc(8);
+      maxAmountLamports.writeBigUInt64LE(BigInt(params.maxQuoteAmountIn.toString()), 0);
+      
+      instructionData = Buffer.concat([
+        Buffer.from(BUY_DISCRIMINATOR),
+        tokenAmountBuffer,
+        maxAmountLamports
+      ]);
+    }
+    
+    // Create vault authority PDA
+    const vaultAuthSeeds = [Buffer.from('creator_vault'), params.poolData.coinCreator.toBuffer()];
+    const [vaultAuthPda] = PublicKey.findProgramAddressSync(
+      vaultAuthSeeds,
+      new PublicKey(PUMPFUN_AMM_PROGRAM_ID)
     );
-
-    const globalVolumeAccumulator = this.getGlobalVolumeAccumulatorPda();
-    const userVolumeAccumulator =
-      this.getUserVolumeAccumulatorPda(userPublicKey);
-
-    return await this.program.methods
-      .buy(params.baseAmountOut, params.maxQuoteAmountIn)
-      .accounts({
-        user: userPublicKey,
-        userBaseTokenAccount: params.userBaseTokenAccount,
-        userQuoteTokenAccount: params.userQuoteTokenAccount,
-        protocolFeeRecipientTokenAccount,
-        globalVolumeAccumulator,
-        userVolumeAccumulator,
-      })
-      .instruction();
+    
+    const vaultAta = await getAssociatedTokenAddress(
+      params.poolData.baseMint,
+      vaultAuthPda
+    );
+    
+    const feeRecipientAta = await getAssociatedTokenAddress(
+      params.poolData.baseMint,
+      new PublicKey(FEE_RECIPIENT)
+    );
+    
+    // Create instruction with all required accounts
+    return new TransactionInstruction({
+      programId: new PublicKey(PUMPFUN_AMM_PROGRAM_ID),
+      data: instructionData,
+      keys: [
+        { pubkey: params.poolId, isSigner: false, isWritable: false },
+        { pubkey: userPublicKey, isSigner: true, isWritable: true },
+        { pubkey: new PublicKey(GLOBAL), isSigner: false, isWritable: false },
+        { pubkey: params.poolData.baseMint, isSigner: false, isWritable: false },
+        { pubkey: params.poolData.quoteMint, isSigner: false, isWritable: false },
+        { pubkey: userBaseTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: userQuoteTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: params.poolData.poolBaseTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: params.poolData.poolQuoteTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: new PublicKey(FEE_RECIPIENT), isSigner: false, isWritable: false },
+        { pubkey: feeRecipientAta, isSigner: false, isWritable: true },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        { pubkey: new PublicKey(EVENT_AUTHORITY), isSigner: false, isWritable: false },
+        { pubkey: new PublicKey(PUMPFUN_AMM_PROGRAM_ID), isSigner: false, isWritable: false },
+        { pubkey: vaultAta, isSigner: false, isWritable: true },
+        { pubkey: vaultAuthPda, isSigner: false, isWritable: false }
+      ]
+    });
   }
 
   /**
@@ -200,8 +281,8 @@ export class PumpFunAmmBroker {
         userBaseTokenAccount: params.userBaseTokenAccount,
         userQuoteTokenAccount: params.userQuoteTokenAccount,
         protocolFeeRecipientTokenAccount,
-        globalVolumeAccumulator,
-        userVolumeAccumulator,
+        //globalVolumeAccumulator,
+        //userVolumeAccumulator,
       })
       .instruction();
   }
