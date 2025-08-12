@@ -6,6 +6,7 @@ export interface TokenInformation {
   totalSupply: number;
   icon: string;
   externalUrl: string;
+  authority?: string;
   // holders: number;
   // price: number;
   // volume24h: number;

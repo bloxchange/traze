@@ -2,6 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { TokenInformation } from '../../models/token';
 import { getAsset } from '../rpc';
+import type { AssetResponsePayload } from '../models/rpc/AssetResponsePayload';
 import { TokenInformationCache } from '../infrastructure/TokenInformationCache';
 import {
   fetchDigitalAsset,
@@ -57,6 +58,7 @@ export class GetTokenInformationCommand {
         totalSupply: 0,
         icon: '',
         externalUrl: '',
+        authority: undefined,
       };
     } catch (error) {
       throw new Error(
@@ -75,7 +77,7 @@ export class GetTokenInformationCommand {
         return null;
       }
 
-      if (asset.result?.mint_extensions) {
+      if (asset.result?.content) {
         const tokenInfo: TokenInformation = {
           mint: this.tokenMint,
           name: asset.result.content?.metadata.name ?? 'Unknown',
@@ -84,21 +86,24 @@ export class GetTokenInformationCommand {
           totalSupply: Number(asset.result.token_info.supply),
           icon: '',
           externalUrl: '',
+          authority: asset.result?.authorities?.[0]?.address,
         };
 
-        const meta2022 = await getTokenMetadata(
-          ConnectionManager.getInstance().getConnection(),
-          new PublicKey(this.tokenMint),
-          'confirmed',
-          TOKEN_2022_PROGRAM_ID
-        );
+        try {
+          const meta2022 = await getTokenMetadata(
+            ConnectionManager.getInstance().getConnection(),
+            new PublicKey(this.tokenMint),
+            'confirmed',
+            TOKEN_2022_PROGRAM_ID
+          );
 
-        if (meta2022?.uri) {
-          const metaJson = await this.extractJsonUri(meta2022?.uri);
+          if (meta2022?.uri) {
+            const metaJson = await this.extractJsonUri(meta2022?.uri);
 
-          tokenInfo.icon = metaJson.image || '';
-          tokenInfo.externalUrl = metaJson.external_url || '';
-        }
+            tokenInfo.icon = metaJson.image || '';
+            tokenInfo.externalUrl = metaJson.external_url || '';
+          }
+        } catch {}
 
         return tokenInfo;
       }
@@ -119,6 +124,7 @@ export class GetTokenInformationCommand {
         totalSupply: Number(asset.result.token_info.supply),
         icon: tokenMetadata.image || '',
         externalUrl: tokenMetadata.external_url || '',
+        authority: asset.result?.authorities?.[0]?.address,
       };
 
       return tokenInfo;
@@ -133,6 +139,7 @@ export class GetTokenInformationCommand {
         totalSupply: 1_000_000_000,
         icon: '',
         externalUrl: '',
+        authority: undefined,
       };
     }
   }
@@ -192,6 +199,7 @@ export class GetTokenInformationCommand {
         totalSupply: Number(dAsset.mint.supply),
         icon: imageUrl,
         externalUrl: externalUrl,
+        authority: undefined, // Metaplex doesn't provide authority info in the same format
       };
     } catch {
       return null;

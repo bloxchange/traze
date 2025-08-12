@@ -1,0 +1,348 @@
+import type { IBroker } from '../IBroker';
+import type { IBuyParameters } from '../IBuyParameters';
+import type { ISellParameters } from '../ISellParameters';
+import type TradeEventInfo from '../../models/TradeEventInfo';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  LAMPORTS_PER_SOL,
+  sendAndConfirmTransaction,
+  ComputeBudgetProgram,
+} from '@solana/web3.js';
+import {
+  Raydium,
+  TxVersion,
+  LAUNCHPAD_PROGRAM,
+  DEV_LAUNCHPAD_PROGRAM,
+  Curve,
+  getPdaLaunchpadPoolId,
+} from '@raydium-io/raydium-sdk-v2';
+import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
+import {
+  EVENTS,
+  type BalanceChangeData,
+} from '../../infrastructure/events/types';
+import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
+import BN from 'bn.js';
+import Decimal from 'decimal.js';
+import { WRAPPED_SOL_MINT } from '@/domain/infrastructure/consts';
+
+export interface RaydiumLaunchLabConfig {
+  connection: Connection;
+  isDevnet?: boolean;
+}
+
+export interface LaunchpadPoolInfo {
+  id: PublicKey;
+  baseMint: PublicKey;
+  quoteMint: PublicKey;
+  baseVault: PublicKey;
+  quoteVault: PublicKey;
+  totalSupply: BN;
+  totalSell: BN;
+  totalFundRaising: BN;
+  currentQuoteFund: BN;
+  status: number; // 0: trading, 1: migrate
+}
+
+export class RaydiumLaunchLabBroker implements IBroker {
+  private connection: Connection;
+  private programId: PublicKey;
+  private raydium: Raydium | null = null;
+  private isDevnet: boolean;
+
+  constructor(config: RaydiumLaunchLabConfig) {
+    this.connection = config.connection;
+    this.programId = config.isDevnet
+      ? DEV_LAUNCHPAD_PROGRAM
+      : LAUNCHPAD_PROGRAM;
+
+    this.isDevnet = config.isDevnet || false;
+  }
+
+  private async initializeRaydium(): Promise<Raydium> {
+    if (!this.raydium) {
+      this.raydium = await Raydium.load({
+        connection: this.connection,
+        cluster: this.isDevnet ? 'devnet' : 'mainnet',
+        disableLoadToken: true, // We don't need token info for launchpad operations
+      });
+    }
+    return this.raydium;
+  }
+
+  async transfer(amount: number, from: string, to: string): Promise<void> {
+    throw new Error('Transfer method not implemented for Raydium LaunchLab');
+  }
+
+  async buy(buyParameters: IBuyParameters): Promise<string | null> {
+    try {
+      console.log('Raydium LaunchLab buy operation started', {
+        tokenMint: buyParameters.tokenMint,
+        amountInSol: buyParameters.amountInSol,
+        slippage: buyParameters.slippageBasisPoints,
+      });
+
+      // Initialize Raydium SDK
+      const raydium = await this.initializeRaydium();
+
+      raydium.setOwner(buyParameters.buyer);
+      
+      const buyerKeypair = buyParameters.buyer;
+      const mintA = new PublicKey(buyParameters.tokenMint);
+
+      //const mintB = NATIVE_MINT;
+
+      const inAmount = new BN(Math.floor(buyParameters.amountInSol * LAMPORTS_PER_SOL));
+
+      // // Get pool ID and pool info
+      // const poolId = getPdaLaunchpadPoolId(this.programId, mintA, mintB).publicKey;
+      // const poolInfo = await raydium.launchpad.getRpcPoolInfo({ poolId });
+      
+      
+      // if (!poolInfo) {
+      //   throw new Error('Launchpad pool not found');
+      // }
+
+      // Execute the buy transaction using the correct parameter names
+      const { execute } = await raydium.launchpad.buyToken({
+        programId: this.programId,
+        mintA: mintA,
+        buyAmount: inAmount,
+        slippage: new BN(buyParameters.slippageBasisPoints),
+        shareFeeRate: new BN(0),
+        txVersion: TxVersion.V0,
+        computeBudgetConfig: {
+          units: 1_000_000,
+          microLamports: buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
+        },
+      });
+      
+      const sentInfo = await execute({ sendAndConfirm: true });
+      
+      // Dispatch buy events
+      this.dispatchBuyEvents(
+        buyParameters.tokenMint,
+        buyerKeypair.publicKey,
+        buyParameters.amountInSol,
+        Number(inAmount) / Math.pow(10, 6) // Use calculated amount from Curve.buyExactIn
+      );
+
+      return sentInfo.txId;
+    } catch (error) {
+      console.error('Raydium LaunchLab buy failed:', error);
+      return null;
+    }
+  }
+
+  async sell(sellParameters: ISellParameters): Promise<string | null> {
+    try {
+      console.log('Raydium LaunchLab sell operation started', {
+        mint: sellParameters.mint,
+        sellTokenAmount: sellParameters.sellTokenAmount,
+        slippage: sellParameters.slippageBasisPoints,
+      });
+
+      const sellerKeypair = sellParameters.seller;
+      const tokenMint = sellParameters.mint;
+
+      // Get launchpad pool info
+      const poolId = getPdaLaunchpadPoolId(
+        this.programId,
+        tokenMint,
+        NATIVE_MINT
+      ).publicKey;
+      const poolInfo = await this.getPoolInfo(poolId);
+
+      if (!poolInfo) {
+        throw new Error('Pool not found');
+      }
+
+      if (poolInfo.status !== 0) {
+        throw new Error('Pool is not in trading status');
+      }
+
+      // Calculate SOL amount out
+      const curve = new Curve();
+
+      const tokenAmountIn = new BN(sellParameters.sellTokenAmount.toString());
+      // Placeholder calculation - actual implementation would use proper curve math
+      const solAmountOut = new BN(Math.floor(tokenAmountIn.toNumber() / 1000)); // Simplified calculation
+
+      // Apply slippage protection
+      const slippagePercent =
+        Number(sellParameters.slippageBasisPoints) / 10000;
+      const minSolOut = solAmountOut
+        .mul(new BN(Math.floor((1 - slippagePercent) * 1000000)))
+        .div(new BN(1000000));
+
+      // TODO: Build and send sell transaction using Raydium SDK v2
+      console.log('Sell calculation:', {
+        tokenAmountIn: tokenAmountIn.toString(),
+        solAmountOut: solAmountOut.toString(),
+        minSolOut: minSolOut.toString(),
+      });
+
+      // Dispatch sell events
+      this.dispatchSellEvents(
+        sellParameters.mint.toString(),
+        sellerKeypair.publicKey,
+        Number(sellParameters.sellTokenAmount),
+        solAmountOut.toNumber() / LAMPORTS_PER_SOL
+      );
+
+      return 'placeholder-transaction-signature';
+    } catch (error) {
+      console.error('Raydium LaunchLab sell failed:', error);
+      return null;
+    }
+  }
+
+  async getBalance(address: string): Promise<number> {
+    try {
+      const publicKey = new PublicKey(address);
+      const balance = await this.connection.getBalance(publicKey);
+      return balance / LAMPORTS_PER_SOL;
+    } catch (error) {
+      console.error('Failed to get balance:', error);
+      return 0;
+    }
+  }
+
+  async getPrice(symbol: string): Promise<number> {
+    throw new Error('getPrice method not implemented for Raydium LaunchLab');
+  }
+
+  async getTokenBalance(address: string, token: string): Promise<number> {
+    try {
+      const walletPublicKey = new PublicKey(address);
+      const tokenMint = new PublicKey(token);
+
+      const tokenAccount = await getAssociatedTokenAddress(
+        tokenMint,
+        walletPublicKey
+      );
+
+      const balance =
+        await this.connection.getTokenAccountBalance(tokenAccount);
+      return balance.value.uiAmount || 0;
+    } catch (error) {
+      console.error('Failed to get token balance:', error);
+      return 0;
+    }
+  }
+
+  async swap(
+    fromToken: string,
+    toToken: string,
+    fromAmount: number,
+    toAmount: number,
+    walletAddress: string
+  ): Promise<void> {
+    throw new Error('Swap method not implemented for Raydium LaunchLab');
+  }
+
+  async withdraw(amount: number, token: string, to: string): Promise<void> {
+    throw new Error('Withdraw method not implemented for Raydium LaunchLab');
+  }
+
+  async jitoSell(
+    sellParameters: ISellParameters[],
+    jitoTipAmount: number,
+    jitoUrl: string
+  ): Promise<string | null> {
+    throw new Error('Jito sell not implemented for Raydium LaunchLab');
+  }
+
+  translateLogs(logs: string[]): TradeEventInfo {
+    // Placeholder implementation
+    return {
+      mint: new PublicKey('11111111111111111111111111111111'),
+      solAmount: BigInt(0),
+      tokenAmount: BigInt(0),
+      isBuy: false,
+      user: new PublicKey('11111111111111111111111111111111'),
+    };
+  }
+
+  private async getPoolInfo(
+    poolId: PublicKey
+  ): Promise<LaunchpadPoolInfo | null> {
+    try {
+      const accountInfo = await this.connection.getAccountInfo(poolId);
+      if (!accountInfo) {
+        return null;
+      }
+
+      // TODO: Decode pool account data using proper layout
+      // This is a placeholder - actual implementation would decode the account data
+      return {
+        id: poolId,
+        baseMint: new PublicKey('11111111111111111111111111111111'), // Placeholder
+        quoteMint: new PublicKey('11111111111111111111111111111111'), // Placeholder
+        baseVault: new PublicKey('11111111111111111111111111111111'), // Placeholder
+        quoteVault: new PublicKey('11111111111111111111111111111111'), // Placeholder
+        totalSupply: new BN(0),
+        totalSell: new BN(0),
+        totalFundRaising: new BN(0),
+        currentQuoteFund: new BN(0),
+        status: 0,
+      };
+    } catch (error) {
+      console.error('Failed to get pool info:', error);
+      return null;
+    }
+  }
+
+  private dispatchBuyEvents(
+    tokenMint: string,
+    buyerPubKey: PublicKey,
+    totalSolSpent: number,
+    tokensReceived: number
+  ) {
+    // Emit SOL balance change (negative)
+    const solBalanceChange: BalanceChangeData = {
+      tokenMint: 'SOL',
+      amount: -totalSolSpent,
+      owner: buyerPubKey,
+      source: 'swap' as const,
+    };
+    globalEventEmitter.emit(EVENTS.BalanceChanged, solBalanceChange);
+
+    // Emit token balance change (positive)
+    const tokenBalanceChange: BalanceChangeData = {
+      tokenMint: tokenMint,
+      amount: tokensReceived,
+      owner: buyerPubKey,
+      source: 'swap' as const,
+    };
+    globalEventEmitter.emit(EVENTS.BalanceChanged, tokenBalanceChange);
+  }
+
+  private dispatchSellEvents(
+    tokenMint: string,
+    seller: PublicKey,
+    sellTokenAmount: number,
+    solReceived: number
+  ) {
+    // Emit token balance change (negative)
+    const tokenBalanceChange: BalanceChangeData = {
+      tokenMint: tokenMint,
+      amount: -sellTokenAmount,
+      owner: seller,
+      source: 'swap' as const,
+    };
+    globalEventEmitter.emit(EVENTS.BalanceChanged, tokenBalanceChange);
+
+    // Emit SOL balance change (positive)
+    const solBalanceChange: BalanceChangeData = {
+      tokenMint: 'SOL',
+      amount: solReceived,
+      owner: seller,
+      source: 'swap' as const,
+    };
+    globalEventEmitter.emit(EVENTS.BalanceChanged, solBalanceChange);
+  }
+}

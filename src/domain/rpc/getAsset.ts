@@ -1,5 +1,6 @@
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
-import type { AssetResponsePayload, RpcResponse } from '../models/rpc';
+import type { RpcResponse } from '../models/rpc';
+import type { AssetResponsePayload } from '../models/rpc/AssetResponsePayload';
 
 export async function getAsset(tokenMint: string) {
   // Get the current connection from the round-robin manager
