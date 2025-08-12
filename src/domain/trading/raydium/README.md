@@ -14,7 +14,7 @@ const connection = new Connection('https://api.mainnet-beta.solana.com');
 const broker = new RaydiumBroker({ connection });
 ```
 
-## RaydiumLaunchLabBroker
+## RaydiumLaunchPadBroker
 
 Specialized broker for trading on Raydium LaunchLab bonding curves. <mcreference link="https://docs.raydium.io/raydium/pool-creation/launchlab/launchlab-typescript-sdk" index="1">1</mcreference>
 
@@ -27,13 +27,13 @@ Specialized broker for trading on Raydium LaunchLab bonding curves. <mcreference
 ### Usage
 
 ```typescript
-import { RaydiumLaunchLabBroker } from './RaydiumLaunchLabBroker';
+import { RaydiumLaunchPadBroker } from './RaydiumLaunchPadBroker';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 const platformId = new PublicKey('your-platform-id'); // Optional
 
-const broker = new RaydiumLaunchLabBroker({
+const broker = new RaydiumLaunchPadBroker({
   connection,
   isDevnet: false, // Set to true for devnet
   platformId, // Optional: your platform configuration

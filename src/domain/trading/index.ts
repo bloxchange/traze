@@ -31,7 +31,7 @@ export type {
 
 // Raydium LaunchLab broker
 export {
-  RaydiumLaunchLabBroker,
-  type RaydiumLaunchLabConfig,
+  RaydiumLaunchPadBroker,
+  type RaydiumLaunchPadConfig,
   type LaunchpadPoolInfo,
-} from './raydium/RaydiumLaunchLabBroker';
+} from './raydium/RaydiumLaunchPadBroker';

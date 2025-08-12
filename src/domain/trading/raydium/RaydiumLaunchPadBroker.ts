@@ -29,7 +29,7 @@ import BN from 'bn.js';
 import Decimal from 'decimal.js';
 import { WRAPPED_SOL_MINT } from '@/domain/infrastructure/consts';
 
-export interface RaydiumLaunchLabConfig {
+export interface RaydiumLaunchPadConfig {
   connection: Connection;
   isDevnet?: boolean;
 }
@@ -47,13 +47,13 @@ export interface LaunchpadPoolInfo {
   status: number; // 0: trading, 1: migrate
 }
 
-export class RaydiumLaunchLabBroker implements IBroker {
+export class RaydiumLaunchPadBroker implements IBroker {
   private connection: Connection;
   private programId: PublicKey;
   private raydium: Raydium | null = null;
   private isDevnet: boolean;
 
-  constructor(config: RaydiumLaunchLabConfig) {
+  constructor(config: RaydiumLaunchPadConfig) {
     this.connection = config.connection;
     this.programId = config.isDevnet
       ? DEV_LAUNCHPAD_PROGRAM

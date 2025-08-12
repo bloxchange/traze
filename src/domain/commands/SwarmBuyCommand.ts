@@ -8,7 +8,7 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getBrokerProgramId } from '../utils/bondingCurveUtils';
-import { RaydiumLaunchLabBroker } from '../trading/raydium/RaydiumLaunchLabBroker';
+import { RaydiumLaunchPadBroker } from '../trading/raydium/RaydiumLaunchPadBroker';
 import { GetTokenInformationCommand } from './GetTokenInformationCommand';
 import { DEV_LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
 
@@ -96,11 +96,11 @@ export class SwarmBuyCommand {
 
     if (isLaunchLabToken) {
       console.log(
-        `🔍 Using RaydiumLaunchLabBroker for LaunchLab token ${this.tokenMint}`
+        `🔍 Using RaydiumLaunchPadBroker for LaunchLab token ${this.tokenMint}`
       );
 
       const connection = ConnectionManager.getInstance().getConnection();
-      this.broker = new RaydiumLaunchLabBroker({
+      this.broker = new RaydiumLaunchPadBroker({
         connection,
         isDevnet: true,
       });
