@@ -9,6 +9,9 @@ import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
 import { getTokenBalance } from '../rpc/getTokenBalance';
 import { getBrokerProgramId } from '../utils/bondingCurveUtils';
+import { RaydiumLaunchLabBroker } from '../trading/raydium/RaydiumLaunchLabBroker';
+import { GetTokenInformationCommand } from './GetTokenInformationCommand';
+import { DEV_LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
 
 export class SwarmSellCommand {
   private wallets: WalletInfo[];
@@ -77,30 +80,51 @@ export class SwarmSellCommand {
       throw new Error('No wallets selected');
     }
 
-    // Check bonding curve status and get appropriate broker
-    const connection = ConnectionManager.getInstance().getConnection();
-    const programId = await getBrokerProgramId(connection, this.tokenMint);
+    // Get token information to check authority
+    const tokenInfo = await new GetTokenInformationCommand(
+      this.tokenMint
+    ).execute();
 
-    console.log(
-      `🔍 Bonding curve status check: Using ${programId === PUMPFUN_PROGRAM_ID ? 'PumpFun' : 'PumpFunAmm'} broker for token ${this.tokenMint}`
-    );
+    // Check if token authority is LaunchLab program to determine which broker to use
+    const isLaunchLabToken =
+      tokenInfo.authority === DEV_LAUNCHPAD_AUTH.toBase58();
 
-    // Create provider and broker based on bonding curve status
-    const provider: AnchorProvider = new AnchorProvider(
-      connection,
-      new NodeWallet(this.wallets[0].keypair),
-      {
-        commitment: 'finalized',
+    if (isLaunchLabToken) {
+      console.log(
+        `🔍 Using RaydiumLaunchLabBroker for LaunchLab token ${this.tokenMint}`
+      );
+
+      const connection = ConnectionManager.getInstance().getConnection();
+      this.broker = new RaydiumLaunchLabBroker({
+        connection,
+        isDevnet: true,
+      });
+    } else {
+      // Check bonding curve status and get appropriate broker
+      const connection = ConnectionManager.getInstance().getConnection();
+      const programId = await getBrokerProgramId(connection, this.tokenMint);
+
+      console.log(
+        `🔍 Bonding curve status check: Using ${programId === PUMPFUN_PROGRAM_ID ? 'PumpFun' : 'PumpFunAmm'} broker for token ${this.tokenMint}`
+      );
+
+      // Create provider and broker based on bonding curve status
+      const provider: AnchorProvider = new AnchorProvider(
+        connection,
+        new NodeWallet(this.wallets[0].keypair),
+        {
+          commitment: 'finalized',
+        }
+      );
+
+      const broker = BrokerFactory.create(programId, provider);
+
+      if (!broker) {
+        throw new Error(`Failed to create broker for program ID: ${programId}`);
       }
-    );
 
-    const broker = BrokerFactory.create(programId, provider);
-
-    if (!broker) {
-      throw new Error(`Failed to create broker for program ID: ${programId}`);
+      this.broker = broker;
     }
-
-    this.broker = broker;
 
     for (const wallet of selectedWallets) {
       const sellAmount = await this.calculateSellAmount(wallet);

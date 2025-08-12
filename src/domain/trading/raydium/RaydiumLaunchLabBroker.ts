@@ -108,7 +108,7 @@ export class RaydiumLaunchLabBroker implements IBroker {
       // }
 
       // Execute the buy transaction using the correct parameter names
-      const { execute } = await raydium.launchpad.buyToken({
+      const { execute, extInfo } = await raydium.launchpad.buyToken({
         programId: this.programId,
         mintA: mintA,
         buyAmount: inAmount,
@@ -127,8 +127,8 @@ export class RaydiumLaunchLabBroker implements IBroker {
       this.dispatchBuyEvents(
         buyParameters.tokenMint,
         buyerKeypair.publicKey,
-        buyParameters.amountInSol,
-        Number(inAmount) / Math.pow(10, 6) // Use calculated amount from Curve.buyExactIn
+        buyParameters.amountInSol * LAMPORTS_PER_SOL,
+        Number(extInfo?.decimalOutAmount)
       );
 
       return sentInfo.txId;
@@ -165,7 +165,7 @@ export class RaydiumLaunchLabBroker implements IBroker {
       // }
 
       // Execute the buy transaction using the correct parameter names
-      const { execute } = await raydium.launchpad.sellToken({
+      const { execute, extInfo } = await raydium.launchpad.sellToken({
         programId: this.programId,
         mintA: mintA,
         sellAmount: new BN(sellParameters.sellTokenAmount),
@@ -185,7 +185,7 @@ export class RaydiumLaunchLabBroker implements IBroker {
         sellParameters.mint.toBase58(),
         sellerKeypair.publicKey,
         Number(sellParameters.sellTokenAmount),
-        Number(sellParameters.sellTokenAmount) / Math.pow(10, 6) // Use calculated amount from Curve.buyExactIn
+        Number(extInfo?.outAmount)
       );
 
       return sentInfo.txId;
@@ -297,23 +297,29 @@ export class RaydiumLaunchLabBroker implements IBroker {
     totalSolSpent: number,
     tokensReceived: number
   ) {
-    // Emit SOL balance change (negative)
+    // Emit SOL balance change (negative) with buyer-specific event key
     const solBalanceChange: BalanceChangeData = {
-      tokenMint: 'SOL',
+      tokenMint: '',
       amount: -totalSolSpent,
       owner: buyerPubKey,
       source: 'swap' as const,
     };
-    globalEventEmitter.emit(EVENTS.BalanceChanged, solBalanceChange);
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
+      solBalanceChange
+    );
 
-    // Emit token balance change (positive)
+    // Emit token balance change (positive) with buyer-specific event key
     const tokenBalanceChange: BalanceChangeData = {
       tokenMint: tokenMint,
       amount: tokensReceived,
       owner: buyerPubKey,
       source: 'swap' as const,
     };
-    globalEventEmitter.emit(EVENTS.BalanceChanged, tokenBalanceChange);
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
+      tokenBalanceChange
+    );
   }
 
   private dispatchSellEvents(
@@ -322,22 +328,28 @@ export class RaydiumLaunchLabBroker implements IBroker {
     sellTokenAmount: number,
     solReceived: number
   ) {
-    // Emit token balance change (negative)
+    // Emit token balance change (negative) with seller-specific event key
     const tokenBalanceChange: BalanceChangeData = {
       tokenMint: tokenMint,
       amount: -sellTokenAmount,
       owner: seller,
       source: 'swap' as const,
     };
-    globalEventEmitter.emit(EVENTS.BalanceChanged, tokenBalanceChange);
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
+      tokenBalanceChange
+    );
 
-    // Emit SOL balance change (positive)
+    // Emit SOL balance change (positive) with seller-specific event key
     const solBalanceChange: BalanceChangeData = {
-      tokenMint: 'SOL',
+      tokenMint: '',
       amount: solReceived,
       owner: seller,
       source: 'swap' as const,
     };
-    globalEventEmitter.emit(EVENTS.BalanceChanged, solBalanceChange);
+    globalEventEmitter.emit<BalanceChangeData>(
+      `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
+      solBalanceChange
+    );
   }
 }
