@@ -240,7 +240,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
   ): Promise<{ poolAccount: PoolAccount | null; price: number }> {
     let bestPool: PoolAccount | null = null;
 
-    let bestPrice = new BN(99999999999);
+    let bestPrice = 99999999999;
 
     for (const poolResponse of poolResponses) {
       const poolAccount = PoolAccount.fromBuffer(poolResponse.account.data);
