@@ -87,19 +87,24 @@ export class SwarmBuyCommand {
     }
 
     // Get token information to check authority
-    const tokenInfo = await new GetTokenInformationCommand(this.tokenMint).execute();
-    
+    const tokenInfo = await new GetTokenInformationCommand(
+      this.tokenMint
+    ).execute();
+
     // Check if token authority is LaunchLab program to determine which broker to use
-     const isLaunchLabToken = tokenInfo.authority === DEV_LAUNCHPAD_AUTH.toBase58();
-    
+    const isLaunchLabToken =
+      tokenInfo.authority === DEV_LAUNCHPAD_AUTH.toBase58();
+
     if (isLaunchLabToken) {
-       console.log(`🔍 Using RaydiumLaunchLabBroker for LaunchLab token ${this.tokenMint}`);
-       
-       const connection = ConnectionManager.getInstance().getConnection();
-       this.broker = new RaydiumLaunchLabBroker({
-         connection,
-         isDevnet: true,
-       });
+      console.log(
+        `🔍 Using RaydiumLaunchLabBroker for LaunchLab token ${this.tokenMint}`
+      );
+
+      const connection = ConnectionManager.getInstance().getConnection();
+      this.broker = new RaydiumLaunchLabBroker({
+        connection,
+        isDevnet: true,
+      });
     } else {
       // Check bonding curve status and get appropriate broker
       const connection = ConnectionManager.getInstance().getConnection();

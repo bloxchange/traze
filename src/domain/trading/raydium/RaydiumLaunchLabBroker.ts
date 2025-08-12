@@ -89,19 +89,20 @@ export class RaydiumLaunchLabBroker implements IBroker {
       const raydium = await this.initializeRaydium();
 
       raydium.setOwner(buyParameters.buyer);
-      
+
       const buyerKeypair = buyParameters.buyer;
       const mintA = new PublicKey(buyParameters.tokenMint);
 
       //const mintB = NATIVE_MINT;
 
-      const inAmount = new BN(Math.floor(buyParameters.amountInSol * LAMPORTS_PER_SOL));
+      const inAmount = new BN(
+        Math.floor(buyParameters.amountInSol * LAMPORTS_PER_SOL)
+      );
 
       // // Get pool ID and pool info
       // const poolId = getPdaLaunchpadPoolId(this.programId, mintA, mintB).publicKey;
       // const poolInfo = await raydium.launchpad.getRpcPoolInfo({ poolId });
-      
-      
+
       // if (!poolInfo) {
       //   throw new Error('Launchpad pool not found');
       // }
@@ -119,9 +120,9 @@ export class RaydiumLaunchLabBroker implements IBroker {
           microLamports: buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
         },
       });
-      
+
       const sentInfo = await execute({ sendAndConfirm: true });
-      
+
       // Dispatch buy events
       this.dispatchBuyEvents(
         buyParameters.tokenMint,
@@ -145,55 +146,49 @@ export class RaydiumLaunchLabBroker implements IBroker {
         slippage: sellParameters.slippageBasisPoints,
       });
 
+      // Initialize Raydium SDK
+      const raydium = await this.initializeRaydium();
+
+      raydium.setOwner(sellParameters.seller);
+
       const sellerKeypair = sellParameters.seller;
-      const tokenMint = sellParameters.mint;
+      const mintA = new PublicKey(sellParameters.mint);
 
-      // Get launchpad pool info
-      const poolId = getPdaLaunchpadPoolId(
-        this.programId,
-        tokenMint,
-        NATIVE_MINT
-      ).publicKey;
-      const poolInfo = await this.getPoolInfo(poolId);
+      //const mintB = NATIVE_MINT;
 
-      if (!poolInfo) {
-        throw new Error('Pool not found');
-      }
+      // // Get pool ID and pool info
+      // const poolId = getPdaLaunchpadPoolId(this.programId, mintA, mintB).publicKey;
+      // const poolInfo = await raydium.launchpad.getRpcPoolInfo({ poolId });
 
-      if (poolInfo.status !== 0) {
-        throw new Error('Pool is not in trading status');
-      }
+      // if (!poolInfo) {
+      //   throw new Error('Launchpad pool not found');
+      // }
 
-      // Calculate SOL amount out
-      const curve = new Curve();
-
-      const tokenAmountIn = new BN(sellParameters.sellTokenAmount.toString());
-      // Placeholder calculation - actual implementation would use proper curve math
-      const solAmountOut = new BN(Math.floor(tokenAmountIn.toNumber() / 1000)); // Simplified calculation
-
-      // Apply slippage protection
-      const slippagePercent =
-        Number(sellParameters.slippageBasisPoints) / 10000;
-      const minSolOut = solAmountOut
-        .mul(new BN(Math.floor((1 - slippagePercent) * 1000000)))
-        .div(new BN(1000000));
-
-      // TODO: Build and send sell transaction using Raydium SDK v2
-      console.log('Sell calculation:', {
-        tokenAmountIn: tokenAmountIn.toString(),
-        solAmountOut: solAmountOut.toString(),
-        minSolOut: minSolOut.toString(),
+      // Execute the buy transaction using the correct parameter names
+      const { execute } = await raydium.launchpad.sellToken({
+        programId: this.programId,
+        mintA: mintA,
+        sellAmount: new BN(sellParameters.sellTokenAmount),
+        slippage: new BN(sellParameters.slippageBasisPoints),
+        shareFeeRate: new BN(0),
+        txVersion: TxVersion.V0,
+        computeBudgetConfig: {
+          units: 1_000_000,
+          microLamports: sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL,
+        },
       });
 
-      // Dispatch sell events
+      const sentInfo = await execute({ sendAndConfirm: true });
+
+      // Dispatch buy events
       this.dispatchSellEvents(
-        sellParameters.mint.toString(),
+        sellParameters.mint.toBase58(),
         sellerKeypair.publicKey,
         Number(sellParameters.sellTokenAmount),
-        solAmountOut.toNumber() / LAMPORTS_PER_SOL
+        Number(sellParameters.sellTokenAmount) / Math.pow(10, 6) // Use calculated amount from Curve.buyExactIn
       );
 
-      return 'placeholder-transaction-signature';
+      return sentInfo.txId;
     } catch (error) {
       console.error('Raydium LaunchLab sell failed:', error);
       return null;
