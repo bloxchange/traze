@@ -24,6 +24,8 @@ import {
   type BalanceChangeData,
 } from '../../infrastructure/events/types';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
+import { DEFAULT_DECIMALS } from '../../infrastructure/consts';
 
 export interface RaydiumConfig {
   connection: Connection;
@@ -65,7 +67,7 @@ export class RaydiumBroker implements IBroker {
       const signature = 'raydium_buy_placeholder_signature';
 
       // Emit balance change events
-      this.dispatchBuyEvents(
+      await this.dispatchBuyEvents(
         buyParameters.tokenMint,
         buyParameters.buyer.publicKey,
         buyParameters.amountInSol,
@@ -101,7 +103,7 @@ export class RaydiumBroker implements IBroker {
       const signature = 'raydium_sell_placeholder_signature';
 
       // Emit balance change events
-      this.dispatchSellEvents(
+      await this.dispatchSellEvents(
         sellParameters.mint.toBase58(),
         sellParameters.seller.publicKey,
         Number(sellParameters.sellTokenAmount),
@@ -185,12 +187,24 @@ export class RaydiumBroker implements IBroker {
     };
   }
 
-  private dispatchBuyEvents(
+  private async dispatchBuyEvents(
     tokenMint: string,
     buyerPubKey: PublicKey,
     totalSolSpent: number,
     tokensReceived: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = tokensReceived / Math.pow(10, decimals);
+
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
@@ -207,25 +221,37 @@ export class RaydiumBroker implements IBroker {
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: tokensReceived,
+        amount: formattedTokenAmount,
         owner: buyerPubKey,
         source: 'swap',
       }
     );
   }
 
-  private dispatchSellEvents(
+  private async dispatchSellEvents(
     tokenMint: string,
     seller: PublicKey,
     sellTokenAmount: number,
     solReceived: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = sellTokenAmount / Math.pow(10, decimals);
+
     // Emit token balance change (negative as tokens are sold)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: -sellTokenAmount,
+        amount: -formattedTokenAmount,
         owner: seller,
         source: 'swap',
       }

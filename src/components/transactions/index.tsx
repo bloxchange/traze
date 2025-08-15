@@ -9,6 +9,8 @@ import {
   type TradeInfoFetchedData,
 } from '../../domain/infrastructure/events/types';
 import { formatBalance } from '../../utils/formatBalance';
+import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
+import { DEFAULT_DECIMALS } from '../../domain/infrastructure/consts';
 
 const { Paragraph } = Typography;
 
@@ -19,12 +21,25 @@ interface TransactionsProps {
 const Transactions: React.FC<TransactionsProps> = () => {
   const { t } = useTranslation();
   const [transactions, setTransactions] = useState<TradeEventData[]>([]);
+  const [tokenDecimals, setTokenDecimals] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const handleTradeInfoEvent = (data: TradeInfoFetchedData) => {
+    const handleTradeInfoEvent = async (data: TradeInfoFetchedData) => {
+      const tokenMint = data.tradeInfo.toTokenMint;
+      
+      // Fetch token decimals if not already cached
+      if (!tokenDecimals[tokenMint]) {
+        try {
+          const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+          setTokenDecimals(prev => ({ ...prev, [tokenMint]: tokenInfo.decimals }));
+        } catch (error) {
+          console.warn('Failed to get token decimals, using default:', error);
+          setTokenDecimals(prev => ({ ...prev, [tokenMint]: DEFAULT_DECIMALS }));
+        }
+      }
+      
       setTransactions((prev) => {
         const newTransactions = [data.tradeInfo, ...prev];
-
         return newTransactions;
       });
     };
@@ -37,7 +52,7 @@ const Transactions: React.FC<TransactionsProps> = () => {
     return () => {
       globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoEvent);
     };
-  }, []);
+  }, [tokenDecimals]);
 
   const columns = [
     {
@@ -64,7 +79,8 @@ const Transactions: React.FC<TransactionsProps> = () => {
       title: t('transactions.tokenAmount'),
       key: 'tokenAmount',
       render: (_: unknown, record: TradeEventData) => {
-        const tokenAmount = Math.abs(record.toTokenAmount);
+        const decimals = tokenDecimals[record.toTokenMint] || DEFAULT_DECIMALS;
+        const tokenAmount = Math.abs(record.toTokenAmount) / Math.pow(10, decimals);
         return formatBalance(tokenAmount, false);
       },
     },

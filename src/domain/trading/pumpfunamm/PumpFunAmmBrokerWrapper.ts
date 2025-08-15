@@ -27,11 +27,13 @@ import {
 import {
   PUMPFUN_AMM_PROGRAM_ID,
   WRAPPED_SOL_MINT,
+  DEFAULT_DECIMALS,
 } from '../../infrastructure/consts';
 import { PoolAccount } from './PoolAccount';
 import { getBalance } from '@/domain/rpc';
 import { PumpAmmSdk } from '@pump-fun/pump-swap-sdk';
 import type { PriorityFee } from '../pumpfun/types';
+import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 import * as borsh from '@coral-xyz/borsh';
 
 export class PumpFunAmmBrokerWrapper implements IBroker {
@@ -125,12 +127,24 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     }
   }
 
-  private dispatchBuyEvents(
+  private async dispatchBuyEvents(
     tokenMint: string,
     buyerPubKey: PublicKey,
     totalSolSpent: number,
     buyAmount: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = buyAmount / Math.pow(10, decimals);
+
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
@@ -147,25 +161,37 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: buyAmount,
+        amount: formattedTokenAmount,
         owner: buyerPubKey,
         source: 'swap',
       }
     );
   }
 
-  private dispatchSellEvents(
+  private async dispatchSellEvents(
     tokenMint: string,
     seller: PublicKey,
     sellTokenAmount: number,
     solReceived: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = sellTokenAmount / Math.pow(10, decimals);
+
     // Emit token balance change (negative as tokens are sold)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: -sellTokenAmount,
+        amount: -formattedTokenAmount,
         owner: seller,
         source: 'swap',
       }
@@ -412,7 +438,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         tokensReceived = quoteAmount.toNumber() * 1000000;
       }
 
-      this.dispatchBuyEvents(
+      await this.dispatchBuyEvents(
         buyParameters.tokenMint,
         buyParameters.buyer.publicKey,
         totalSolSpentLamports,
@@ -572,7 +598,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
 
       const netSolReceived = netSolReceivedLamports / LAMPORTS_PER_SOL;
 
-      this.dispatchSellEvents(
+      await this.dispatchSellEvents(
         sellParameters.mint.toBase58(),
         sellParameters.seller.publicKey,
         tokensSold,
