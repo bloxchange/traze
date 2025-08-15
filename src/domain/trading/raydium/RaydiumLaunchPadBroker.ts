@@ -27,7 +27,10 @@ import {
 import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
 import BN from 'bn.js';
 import Decimal from 'decimal.js';
-import { WRAPPED_SOL_MINT, DEFAULT_DECIMALS } from '@/domain/infrastructure/consts';
+import {
+  WRAPPED_SOL_MINT,
+  DEFAULT_DECIMALS,
+} from '@/domain/infrastructure/consts';
 import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 
 export interface RaydiumLaunchPadConfig {
@@ -301,7 +304,9 @@ export class RaydiumLaunchPadBroker implements IBroker {
     // Get token information to get decimals
     let decimals = DEFAULT_DECIMALS;
     try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      const tokenInfo = await new GetTokenInformationCommand(
+        tokenMint
+      ).execute();
       decimals = tokenInfo.decimals;
     } catch (error) {
       console.warn('Failed to get token decimals, using default:', error);
@@ -344,7 +349,9 @@ export class RaydiumLaunchPadBroker implements IBroker {
     // Get token information to get decimals
     let decimals = DEFAULT_DECIMALS;
     try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      const tokenInfo = await new GetTokenInformationCommand(
+        tokenMint
+      ).execute();
       decimals = tokenInfo.decimals;
     } catch (error) {
       console.warn('Failed to get token decimals, using default:', error);

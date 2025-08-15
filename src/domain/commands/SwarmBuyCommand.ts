@@ -91,8 +91,7 @@ export class SwarmBuyCommand {
     ).execute();
 
     // Check if token authority is LaunchLab program to determine which broker to use
-    const isLaunchLabToken =
-      tokenInfo.authority === LAUNCHPAD_AUTH.toBase58();
+    const isLaunchLabToken = tokenInfo.authority === LAUNCHPAD_AUTH.toBase58();
 
     if (isLaunchLabToken) {
       console.log(

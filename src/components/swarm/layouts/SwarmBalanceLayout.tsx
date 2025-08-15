@@ -39,7 +39,9 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
     const fetchTokenDecimals = async () => {
       if (tokenState.currentToken?.mint) {
         try {
-          const tokenInfo = await new GetTokenInformationCommand(tokenState.currentToken.mint).execute();
+          const tokenInfo = await new GetTokenInformationCommand(
+            tokenState.currentToken.mint
+          ).execute();
           setTokenDecimals(tokenInfo.decimals);
         } catch (error) {
           console.warn('Failed to get token decimals, using default:', error);

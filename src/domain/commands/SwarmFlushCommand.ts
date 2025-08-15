@@ -113,11 +113,13 @@ export class SwarmFlushCommand {
 
     let maxCurrentPriorityUnitPrice = 0;
 
-    prioritizationFees.forEach(({ prioritizationFee }: { prioritizationFee: number }) => {
-      if (prioritizationFee > maxCurrentPriorityUnitPrice) {
-        maxCurrentPriorityUnitPrice = prioritizationFee;
+    prioritizationFees.forEach(
+      ({ prioritizationFee }: { prioritizationFee: number }) => {
+        if (prioritizationFee > maxCurrentPriorityUnitPrice) {
+          maxCurrentPriorityUnitPrice = prioritizationFee;
+        }
       }
-    });
+    );
 
     // Get all token balances for selected wallets
     const walletsWithBalances = await Promise.all(
@@ -137,11 +139,15 @@ export class SwarmFlushCommand {
         return 0;
       });
 
-    console.log(`🔄 Executing sell orders for ${walletsToSell.length} wallets (sorted by balance)`);
+    console.log(
+      `🔄 Executing sell orders for ${walletsToSell.length} wallets (sorted by balance)`
+    );
 
     // Execute sell instructions in order from largest to smallest balance
     for (const { wallet, balance } of walletsToSell) {
-      console.log(`💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`);
+      console.log(
+        `💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`
+      );
 
       const sellParameters: ISellParameters = {
         seller: wallet.keypair,
