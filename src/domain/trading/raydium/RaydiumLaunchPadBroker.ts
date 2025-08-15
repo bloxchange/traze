@@ -27,7 +27,8 @@ import {
 import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
 import BN from 'bn.js';
 import Decimal from 'decimal.js';
-import { WRAPPED_SOL_MINT } from '@/domain/infrastructure/consts';
+import { WRAPPED_SOL_MINT, DEFAULT_DECIMALS } from '@/domain/infrastructure/consts';
+import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 
 export interface RaydiumLaunchPadConfig {
   connection: Connection;
@@ -124,7 +125,7 @@ export class RaydiumLaunchPadBroker implements IBroker {
       const sentInfo = await execute({ sendAndConfirm: true });
 
       // Dispatch buy events
-      this.dispatchBuyEvents(
+      await this.dispatchBuyEvents(
         buyParameters.tokenMint,
         buyerKeypair.publicKey,
         buyParameters.amountInSol * LAMPORTS_PER_SOL,
@@ -181,7 +182,7 @@ export class RaydiumLaunchPadBroker implements IBroker {
       const sentInfo = await execute({ sendAndConfirm: true });
 
       // Dispatch buy events
-      this.dispatchSellEvents(
+      await this.dispatchSellEvents(
         sellParameters.mint.toBase58(),
         sellerKeypair.publicKey,
         Number(sellParameters.sellTokenAmount),
@@ -291,12 +292,24 @@ export class RaydiumLaunchPadBroker implements IBroker {
     }
   }
 
-  private dispatchBuyEvents(
+  private async dispatchBuyEvents(
     tokenMint: string,
     buyerPubKey: PublicKey,
     totalSolSpent: number,
     tokensReceived: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = tokensReceived / Math.pow(10, decimals);
+
     // Emit SOL balance change (negative) with buyer-specific event key
     const solBalanceChange: BalanceChangeData = {
       tokenMint: '',
@@ -312,7 +325,7 @@ export class RaydiumLaunchPadBroker implements IBroker {
     // Emit token balance change (positive) with buyer-specific event key
     const tokenBalanceChange: BalanceChangeData = {
       tokenMint: tokenMint,
-      amount: tokensReceived,
+      amount: formattedTokenAmount,
       owner: buyerPubKey,
       source: 'swap' as const,
     };
@@ -322,16 +335,28 @@ export class RaydiumLaunchPadBroker implements IBroker {
     );
   }
 
-  private dispatchSellEvents(
+  private async dispatchSellEvents(
     tokenMint: string,
     seller: PublicKey,
     sellTokenAmount: number,
     solReceived: number
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = sellTokenAmount / Math.pow(10, decimals);
+
     // Emit token balance change (negative) with seller-specific event key
     const tokenBalanceChange: BalanceChangeData = {
       tokenMint: tokenMint,
-      amount: -sellTokenAmount,
+      amount: -formattedTokenAmount,
       owner: seller,
       source: 'swap' as const,
     };

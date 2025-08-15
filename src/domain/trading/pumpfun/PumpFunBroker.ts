@@ -30,6 +30,7 @@ import type { PumpFunSellParameters } from './SellParameters';
 import {
   DEFAULT_COMMITMENT,
   DEFAULT_GAS_FEE,
+  DEFAULT_DECIMALS,
 } from '@/domain/infrastructure/consts';
 import type { BondingCurveAccount } from './BondingCurveAccount';
 import { globalEventEmitter } from '../../infrastructure/events/EventEmitter';
@@ -38,6 +39,7 @@ import {
   type BalanceChangeData,
 } from '../../infrastructure/events/types';
 import type TradeEventInfo from '@/domain/models/TradeEventInfo';
+import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 
 /* eslint-disable */
 export class PumpFunBroker implements IBroker {
@@ -99,7 +101,7 @@ export class PumpFunBroker implements IBroker {
         LAMPORTS_PER_SOL +
       DEFAULT_GAS_FEE;
 
-    this.dispatchBuyEvents(
+    await this.dispatchBuyEvents(
       buyParameters.tokenMint,
       buyParameters.buyer.publicKey,
       totalSolSpent,
@@ -117,7 +119,7 @@ export class PumpFunBroker implements IBroker {
     );
 
     if (!result) {
-      this.dispatchBuyEvents(
+      await this.dispatchBuyEvents(
         buyParameters.tokenMint,
         buyParameters.buyer.publicKey,
         -totalSolSpent,
@@ -128,12 +130,24 @@ export class PumpFunBroker implements IBroker {
     return result;
   }
 
-  private dispatchBuyEvents(
+  private async dispatchBuyEvents(
     tokenMint: string,
     buyerPubKey: PublicKey,
     totalSolSpent: number,
     buyAmount: bigint
   ) {
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = Number(buyAmount) / Math.pow(10, decimals);
+
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
@@ -150,20 +164,32 @@ export class PumpFunBroker implements IBroker {
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: Number(buyAmount),
+        amount: formattedTokenAmount,
         owner: buyerPubKey,
         source: 'swap',
       }
     );
   }
 
-  private dispatchSellEvents(
+  private async dispatchSellEvents(
     tokenMint: string,
     seller: PublicKey,
     sellTokenAmount: bigint,
     minSolOutput: number
   ) {
-    // Emit SOL balance change (negative as SOL is spent)
+    // Get token information to get decimals
+    let decimals = DEFAULT_DECIMALS;
+    try {
+      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      decimals = tokenInfo.decimals;
+    } catch (error) {
+      console.warn('Failed to get token decimals, using default:', error);
+    }
+
+    // Convert token amount from raw to decimal format
+    const formattedTokenAmount = Number(sellTokenAmount) / Math.pow(10, decimals);
+
+    // Emit SOL balance change (positive as SOL is received)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
@@ -174,12 +200,12 @@ export class PumpFunBroker implements IBroker {
       }
     );
 
-    // Emit token balance change (positive as tokens are received)
+    // Emit token balance change (negative as tokens are sold)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: -Number(sellTokenAmount),
+        amount: -formattedTokenAmount,
         owner: seller,
         source: 'swap',
       }
@@ -357,7 +383,7 @@ export class PumpFunBroker implements IBroker {
       DEFAULT_GAS_FEE;
 
     // Dispatch events before sending transaction
-    this.dispatchSellEvents(
+    await this.dispatchSellEvents(
       sellParameters.mint.toBase58(),
       sellParameters.seller.publicKey,
       sellParameters.sellTokenAmount,
@@ -376,7 +402,7 @@ export class PumpFunBroker implements IBroker {
     // If transaction failed, dispatch reverse events
     if (!result) {
       // Reverse the sell events: negative SOL becomes positive, positive tokens become negative
-      this.dispatchSellEvents(
+      await this.dispatchSellEvents(
         sellParameters.mint.toBase58(),
         sellParameters.seller.publicKey,
         -sellParameters.sellTokenAmount,
