@@ -378,7 +378,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
                 [publicKey]: {
                   solBalance:
                     data.tokenMint === ''
-                      ? currentWallet.solBalance + data.amount // Convert lamports to SOL
+                      ? currentWallet.solBalance + data.amount
                       : currentWallet.solBalance,
                   tokenBalance:
                     data.tokenMint !== ''

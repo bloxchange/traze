@@ -119,17 +119,34 @@ export class SwarmFlushCommand {
       }
     });
 
-    for (const wallet of selectedWallets) {
-      const sellAmount = await this.calculateSellAmount(wallet);
+    // Get all token balances for selected wallets
+    const walletsWithBalances = await Promise.all(
+      selectedWallets.map(async (wallet) => {
+        const balance = await this.calculateSellAmount(wallet);
+        return { wallet, balance };
+      })
+    );
 
-      if (sellAmount <= 0) {
-        continue;
-      }
+    // Filter out wallets with zero balance and sort by balance (largest to smallest)
+    const walletsToSell = walletsWithBalances
+      .filter(({ balance }) => balance > 0)
+      .sort((a, b) => {
+        // Sort in descending order (largest balance first)
+        if (a.balance > b.balance) return -1;
+        if (a.balance < b.balance) return 1;
+        return 0;
+      });
+
+    console.log(`🔄 Executing sell orders for ${walletsToSell.length} wallets (sorted by balance)`);
+
+    // Execute sell instructions in order from largest to smallest balance
+    for (const { wallet, balance } of walletsToSell) {
+      console.log(`💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`);
 
       const sellParameters: ISellParameters = {
         seller: wallet.keypair,
         mint: new PublicKey(this.tokenMint),
-        sellTokenAmount: sellAmount,
+        sellTokenAmount: balance,
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
         maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Typography, Card, Descriptions, Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -8,6 +8,7 @@ import {
   formatSmallNumber,
   getSmallNumberFormatData,
 } from '../../utils/formatBalance';
+import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
 
 const { Title } = Typography;
 
@@ -22,6 +23,30 @@ const PumpState: React.FC = () => {
     wallets,
     currentHoldAmount,
   } = tokenState;
+  const [tokenDecimals, setTokenDecimals] = useState<number>(6); // Default to 6 decimals
+
+  // Fetch token decimals when current token changes
+  useEffect(() => {
+    const fetchTokenDecimals = async () => {
+      if (tokenState.currentToken?.mint) {
+        try {
+          const tokenInfo = await new GetTokenInformationCommand(tokenState.currentToken.mint).execute();
+          setTokenDecimals(tokenInfo.decimals);
+        } catch (error) {
+          console.warn('Failed to get token decimals, using default:', error);
+          setTokenDecimals(6); // Fallback to 6 decimals
+        }
+      }
+    };
+
+    fetchTokenDecimals();
+  }, [tokenState.currentToken?.mint]);
+
+  // Helper function to format raw token balance
+  const formatTokenBalance = (rawBalance: number) => {
+    const formattedBalance = rawBalance / Math.pow(10, tokenDecimals);
+    return formatPumpStateBalance(formattedBalance, false);
+  };
 
   // Memoize calculations to ensure UI updates when tokenState changes
   const calculations = useMemo(() => {
@@ -113,7 +138,7 @@ const PumpState: React.FC = () => {
             'Total Wallet Token Balance'
           )}
         >
-          {formatPumpStateBalance(totalWalletTokenBalance, false)}
+          {formatTokenBalance(totalWalletTokenBalance)}
         </Descriptions.Item>
 
         <Descriptions.Item label={t('pumpState.currentPrice', 'Current Price')}>

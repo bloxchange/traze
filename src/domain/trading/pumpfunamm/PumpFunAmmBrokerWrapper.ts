@@ -133,18 +133,6 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     totalSolSpent: number,
     buyAmount: number
   ) {
-    // Get token information to get decimals
-    let decimals = DEFAULT_DECIMALS;
-    try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
-      decimals = tokenInfo.decimals;
-    } catch (error) {
-      console.warn('Failed to get token decimals, using default:', error);
-    }
-
-    // Convert token amount from raw to decimal format
-    const formattedTokenAmount = buyAmount / Math.pow(10, decimals);
-
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
@@ -157,11 +145,12 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     );
 
     // Emit token balance change (positive as tokens are received)
+    // Amount is in raw token units, formatting will be handled by the consumer
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: formattedTokenAmount,
+        amount: buyAmount,
         owner: buyerPubKey,
         source: 'swap',
       }
@@ -174,24 +163,13 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     sellTokenAmount: number,
     solReceived: number
   ) {
-    // Get token information to get decimals
-    let decimals = DEFAULT_DECIMALS;
-    try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
-      decimals = tokenInfo.decimals;
-    } catch (error) {
-      console.warn('Failed to get token decimals, using default:', error);
-    }
-
-    // Convert token amount from raw to decimal format
-    const formattedTokenAmount = sellTokenAmount / Math.pow(10, decimals);
-
     // Emit token balance change (negative as tokens are sold)
+    // Amount is in raw token units, formatting will be handled by the consumer
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: -formattedTokenAmount,
+        amount: -sellTokenAmount,
         owner: seller,
         source: 'swap',
       }
