@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Row,
   Col,
@@ -14,6 +14,7 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import type { WalletInfo } from '@/models';
 import { useToken } from '@/hooks';
 import { formatBalance } from '../../../utils/formatBalance';
+import { GetTokenInformationCommand } from '../../../domain/commands/GetTokenInformationCommand';
 
 const { Text } = Typography;
 
@@ -31,6 +32,32 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
   const { t } = useTranslation();
   const { tokenState } = useToken();
   const { message } = AntdApp.useApp();
+  const [tokenDecimals, setTokenDecimals] = useState<number>(6); // Default to 6 decimals
+
+  // Fetch token decimals when current token changes
+  useEffect(() => {
+    const fetchTokenDecimals = async () => {
+      if (tokenState.currentToken?.mint) {
+        try {
+          const tokenInfo = await new GetTokenInformationCommand(
+            tokenState.currentToken.mint
+          ).execute();
+          setTokenDecimals(tokenInfo.decimals);
+        } catch (error) {
+          console.warn('Failed to get token decimals, using default:', error);
+          setTokenDecimals(6); // Fallback to 6 decimals
+        }
+      }
+    };
+
+    fetchTokenDecimals();
+  }, [tokenState.currentToken?.mint]);
+
+  // Helper function to format raw token balance
+  const formatTokenBalance = (rawBalance: number) => {
+    const formattedBalance = rawBalance / Math.pow(10, tokenDecimals);
+    return formatBalance(formattedBalance);
+  };
 
   const handleCopyPublicKey = (publicKey: string) => {
     navigator.clipboard
@@ -97,7 +124,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
           </Col>
           <Col span={7}>
             <Text style={{ fontFamily: 'monospace' }}>
-              {formatBalance(wallet.tokenBalance)}
+              {formatTokenBalance(wallet.tokenBalance)}
             </Text>
           </Col>
         </Row>

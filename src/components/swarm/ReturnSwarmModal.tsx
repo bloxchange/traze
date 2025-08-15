@@ -68,7 +68,11 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
       onOk={handleSubmit}
       confirmLoading={loading}
     >
-      <Form form={form} layout="vertical" initialValues={{ transferType: 'sol' }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{ transferType: 'sol' }}
+      >
         <Form.Item
           name="transferType"
           label={t('swarm.returnModal.transferType')}
@@ -81,8 +85,6 @@ const ReturnSwarmModal: React.FC<ReturnSwarmModalProps> = ({
             </Select.Option>
           </Select>
         </Form.Item>
-
-
 
         <Form.Item
           name="targetWallet"

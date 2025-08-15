@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Space,
   Input,
@@ -22,6 +22,8 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
 import { useTranslation } from 'react-i18next';
 import { formatBalance } from '../../utils/formatBalance';
+import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
+import { useToken } from '../../hooks/useToken';
 
 const { Text } = Typography;
 
@@ -56,8 +58,35 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
+  const { tokenState } = useToken();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newName, setNewName] = useState(initialName);
+  const [tokenDecimals, setTokenDecimals] = useState<number>(6); // Default to 6 decimals
+
+  // Fetch token decimals when current token changes
+  useEffect(() => {
+    const fetchTokenDecimals = async () => {
+      if (tokenState.currentToken?.mint) {
+        try {
+          const tokenInfo = await new GetTokenInformationCommand(
+            tokenState.currentToken.mint
+          ).execute();
+          setTokenDecimals(tokenInfo.decimals);
+        } catch (error) {
+          console.warn('Failed to get token decimals, using default:', error);
+          setTokenDecimals(6); // Fallback to 6 decimals
+        }
+      }
+    };
+
+    fetchTokenDecimals();
+  }, [tokenState.currentToken?.mint]);
+
+  // Helper function to format raw token balance
+  const formatTokenBalance = (rawBalance: number) => {
+    const formattedBalance = rawBalance / Math.pow(10, tokenDecimals);
+    return formatBalance(formattedBalance);
+  };
 
   const showModal = () => {
     setNewName(initialName);
@@ -82,7 +111,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   const balanceTooltip = (
     <div>
       <div>SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)}</div>
-      <div>Token: {formatBalance(totalTokenBalance)}</div>
+      <div>Token: {formatTokenBalance(totalTokenBalance)}</div>
       <div>Wallets: {walletCount}</div>
     </div>
   );
@@ -139,7 +168,8 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                   }}
                 >
                   SOL: {formatBalance(totalSolBalance / LAMPORTS_PER_SOL, true)}{' '}
-                  | Token: {formatBalance(totalTokenBalance)} | {walletCount}w
+                  | Token: {formatTokenBalance(totalTokenBalance)} |{' '}
+                  {walletCount}w
                 </Text>
               )}
             </div>

@@ -320,7 +320,8 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
           // Convert fromTokenAmount from lamports to SOL for proper price calculation
           // since toTokenAmount is already decimal-adjusted from uiTokenAmount.amount
           calculatedPrice =
-            Math.abs(tradeInfo.fromTokenAmount) / LAMPORTS_PER_SOL /
+            Math.abs(tradeInfo.fromTokenAmount) /
+            LAMPORTS_PER_SOL /
             Math.abs(tradeInfo.toTokenAmount);
         }
 
@@ -378,7 +379,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
                 [publicKey]: {
                   solBalance:
                     data.tokenMint === ''
-                      ? currentWallet.solBalance + data.amount // Convert lamports to SOL
+                      ? currentWallet.solBalance + data.amount
                       : currentWallet.solBalance,
                   tokenBalance:
                     data.tokenMint !== ''

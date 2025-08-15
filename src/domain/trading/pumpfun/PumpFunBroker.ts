@@ -136,18 +136,6 @@ export class PumpFunBroker implements IBroker {
     totalSolSpent: number,
     buyAmount: bigint
   ) {
-    // Get token information to get decimals
-    let decimals = DEFAULT_DECIMALS;
-    try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
-      decimals = tokenInfo.decimals;
-    } catch (error) {
-      console.warn('Failed to get token decimals, using default:', error);
-    }
-
-    // Convert token amount from raw to decimal format
-    const formattedTokenAmount = Number(buyAmount) / Math.pow(10, decimals);
-
     // Emit SOL balance change (negative as SOL is spent)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
@@ -160,11 +148,12 @@ export class PumpFunBroker implements IBroker {
     );
 
     // Emit token balance change (positive as tokens are received)
+    // Amount is in raw token units, formatting will be handled by the consumer
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${buyerPubKey.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: formattedTokenAmount,
+        amount: Number(buyAmount),
         owner: buyerPubKey,
         source: 'swap',
       }
@@ -177,18 +166,6 @@ export class PumpFunBroker implements IBroker {
     sellTokenAmount: bigint,
     minSolOutput: number
   ) {
-    // Get token information to get decimals
-    let decimals = DEFAULT_DECIMALS;
-    try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
-      decimals = tokenInfo.decimals;
-    } catch (error) {
-      console.warn('Failed to get token decimals, using default:', error);
-    }
-
-    // Convert token amount from raw to decimal format
-    const formattedTokenAmount = Number(sellTokenAmount) / Math.pow(10, decimals);
-
     // Emit SOL balance change (positive as SOL is received)
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
@@ -201,11 +178,12 @@ export class PumpFunBroker implements IBroker {
     );
 
     // Emit token balance change (negative as tokens are sold)
+    // Amount is in raw token units, formatting will be handled by the consumer
     globalEventEmitter.emit<BalanceChangeData>(
       `${EVENTS.BalanceChanged}_${seller.toBase58()}`,
       {
         tokenMint: tokenMint,
-        amount: -formattedTokenAmount,
+        amount: -Number(sellTokenAmount),
         owner: seller,
         source: 'swap',
       }

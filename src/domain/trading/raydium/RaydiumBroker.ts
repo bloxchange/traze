@@ -196,7 +196,9 @@ export class RaydiumBroker implements IBroker {
     // Get token information to get decimals
     let decimals = DEFAULT_DECIMALS;
     try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      const tokenInfo = await new GetTokenInformationCommand(
+        tokenMint
+      ).execute();
       decimals = tokenInfo.decimals;
     } catch (error) {
       console.warn('Failed to get token decimals, using default:', error);
@@ -237,7 +239,9 @@ export class RaydiumBroker implements IBroker {
     // Get token information to get decimals
     let decimals = DEFAULT_DECIMALS;
     try {
-      const tokenInfo = await new GetTokenInformationCommand(tokenMint).execute();
+      const tokenInfo = await new GetTokenInformationCommand(
+        tokenMint
+      ).execute();
       decimals = tokenInfo.decimals;
     } catch (error) {
       console.warn('Failed to get token decimals, using default:', error);
