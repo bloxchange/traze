@@ -317,8 +317,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
         if (tradeInfo.toTokenAmount !== 0) {
           // Price = absolute value of fromAmount / toAmount
+          // Convert fromTokenAmount from lamports to SOL for proper price calculation
+          // since toTokenAmount is already decimal-adjusted from uiTokenAmount.amount
           calculatedPrice =
-            Math.abs(tradeInfo.fromTokenAmount) /
+            Math.abs(tradeInfo.fromTokenAmount) / LAMPORTS_PER_SOL /
             Math.abs(tradeInfo.toTokenAmount);
         }
 

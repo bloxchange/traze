@@ -11,7 +11,7 @@ import { getTokenBalance } from '../rpc/getTokenBalance';
 import { getBrokerProgramId } from '../utils/bondingCurveUtils';
 import { RaydiumLaunchPadBroker } from '../trading/raydium/RaydiumLaunchPadBroker';
 import { GetTokenInformationCommand } from './GetTokenInformationCommand';
-import { DEV_LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
+import { LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
 
 export class SwarmSellCommand {
   private wallets: WalletInfo[];
@@ -87,7 +87,7 @@ export class SwarmSellCommand {
 
     // Check if token authority is LaunchLab program to determine which broker to use
     const isLaunchLabToken =
-      tokenInfo.authority === DEV_LAUNCHPAD_AUTH.toBase58();
+      tokenInfo.authority === LAUNCHPAD_AUTH.toBase58();
 
     if (isLaunchLabToken) {
       console.log(

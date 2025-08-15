@@ -3,5 +3,6 @@ export { CreateSwarmCommand } from './CreateSwarmCommand';
 export { SwarmBuyCommand } from './SwarmBuyCommand';
 export { SwarmSellCommand } from './SwarmSellCommand';
 export * from './ReturnFromSwarmCommand';
+export { ReturnTokenFromSwarmCommand } from './ReturnTokenFromSwarmCommand';
 export * from './GetTokenInformationCommand';
 export { GetWalletBalanceCommand } from './GetWalletBalanceCommand';

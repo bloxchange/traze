@@ -41,8 +41,8 @@ const PumpState: React.FC = () => {
       (totalReservedSol - totalInvestedSol) / LAMPORTS_PER_SOL;
 
     // Calculate portfolio value and profit/loss
-    const portfolioValue = totalWalletSolBalance * currentPrice; // Value in lamports
-    const portfolioValueSol = portfolioValue / LAMPORTS_PER_SOL; // Convert to SOL
+    // Portfolio value = total tokens * price per token (in SOL)
+    const portfolioValueSol = totalWalletTokenBalance * currentPrice; // Value in SOL
     const investedSol = totalInvestedSol / LAMPORTS_PER_SOL; // Convert to SOL
     const profitLoss = portfolioValueSol - investedSol;
     const profitLossPercentage =
@@ -53,7 +53,6 @@ const PumpState: React.FC = () => {
       totalWalletSolBalance,
       totalWalletTokenBalance,
       totalOutsideSol,
-      portfolioValue,
       portfolioValueSol,
       investedSol,
       profitLoss,
@@ -119,7 +118,8 @@ const PumpState: React.FC = () => {
 
         <Descriptions.Item label={t('pumpState.currentPrice', 'Current Price')}>
           {(() => {
-            const priceInSol = currentPrice / LAMPORTS_PER_SOL;
+            // currentPrice is already in SOL per token units after the TokenContext fix
+            const priceInSol = currentPrice;
             const formatData = getSmallNumberFormatData(priceInSol);
 
             if (formatData) {
