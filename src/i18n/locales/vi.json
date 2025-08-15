@@ -80,6 +80,8 @@
     },
     "returnModal": {
       "title": "Trả về từ Swarm",
+      "transferType": "Loại chuyển khoản",
+      "tokenMint": "Địa chỉ mint token",
       "targetWallet": "Ví đích"
     },
     "feedModal": {

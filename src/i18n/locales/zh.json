@@ -80,6 +80,8 @@
     },
     "returnModal": {
       "title": "从蜂群返回",
+      "transferType": "转账类型",
+      "tokenMint": "代币铸造地址",
       "targetWallet": "目标钱包"
     },
     "feedModal": {

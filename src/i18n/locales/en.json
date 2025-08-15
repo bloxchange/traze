@@ -80,6 +80,8 @@
     },
     "returnModal": {
       "title": "Return from Swarm",
+      "transferType": "Transfer Type",
+      "tokenMint": "Token Mint Address",
       "targetWallet": "Target Wallet"
     },
     "feedModal": {
