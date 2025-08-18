@@ -6,12 +6,12 @@ import {
   TransactionMessage,
   VersionedTransaction,
   PublicKey,
-  Keypair,
-  type TransactionConfirmationStrategy,
+  Keypair
 } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
+import { getRandomRange } from '@/utils/random';
 
 export class FeedSwarmByStepsCommand {
   private sourceWallet: string;
@@ -62,9 +62,12 @@ export class FeedSwarmByStepsCommand {
     );
     
     const destinationWalletCount = destinationWallets.length;
-    
-    // Calculate desired amount for each destination wallet (rounded)
-    const desiredAmountPerWallet = Math.round(totalAmount / destinationWalletCount);
+
+    const randoms = this.useRandomAmount
+      ? getRandomRange(this.wallets.length)
+      : new Array(this.wallets.length).map(() => Math.round(100 / this.wallets.length) / 100);
+
+    const amountPerWallet = randoms.map(r => r * totalAmount);
     
     // Calculate total fees: (middleWalletCount + 1) transfers per destination wallet
     const transfersPerDestination = this.middleWalletCount + 1;
@@ -79,9 +82,14 @@ export class FeedSwarmByStepsCommand {
     for (let i = 0; i < destinationWallets.length; i++) {
       const destinationWallet = destinationWallets[i];
       
-      // Transfer amount formula: total initial amount - (desiredAmount * index)
-      // First destination (index 0) gets all amount, subsequent destinations get progressively less
-      const transferAmount = totalInitialAmount - (desiredAmountPerWallet * i);
+      // calculate transfered amount
+      let transeferedAmount = 0;
+
+      for (let j = 0; j < i; j++){
+        transeferedAmount += amountPerWallet[j];
+      }
+
+      const transferAmount = totalInitialAmount - transeferedAmount;
       
       await this.transferWithMiddleWallets(
         currentSourcePublicKey,
