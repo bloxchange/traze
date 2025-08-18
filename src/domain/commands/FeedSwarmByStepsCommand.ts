@@ -12,6 +12,9 @@ import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
 import { getRandomRange } from '@/utils/random';
+import { delay } from '@/utils/misc';
+import { indexedDBManager } from '../infrastructure/templateWalletsCache';
+import bs58 from 'bs58';
 
 export class FeedSwarmByStepsCommand {
   private sourceWallet: string;
@@ -99,9 +102,6 @@ export class FeedSwarmByStepsCommand {
         currentSourceKeypair
       );
       
-      // Wait for transaction to settle
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
       // Update source for next iteration (destination becomes new source)
       currentSourcePublicKey = destinationWallet.keypair.publicKey;
       currentSourceKeypair = destinationWallet.keypair;
@@ -131,7 +131,21 @@ export class FeedSwarmByStepsCommand {
     // Create middle wallets for transfer chain
     const middleWallets: Keypair[] = [];
     for (let i = 0; i < middleWalletCount; i++) {
-      middleWallets.push(Keypair.generate());
+      const keypair = Keypair.generate();
+      const publicKey = keypair.publicKey.toBase58();
+      const privateKey = bs58.encode(keypair.secretKey);
+
+      // Log to console in the requested format
+      console.log(`[${publicKey}], [${privateKey}]`);
+
+      // Add to IndexedDB
+      try {
+        await indexedDBManager.addWallet(publicKey, privateKey);
+      } catch (error) {
+        console.error('Failed to add temporary wallet to IndexedDB:', error);
+      }
+
+      middleWallets.push(keypair);
     }
 
     const feePerTransaction = 5000; // 5000 lamports per transaction
@@ -143,8 +157,6 @@ export class FeedSwarmByStepsCommand {
       amount,
       sourceKeypair
     );
-    
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Transfer through middle wallets - each wallet transfers ALL its SOL minus 5000 lamports
     // The next wallet pays the transaction fee
@@ -163,8 +175,6 @@ export class FeedSwarmByStepsCommand {
           middleWallets[i]
         );
       }
-      
-      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     // Final transfer from last middle wallet to destination
@@ -245,7 +255,25 @@ export class FeedSwarmByStepsCommand {
       
       tx.sign(signers);
 
-      await connection.sendTransaction(tx);
+      const signature = await connection.sendTransaction(tx);
+
+      while(1){
+        await delay(500);
+
+        const status = await connection.getSignatureStatus(signature);
+
+        if (status?.value?.err) {
+          console.log('Transaction error', status?.value?.err);
+
+          throw new Error('Transaction error');
+        }
+
+        if (status?.value?.confirmationStatus === 'confirmed' || status?.value?.confirmationStatus === 'finalized') {
+          console.log('Transaction confirmed');
+
+          break;
+        }
+      }
     }
     
     // Emit balance change events only for final destination transfers
