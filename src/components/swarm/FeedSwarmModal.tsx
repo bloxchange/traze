@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Modal, Form, Select, InputNumber, App as AntdApp } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Select, InputNumber, Checkbox, App as AntdApp } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { FeedSwarmCommand } from '../../domain/commands';
+import { FeedSwarmByStepsCommand } from '../../domain/commands/FeedSwarmByStepsCommand';
 import type { WalletInfo } from '@/models';
 
 interface FeedSwarmModalProps {
@@ -21,6 +22,15 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
   const { message } = AntdApp.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [useMiddleWallets, setUseMiddleWallets] = useState(false);
+
+  // Reset all inputs when modal opens
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+      setUseMiddleWallets(false);
+    }
+  }, [open, form]);
 
   const handleSubmit = async () => {
     try {
@@ -28,11 +38,18 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
 
       setLoading(true);
 
-      const feedCommand = new FeedSwarmCommand(
-        values.sourceWallet,
-        values.amount,
-        wallets
-      );
+      const feedCommand = useMiddleWallets
+        ? new FeedSwarmByStepsCommand(
+            values.sourceWallet,
+            values.amount,
+            wallets,
+            values.middleWalletCount
+          )
+        : new FeedSwarmCommand(
+            values.sourceWallet,
+            values.amount,
+            wallets
+          );
 
       await feedCommand.execute();
 
@@ -69,6 +86,8 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
         initialValues={{
           sourceWallet: 'phantom',
           amount: 0.1,
+          useMiddleWallets: false,
+          middleWalletCount: 5,
         }}
       >
         <Form.Item
@@ -101,6 +120,33 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
             placeholder={t('swarm.feedModal.amountPlaceholder')}
           />
         </Form.Item>
+        <Form.Item
+          name="useMiddleWallets"
+          valuePropName="checked"
+          extra={t('swarm.feedModal.useMiddleWalletsWarning')}
+        >
+          <Checkbox
+            onChange={(e) => setUseMiddleWallets(e.target.checked)}
+          >
+            {t('swarm.feedModal.useMiddleWallets')}
+          </Checkbox>
+        </Form.Item>
+        {useMiddleWallets && (
+          <Form.Item
+            name="middleWalletCount"
+            label={t('swarm.feedModal.middleWalletCount')}
+            rules={[{ required: true, message: t('common.required') }]}
+            style={{ marginLeft: 24 }}
+          >
+            <InputNumber
+              min={1}
+              max={9}
+              step={1}
+              style={{ width: '100%' }}
+              placeholder={t('swarm.feedModal.middleWalletCountPlaceholder')}
+            />
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   );
