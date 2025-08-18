@@ -91,6 +91,7 @@
       "amount": "Số lượng",
       "amountPlaceholder": "Nhập số lượng cần nạp",
       "amountDescription": "Đây là tổng số lượng. Nó sẽ được chia đều cho tất cả các ví trong bầy đàn.",
+      "useRandomAmount": "Chuyển số tiền ngẫu nhiên",
       "useMiddleWallets": "Chuyển qua nhiều ví trung gian",
       "useMiddleWalletsWarning": "⚠️ Cảnh báo: Ứng dụng sẽ chờ 1 giây cho mỗi giao dịch chuyển khoản. Quá trình sẽ mất nhiều thời gian tùy thuộc vào số lượng ví trong bầy đàn.",
       "middleWalletCount": "Số lượng ví trung gian",

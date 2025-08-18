@@ -91,6 +91,7 @@
       "amount": "数量",
       "amountPlaceholder": "输入注入数量",
       "amountDescription": "这是总数量。它将在蜂群中的所有钱包之间平均分配。",
+      "useRandomAmount": "转账随机金额",
       "useMiddleWallets": "通过多个中间钱包转账",
       "useMiddleWalletsWarning": "⚠️ 警告：应用程序将为每个转账交易等待1秒。根据蜂群中钱包的数量，该过程将需要很长时间。",
       "middleWalletCount": "中间钱包数量",

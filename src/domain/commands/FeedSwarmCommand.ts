@@ -11,16 +11,19 @@ import {
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type BalanceChangeData } from '../infrastructure/events/types';
+import { getRandomRange } from '@/utils/random';
 
 export class FeedSwarmCommand {
   private sourceWallet: string;
   private amount: number;
   private wallets: WalletInfo[];
+  private useRandomAmount: boolean;
 
-  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[]) {
+  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], useRandomAmount: boolean = false) {
     this.sourceWallet = sourceWallet;
     this.amount = amount;
     this.wallets = wallets;
+    this.useRandomAmount = useRandomAmount;
   }
 
   async execute(): Promise<void> {
@@ -42,7 +45,11 @@ export class FeedSwarmCommand {
     // For Phantom wallet, first transfer total amount to first wallet
     const totalAmount = this.amount * LAMPORTS_PER_SOL;
 
-    const amountPerWallet = totalAmount / this.wallets.length;
+    const randoms = this.useRandomAmount
+      ? getRandomRange(this.wallets.length)
+      : new Array(this.wallets.length).map(() => Math.round(100 / this.wallets.length) / 100);
+
+    const amountPerWallets = randoms.map(r => r * totalAmount);
 
     // Create transaction
     const transaction = new Transaction();
@@ -86,11 +93,11 @@ export class FeedSwarmCommand {
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
       recentBlockhash: blockhash,
-      instructions: remainingWallets.map((wallet) =>
+      instructions: remainingWallets.map((wallet, index) =>
         SystemProgram.transfer({
           fromPubkey: sender!.keypair.publicKey,
           toPubkey: wallet.keypair.publicKey,
-          lamports: amountPerWallet,
+          lamports: amountPerWallets[index],
         })
       ),
     }).compileToV0Message();
@@ -114,7 +121,7 @@ export class FeedSwarmCommand {
       await this.dispatchTransferEvents(
         sender.keypair.publicKey,
         wallet.keypair.publicKey,
-        amountPerWallet
+        amountPerWallets[remainingWallets.indexOf(wallet)]
       );
     }
   }
@@ -155,8 +162,12 @@ export class FeedSwarmCommand {
     const remainingWallets = this.wallets.filter(
       (wallet) => wallet.publicKey !== this.sourceWallet
     );
-    const amountPerWallet =
-      (this.amount * LAMPORTS_PER_SOL) / remainingWallets.length;
+
+    const randoms = this.useRandomAmount
+      ? getRandomRange(this.wallets.length)
+      : new Array(this.wallets.length).map(() => Math.round(100 / this.wallets.length) / 100);
+
+    const amountPerWallet = randoms.map(r => r * this.amount * LAMPORTS_PER_SOL);
 
     const connection = ConnectionManager.getInstance().getConnection();
 
@@ -166,11 +177,11 @@ export class FeedSwarmCommand {
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
       recentBlockhash: blockhash,
-      instructions: remainingWallets.map((wallet) =>
+      instructions: remainingWallets.map((wallet, index) =>
         SystemProgram.transfer({
           fromPubkey: sender!.keypair.publicKey,
           toPubkey: wallet.keypair.publicKey,
-          lamports: amountPerWallet,
+          lamports: amountPerWallet[index],
         })
       ),
     }).compileToV0Message();
@@ -194,7 +205,7 @@ export class FeedSwarmCommand {
       await this.dispatchTransferEvents(
         sender!.keypair.publicKey,
         wallet.keypair.publicKey,
-        amountPerWallet
+        amountPerWallet[remainingWallets.indexOf(wallet)]
       );
     }
   }

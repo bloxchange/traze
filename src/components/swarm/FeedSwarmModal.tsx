@@ -23,12 +23,14 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [useMiddleWallets, setUseMiddleWallets] = useState(false);
+  const [useRandomAmount, setUseRandomAmount] = useState(false);
 
   // Reset all inputs when modal opens
   useEffect(() => {
     if (open) {
       form.resetFields();
       setUseMiddleWallets(false);
+      setUseRandomAmount(false);
     }
   }, [open, form]);
 
@@ -43,12 +45,14 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
             values.sourceWallet,
             values.amount,
             wallets,
-            values.middleWalletCount
+            values.middleWalletCount,
+            values.useRandomAmount
           )
         : new FeedSwarmCommand(
             values.sourceWallet,
             values.amount,
-            wallets
+            wallets,
+            values.useRandomAmount
           );
 
       await feedCommand.execute();
@@ -86,6 +90,7 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
         initialValues={{
           sourceWallet: 'phantom',
           amount: 0.1,
+          useRandomAmount: false,
           useMiddleWallets: false,
           middleWalletCount: 5,
         }}
@@ -119,6 +124,16 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
             style={{ width: '100%' }}
             placeholder={t('swarm.feedModal.amountPlaceholder')}
           />
+        </Form.Item>
+        <Form.Item
+          name="useRandomAmount"
+          valuePropName="checked"
+        >
+          <Checkbox
+            onChange={(e) => setUseRandomAmount(e.target.checked)}
+          >
+            {t('swarm.feedModal.useRandomAmount')}
+          </Checkbox>
         </Form.Item>
         <Form.Item
           name="useMiddleWallets"
