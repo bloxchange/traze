@@ -18,12 +18,14 @@ export class FeedSwarmByStepsCommand {
   private amount: number;
   private wallets: WalletInfo[];
   private middleWalletCount: number;
+  private useRandomAmount: boolean;
 
-  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], middleWalletCount: number) {
+  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], middleWalletCount: number, useRandomAmount: boolean = false) {
     this.sourceWallet = sourceWallet;
     this.amount = amount;
     this.wallets = wallets;
     this.middleWalletCount = middleWalletCount;
+    this.useRandomAmount = useRandomAmount;
   }
 
   async execute(): Promise<void> {
