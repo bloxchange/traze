@@ -345,12 +345,16 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         buyParameters.priorityFeeInSol &&
         buyParameters.priorityFeeInSol > 0
       ) {
-        const estimatedUnitPrice =
-          buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+        // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
+        const unitLimit = Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3);
+        const unitPrice = Math.round(Math.max(
+          buyParameters.costUnits || 0,
+          (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
+        ));
 
         const priorityFees: PriorityFee = {
-          unitLimit: 1_000_000,
-          unitPrice: estimatedUnitPrice,
+          unitLimit,
+          unitPrice,
         };
 
         const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
@@ -496,12 +500,16 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         sellParameters.priorityFeeInSol &&
         sellParameters.priorityFeeInSol > 0
       ) {
-        const estimatedUnitPrice =
-          sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+        // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
+        const unitLimit = Math.round((sellParameters.computeUnitsConsumed || 70_000) * 1.3);
+        const unitPrice = Math.round(Math.max(
+          sellParameters.costUnits || 0,
+          (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
+        ));
 
         const priorityFees: PriorityFee = {
-          unitLimit: 1_000_000,
-          unitPrice: estimatedUnitPrice,
+          unitLimit,
+          unitPrice,
         };
 
         const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({

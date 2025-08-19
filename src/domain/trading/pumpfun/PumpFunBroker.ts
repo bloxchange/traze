@@ -88,12 +88,16 @@ export class PumpFunBroker implements IBroker {
         'finalized'
       );
 
-    const estimatedUnitPrice =
-      buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+    // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
+    const unitLimit = Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.5);
+    const unitPrice = Math.round(Math.max(
+      buyParameters.costUnits || 0,
+      (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
+    ));
 
     const priorityFees = {
-      unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice,
+      unitLimit,
+      unitPrice,
     };
 
     const totalSolSpent =
@@ -347,12 +351,16 @@ export class PumpFunBroker implements IBroker {
         sellParameters.seller
       );
 
-    const estimatedUnitPrice =
-      sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL;
+    // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
+    const unitLimit = Math.round((sellParameters.computeUnitsConsumed || 70_000) * 1.5);
+    const unitPrice = Math.round(Math.max(
+      sellParameters.costUnits || 0,
+      (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
+    ));
 
     const priorityFees = {
-      unitLimit: 1_000_000,
-      unitPrice: estimatedUnitPrice,
+      unitLimit,
+      unitPrice,
     };
 
     const totalSolReceived =
@@ -368,6 +376,8 @@ export class PumpFunBroker implements IBroker {
       totalSolReceived
     );
 
+    console.log('begin sell transaction', sellParameters.seller.publicKey.toBase58());
+
     const result = await sendTransaction(
       this.connection,
       transaction,
@@ -376,6 +386,8 @@ export class PumpFunBroker implements IBroker {
       priorityFees,
       'finalized'
     );
+
+    console.log('end send sell transaction', result);
 
     // If transaction failed, dispatch reverse events
     if (!result) {

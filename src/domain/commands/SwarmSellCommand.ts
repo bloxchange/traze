@@ -20,6 +20,8 @@ export class SwarmSellCommand {
   private sellDelay: number;
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
+  private computeUnitsConsumed?: number;
+  private costUnits?: number;
   private broker: IBroker;
 
   constructor(
@@ -28,7 +30,9 @@ export class SwarmSellCommand {
     sellPercentages: string[],
     sellDelay: number,
     slippageBasisPoints: number,
-    priorityFeeInSol: number
+    priorityFeeInSol: number,
+    computeUnitsConsumed?: number,
+    costUnits?: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
@@ -36,6 +40,8 @@ export class SwarmSellCommand {
     this.sellDelay = sellDelay;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
+    this.computeUnitsConsumed = computeUnitsConsumed;
+    this.costUnits = costUnits;
 
     // Initialize with default broker, will be updated in execute()
     const provider: AnchorProvider = new AnchorProvider(
@@ -139,6 +145,8 @@ export class SwarmSellCommand {
         slippageBasisPoints: BigInt(this.slippageBasisPoints),
         priorityFeeInSol: this.priorityFeeInSol,
         maxCurrentPriorityFee: this.priorityFeeInSol,
+        computeUnitsConsumed: this.computeUnitsConsumed,
+        costUnits: this.costUnits,
       };
 
       this.broker.sell(sellParameters).then((signature) => {

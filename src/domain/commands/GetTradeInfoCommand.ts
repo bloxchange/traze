@@ -71,6 +71,8 @@ export class GetTradeInfoCommand {
       status: transaction.meta.err ? 'error' : 'success',
       signature: this.signature,
       type: solBalanceBefore > solBalanceAfter ? 'buy' : 'sell',
+      computeUnitsConsumed: transaction.meta.computeUnitsConsumed,
+      costUnits: transaction.meta.fee,
     };
   }
 }

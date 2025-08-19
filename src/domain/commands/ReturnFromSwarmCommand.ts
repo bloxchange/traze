@@ -78,7 +78,9 @@ export class ReturnFromSwarmCommand {
 
     tx.sign([distributor.keypair]);
 
-    const signature = await connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx, {
+      skipPreflight: true,
+    });
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -218,7 +220,9 @@ export class ReturnFromSwarmCommand {
     
     tx.sign(signersForBatch);
 
-    const signature = await connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx, {
+      skipPreflight: true,
+    });
 
     const strategy: TransactionConfirmationStrategy = {
       signature,

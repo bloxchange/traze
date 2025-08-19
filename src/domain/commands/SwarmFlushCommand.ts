@@ -18,18 +18,24 @@ export class SwarmFlushCommand {
   private tokenMint: string;
   private slippageBasisPoints: bigint;
   private priorityFeeInSol: number;
+  private computeUnitsConsumed?: number;
+  private costUnits?: number;
   private broker: IBroker;
 
   constructor(
     wallets: WalletInfo[],
     tokenMint: string,
     slippageBasisPoints: bigint,
-    priorityFeeInSol: number
+    priorityFeeInSol: number,
+    computeUnitsConsumed?: number,
+    costUnits?: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
+    this.computeUnitsConsumed = computeUnitsConsumed;
+    this.costUnits = costUnits;
 
     // Initialize with default broker, will be updated in execute()
     const provider: AnchorProvider = new AnchorProvider(
@@ -155,7 +161,9 @@ export class SwarmFlushCommand {
         sellTokenAmount: balance,
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
-        maxCurrentPriorityFee: maxCurrentPriorityUnitPrice,
+        maxCurrentPriorityFee: this.priorityFeeInSol,
+        computeUnitsConsumed: this.computeUnitsConsumed,
+        costUnits: this.costUnits,
       };
 
       this.broker.sell(sellParameters).then((signature) => {

@@ -7,4 +7,6 @@ export interface IBuyParameters {
   slippageBasisPoints: number;
   priorityFeeInSol: number;
   maxCurrentPriorityFee: number;
+  computeUnitsConsumed?: number;
+  costUnits?: number;
 }

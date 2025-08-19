@@ -112,7 +112,8 @@ export async function sendTransaction(
   payer: PublicKey,
   signers: Keypair[],
   priorityFees?: PriorityFee,
-  commitment: Commitment = DEFAULT_COMMITMENT
+  commitment: Commitment = DEFAULT_COMMITMENT,
+  skipPreflight: boolean = true
 ): Promise<string | null> {
   const newTx = new Transaction();
 
@@ -143,7 +144,7 @@ export async function sendTransaction(
 
   try {
     const sig = await connection.sendTransaction(versionedTx, {
-      skipPreflight: false,
+      skipPreflight,
     });
 
     const latestBlockHash = await connection.getLatestBlockhash();
@@ -178,7 +179,8 @@ export async function sendTx(
   signers: Keypair[],
   priorityFees?: PriorityFee,
   commitment: Commitment = DEFAULT_COMMITMENT,
-  finality: Finality = DEFAULT_FINALITY
+  finality: Finality = DEFAULT_FINALITY,
+  skipPreflight: boolean = true
 ): Promise<TransactionResult> {
   const newTx = new Transaction();
 
@@ -209,7 +211,7 @@ export async function sendTx(
 
   try {
     const sig = await connection.sendTransaction(versionedTx, {
-      skipPreflight: false,
+      skipPreflight,
     });
 
     const txResult = await getTxDetails(connection, sig, commitment, finality);
