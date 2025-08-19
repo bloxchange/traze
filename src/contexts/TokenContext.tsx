@@ -30,6 +30,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     bondingCompleted: false,
     lastUpdated: null,
     wallets: {},
+    buyComputeUnitsConsumed: undefined,
+    buyCostUnits: undefined,
+    sellComputeUnitsConsumed: undefined,
+    sellCostUnits: undefined,
   });
 
   useEffect(() => {
@@ -105,25 +109,17 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const handleTokenLogs = (logs: Logs) => {
-    console.log('🔔 Token transaction logs received:', {
-      signature: logs.signature,
-      logs: logs.logs,
-      err: logs.err,
-    });
-
     const getTradeInfoCommand = new GetTradeInfoCommand(logs.signature);
 
     getTradeInfoCommand
       .execute()
       .then((tradeInfo) => {
         if (tradeInfo) {
-          console.log('✅ Trade info fetched successfully:', tradeInfo);
           // Emit the new TradeInfoFetched event
           globalEventEmitter.emit<TradeInfoFetchedData>(
             EVENTS.TradeInfoFetched,
             { tradeInfo }
           );
-          console.log('📡 TradeInfoFetched event emitted');
         } else {
           console.log('❌ No trade info found for signature:', logs.signature);
         }
@@ -215,6 +211,10 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       bondingCompleted: false,
       lastUpdated: null,
       wallets: {},
+      buyComputeUnitsConsumed: undefined,
+      buyCostUnits: undefined,
+      sellComputeUnitsConsumed: undefined,
+      sellCostUnits: undefined,
     });
   };
 
@@ -294,7 +294,6 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const handleBondingCurveFetched = (data: BondingCurveFetchedData) => {
-      console.log(data);
       setTokenState((prev) => ({
         ...prev,
         bondingCompleted: data.complete,
@@ -305,7 +304,6 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleTradeInfoFetched = (data: TradeInfoFetchedData) => {
       const { tradeInfo } = data;
-      console.log('💰 Processing trade info for price calculation:', tradeInfo);
 
       setTokenState((prev) => {
         let newState = { ...prev };
@@ -326,6 +324,23 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         newState.currentPrice = calculatedPrice;
+        
+        // Save compute units and cost units from trade info based on transaction type
+        if (tradeInfo.type === 'buy') {
+          if (tradeInfo.computeUnitsConsumed !== undefined) {
+            newState.buyComputeUnitsConsumed = tradeInfo.computeUnitsConsumed;
+          }
+          if (tradeInfo.costUnits !== undefined) {
+            newState.buyCostUnits = tradeInfo.costUnits;
+          }
+        } else if (tradeInfo.type === 'sell') {
+          if (tradeInfo.computeUnitsConsumed !== undefined) {
+            newState.sellComputeUnitsConsumed = tradeInfo.computeUnitsConsumed;
+          }
+          if (tradeInfo.costUnits !== undefined) {
+            newState.sellCostUnits = tradeInfo.costUnits;
+          }
+        }
 
         newState.lastUpdated = new Date();
 
@@ -396,8 +411,11 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     // Subscribe to balance change events for each wallet
     Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceChanged}_${publicKey}`;
+      
       const handler = handleWalletBalanceChanged(publicKey);
+      
       walletEventHandlers.set(publicKey, handler);
+      
       globalEventEmitter.on(eventName, handler);
     });
 
@@ -405,6 +423,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       // Unsubscribe from all wallet-specific events
       walletEventHandlers.forEach((handler, publicKey) => {
         const eventName = `${EVENTS.BalanceChanged}_${publicKey}`;
+        
         globalEventEmitter.off(eventName, handler);
       });
     };
@@ -434,8 +453,11 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     // Subscribe to balance fetched events for each wallet
     Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceFetched}_${publicKey}`;
+      
       const handler = handleWalletBalanceFetched(publicKey);
+      
       walletFetchedHandlers.set(publicKey, handler);
+      
       globalEventEmitter.on(eventName, handler);
     });
 
@@ -443,6 +465,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       // Unsubscribe from all wallet-specific events
       walletFetchedHandlers.forEach((handler, publicKey) => {
         const eventName = `${EVENTS.BalanceFetched}_${publicKey}`;
+      
         globalEventEmitter.off(eventName, handler);
       });
     };

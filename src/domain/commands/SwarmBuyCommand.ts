@@ -19,6 +19,8 @@ export class SwarmBuyCommand {
   private buyDelay: number;
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
+  private computeUnitsConsumed?: number;
+  private costUnits?: number;
   private broker: IBroker;
 
   constructor(
@@ -27,7 +29,9 @@ export class SwarmBuyCommand {
     buyAmounts: string[],
     buyDelay: number,
     slippageBasisPoints: number,
-    priorityFeeInSol: number
+    priorityFeeInSol: number,
+    computeUnitsConsumed?: number,
+    costUnits?: number
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
@@ -35,6 +39,8 @@ export class SwarmBuyCommand {
     this.buyDelay = buyDelay;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
+    this.computeUnitsConsumed = computeUnitsConsumed;
+    this.costUnits = costUnits;
 
     // Initialize with default broker, will be updated in execute()
     const provider: AnchorProvider = new AnchorProvider(
@@ -94,11 +100,8 @@ export class SwarmBuyCommand {
     const isLaunchLabToken = tokenInfo.authority === LAUNCHPAD_AUTH.toBase58();
 
     if (isLaunchLabToken) {
-      console.log(
-        `🔍 Using RaydiumLaunchPadBroker for LaunchLab token ${this.tokenMint}`
-      );
-
       const connection = ConnectionManager.getInstance().getConnection();
+      
       this.broker = new RaydiumLaunchPadBroker({
         connection,
         isDevnet: true,
@@ -106,11 +109,8 @@ export class SwarmBuyCommand {
     } else {
       // Check bonding curve status and get appropriate broker
       const connection = ConnectionManager.getInstance().getConnection();
+      
       const programId = await getBrokerProgramId(connection, this.tokenMint);
-
-      console.log(
-        `🔍 Bonding curve status check: Using ${programId === PUMPFUN_PROGRAM_ID ? 'PumpFun' : 'PumpFunAmm'} broker for token ${this.tokenMint}`
-      );
 
       // Create provider and broker based on bonding curve status
       const provider: AnchorProvider = new AnchorProvider(
@@ -147,6 +147,8 @@ export class SwarmBuyCommand {
         slippageBasisPoints: this.slippageBasisPoints,
         priorityFeeInSol: this.priorityFeeInSol,
         maxCurrentPriorityFee: this.priorityFeeInSol,
+        computeUnitsConsumed: this.computeUnitsConsumed,
+        costUnits: this.costUnits,
       };
 
       this.broker.buy(buyParameters).then((signature) => {

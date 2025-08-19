@@ -18,6 +18,8 @@ export interface TradeEventData {
   status: 'success' | 'pending' | 'error';
   signature: string;
   type: 'buy' | 'sell';
+  computeUnitsConsumed?: number;
+  costUnits?: number;
 }
 
 export interface ErrorEventData {

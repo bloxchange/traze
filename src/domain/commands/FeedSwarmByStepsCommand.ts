@@ -67,10 +67,10 @@ export class FeedSwarmByStepsCommand {
     const destinationWalletCount = destinationWallets.length;
 
     const randoms = this.useRandomAmount
-      ? getRandomRange(this.wallets.length)
-      : new Array(this.wallets.length).fill(0).map(() => Math.round(100 / this.wallets.length) / 100);
+      ? getRandomRange(destinationWallets.length)
+      : new Array(destinationWallets.length).fill(0).map(() => Math.round(100 / destinationWallets.length) / 100);
 
-    const amountPerWallet = randoms.map(r => r * totalAmount);
+    const amountPerWallet = randoms.map(r => Math.round(r * totalAmount));
     
     // Calculate total fees: (middleWalletCount + 1) transfers per destination wallet
     const transfersPerDestination = this.middleWalletCount + 1;
@@ -255,7 +255,9 @@ export class FeedSwarmByStepsCommand {
       
       tx.sign(signers);
 
-      const signature = await connection.sendTransaction(tx);
+      const signature = await connection.sendTransaction(tx, {
+        skipPreflight: true,
+      });
 
       while(1){
         await delay(500);

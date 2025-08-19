@@ -7,4 +7,6 @@ export interface ISellParameters {
   slippageBasisPoints: bigint;
   priorityFeeInSol: number;
   maxCurrentPriorityFee: number;
+  computeUnitsConsumed?: number;
+  costUnits?: number;
 }

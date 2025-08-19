@@ -25,4 +25,8 @@ export interface TokenState {
   bondingCompleted: boolean;
   lastUpdated: Date | null;
   wallets: Record<string, { solBalance: number; tokenBalance: number }>;
+  buyComputeUnitsConsumed?: number;
+  buyCostUnits?: number;
+  sellComputeUnitsConsumed?: number;
+  sellCostUnits?: number;
 }

@@ -45,12 +45,6 @@ export class FeedSwarmCommand {
     // For Phantom wallet, first transfer total amount to first wallet
     const totalAmount = this.amount * LAMPORTS_PER_SOL;
 
-    const randoms = this.useRandomAmount
-      ? getRandomRange(this.wallets.length)
-      : new Array(this.wallets.length).map(() => Math.round(100 / this.wallets.length) / 100);
-
-    const amountPerWallets = randoms.map(r => r * totalAmount);
-
     // Create transaction
     const transaction = new Transaction();
 
@@ -90,6 +84,12 @@ export class FeedSwarmCommand {
 
     const remainingWallets = this.wallets.slice(1);
 
+    const randoms = this.useRandomAmount
+      ? getRandomRange(remainingWallets.length)
+      : new Array(remainingWallets.length).fill(0).map(() => Math.round(100 / remainingWallets.length) / 100);
+
+    const amountPerWallets = randoms.map(r => Math.round(r * totalAmount));
+
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
       recentBlockhash: blockhash,
@@ -106,7 +106,9 @@ export class FeedSwarmCommand {
 
     tx.sign([sender!.keypair]);
 
-    const signature = await connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx, {
+      skipPreflight: true,
+    });
 
     const strategy: TransactionConfirmationStrategy = {
       signature,
@@ -164,10 +166,10 @@ export class FeedSwarmCommand {
     );
 
     const randoms = this.useRandomAmount
-      ? getRandomRange(this.wallets.length)
-      : new Array(this.wallets.length).fill(0).map(() => Math.round(100 / this.wallets.length) / 100);
+      ? getRandomRange(remainingWallets.length)
+      : new Array(remainingWallets.length).fill(0).map(() => Math.round(100 / remainingWallets.length) / 100);
 
-    const amountPerWallet = randoms.map(r => r * this.amount * LAMPORTS_PER_SOL);
+    const amountPerWallet = randoms.map(r => Math.round(r * this.amount * LAMPORTS_PER_SOL));
 
     const connection = ConnectionManager.getInstance().getConnection();
 
@@ -190,7 +192,9 @@ export class FeedSwarmCommand {
 
     tx.sign([sender!.keypair]);
 
-    const signature = await connection.sendTransaction(tx);
+    const signature = await connection.sendTransaction(tx, {
+      skipPreflight: true,
+    });
 
     const strategy: TransactionConfirmationStrategy = {
       signature,

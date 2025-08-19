@@ -346,7 +346,9 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig.buyAmounts,
         swarmConfig.buyDelay,
         swarmConfig.slippageBasisPoints,
-        swarmConfig.priorityFee
+        swarmConfig.priorityFee,
+        tokenState.buyComputeUnitsConsumed,
+        tokenState.buyCostUnits
       );
 
       await buyCommand.execute();
@@ -379,7 +381,9 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig.sellPercentages,
         swarmConfig.sellDelay,
         swarmConfig.slippageBasisPoints,
-        swarmConfig.priorityFee
+        swarmConfig.priorityFee,
+        tokenState.sellComputeUnitsConsumed,
+        tokenState.sellCostUnits
       );
 
       await sellCommand.execute();
@@ -415,7 +419,9 @@ const Swarm: React.FC<SwarmProps> = ({
           walletList,
           tokenState.currentToken.mint,
           BigInt(swarmConfig.slippageBasisPoints),
-          swarmConfig.priorityFee
+          swarmConfig.priorityFee,
+          tokenState.sellComputeUnitsConsumed,
+          tokenState.sellCostUnits
         );
 
         await command.execute();
