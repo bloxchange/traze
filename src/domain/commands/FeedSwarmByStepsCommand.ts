@@ -68,7 +68,7 @@ export class FeedSwarmByStepsCommand {
 
     const randoms = this.useRandomAmount
       ? getRandomRange(this.wallets.length)
-      : new Array(this.wallets.length).map(() => Math.round(100 / this.wallets.length) / 100);
+      : new Array(this.wallets.length).fill(0).map(() => Math.round(100 / this.wallets.length) / 100);
 
     const amountPerWallet = randoms.map(r => r * totalAmount);
     

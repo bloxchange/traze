@@ -134,19 +134,11 @@ export class ReturnFromSwarmCommand {
 
     const connection = ConnectionManager.getInstance().getConnection();
 
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-
-    const txMsg = new TransactionMessage({
-      payerKey: destinationWallet.keypair.publicKey,
-      recentBlockhash: blockhash,
-      instructions: [],
-    });
-
     const sourceWallets = this.wallets.filter(
       (x) => x.publicKey !== selectedWallet
     );
 
+    // Prepare all transfer instructions
     const transferInstructions = await Promise.all(
       sourceWallets.map(async (wallet) => {
         const balance = await connection.getBalance(
@@ -160,17 +152,71 @@ export class ReturnFromSwarmCommand {
           }),
           amount: balance,
           from: wallet.keypair.publicKey,
+          wallet: wallet,
         };
       })
     );
 
-    txMsg.instructions = transferInstructions.map((x) => x.instruction);
+    // Process transfers in batches
+    await this.processBatchTransfers(transferInstructions, destinationWallet);
+  }
+
+  /**
+   * Processes transfer instructions in batches of 5 to avoid transaction size limits
+   * @param transferInstructions Array of transfer instructions to process
+   * @param destinationWallet The destination wallet for all transfers
+   */
+  private async processBatchTransfers(
+    transferInstructions: Array<{
+      instruction: any;
+      amount: number;
+      from: PublicKey;
+      wallet: WalletInfo;
+    }>,
+    destinationWallet: WalletInfo
+  ): Promise<void> {
+    const batchSize = 5;
+
+    for (let i = 0; i < transferInstructions.length; i += batchSize) {
+      const batch = transferInstructions.slice(i, i + batchSize);
+
+      await this.sendBatchTransaction(batch, destinationWallet);
+    }
+  }
+
+  /**
+   * Sends a single batch transaction and emits transfer events
+   * @param batch Array of transfer instructions for this batch
+   * @param destinationWallet The destination wallet for all transfers
+   */
+  private async sendBatchTransaction(
+    batch: Array<{
+      instruction: any;
+      amount: number;
+      from: PublicKey;
+      wallet: WalletInfo;
+    }>,
+    destinationWallet: WalletInfo
+  ): Promise<void> {
+    const connection = ConnectionManager.getInstance().getConnection();
+    
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
+
+    const txMsg = new TransactionMessage({
+      payerKey: destinationWallet.keypair.publicKey,
+      recentBlockhash: blockhash,
+      instructions: batch.map((x) => x.instruction),
+    });
 
     const compiledMsg = txMsg.compileToLegacyMessage();
 
     const tx = new VersionedTransaction(compiledMsg);
 
-    tx.sign(this.wallets.map((x) => x.keypair));
+    // Sign with destination wallet and all source wallets in this batch
+    const signersForBatch = [destinationWallet.keypair, ...batch.map(x => x.wallet.keypair)];
+    
+    tx.sign(signersForBatch);
 
     const signature = await connection.sendTransaction(tx);
 
@@ -182,8 +228,8 @@ export class ReturnFromSwarmCommand {
 
     await connection.confirmTransaction(strategy);
 
-    // Emit transfer events for each source wallet
-    for (const transfer of transferInstructions) {
+    // Emit transfer events for each transfer in this batch
+    for (const transfer of batch) {
       await this.dispatchTransferEvents(
         transfer.from,
         destinationWallet.keypair.publicKey,
