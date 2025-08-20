@@ -79,7 +79,7 @@ export class PumpFunBroker implements IBroker {
   }
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
-    const { transaction, buyAmount, buyAmountWithSlippage } =
+    const { transaction, buyAmount, buyAmountWithSlippage, newTokenAccount } =
       await this.createBuyTransaction(
         buyParameters.buyer,
         buyParameters.tokenMint,
@@ -89,7 +89,9 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const unitLimit = Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.5);
+    const unitLimit = Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.2
+      + (newTokenAccount ? 30_000 : 0));
+    
     const unitPrice = Math.round(Math.max(
       buyParameters.costUnits || 0,
       (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
@@ -302,6 +304,7 @@ export class PumpFunBroker implements IBroker {
     const transaction = new Transaction();
 
     // Add token account creation instruction if needed
+    let newTokenAccount = false;
     try {
       await getAccount(this.connection, associatedUser, commitment);
     } catch (e) {
@@ -315,6 +318,8 @@ export class PumpFunBroker implements IBroker {
           mint
         )
       );
+
+      newTokenAccount = true;
     }
 
     const { buyAmount, buyAmountWithSlippage } = this.calculateBuyAmount(
@@ -338,7 +343,7 @@ export class PumpFunBroker implements IBroker {
 
     transaction.add(ix);
 
-    return { transaction, buyAmount, buyAmountWithSlippage };
+    return { transaction, buyAmount, buyAmountWithSlippage, newTokenAccount };
   }
 
   async sell(sellParameters: ISellParameters): Promise<string | null> {
@@ -352,7 +357,8 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const unitLimit = Math.round((sellParameters.computeUnitsConsumed || 70_000) * 1.5);
+    const unitLimit = Math.round((sellParameters.computeUnitsConsumed || 50_000) * 1.2);
+
     const unitPrice = Math.round(Math.max(
       sellParameters.costUnits || 0,
       (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
