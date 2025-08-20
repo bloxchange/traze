@@ -89,8 +89,9 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const unitLimit = Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.2
-      + (newTokenAccount ? 30_000 : 0));
+    const unitLimit = Math.min(1_00_000
+      , Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3
+        + (newTokenAccount ? 30_000 : 0)));
     
     const unitPrice = Math.round(Math.max(
       buyParameters.costUnits || 0,
