@@ -305,6 +305,12 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleTradeInfoFetched = (data: TradeInfoFetchedData) => {
       const { tradeInfo } = data;
 
+      // Only process successful transactions
+      if (tradeInfo.status !== 'success') {
+        console.log('⚠️ Skipping non-successful transaction:', tradeInfo.signature, 'Status:', tradeInfo.status);
+        return;
+      }
+
       setTokenState((prev) => {
         let newState = { ...prev };
 
