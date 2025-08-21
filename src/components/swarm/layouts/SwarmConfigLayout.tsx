@@ -13,6 +13,8 @@ import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { WalletInfo, SwarmConfigFormValues } from '@/models';
 import { SwarmConfig } from '../config';
+import { formatSolBalance } from '@/utils/formatBalance';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 const { Text } = Typography;
 
@@ -59,7 +61,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
         }}
       >
         <Row align="middle" style={{}}>
-          <Col span={4}>
+          <Col span={3}>
             <Checkbox
               checked={allSelected}
               onChange={(e) => onSelectAll?.(e.target.checked)}
@@ -68,8 +70,11 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
               }
             />
           </Col>
-          <Col span={20}>
+          <Col span={12}>
             <Text strong>{t('swarm.wallet')}</Text>
+          </Col>
+          <Col span={9}>
+            <Text strong>{t('swarm.sol')}</Text>
           </Col>
         </Row>
         {wallets.map((wallet) => (
@@ -78,7 +83,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
             align="middle"
             style={{ marginBottom: 8 }}
           >
-            <Col span={4}>
+            <Col span={3}>
               <Checkbox
                 id={wallet.publicKey}
                 checked={wallet.selected}
@@ -87,8 +92,8 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
                 }
               />
             </Col>
-            <Col span={20}>
-              <Space>
+            <Col span={12}>
+              <Space size={2}>
                 <label
                   htmlFor={wallet.publicKey}
                   style={{ cursor: 'pointer', fontFamily: 'monospace' }}
@@ -100,7 +105,26 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
                   icon={<CopyOutlined />}
                   onClick={() => handleCopyPublicKey(wallet.publicKey)}
                 />
+                <Button
+                  type="text"
+                  onClick={() => window.open(`https://solscan.io/account/${wallet.publicKey}`, '_blank')}
+                  style={{
+                    color: '#1890ff',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: 0
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                  </svg>
+                </Button>
               </Space>
+            </Col>
+            <Col span={9}>
+              <Text style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                {formatSolBalance(wallet.solBalance / LAMPORTS_PER_SOL)}
+              </Text>
             </Col>
           </Row>
         ))}
