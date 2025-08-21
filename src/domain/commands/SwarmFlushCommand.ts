@@ -113,24 +113,27 @@ export class SwarmFlushCommand {
       this.broker = broker;
     }
 
-    const prioritizationFees = await connection.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(this.tokenMint)],
-    });
+    // const prioritizationFees = await connection.getRecentPrioritizationFees({
+    //   lockedWritableAccounts: [new PublicKey(this.tokenMint)],
+    // });
 
-    let maxCurrentPriorityUnitPrice = 0;
+    // let maxCurrentPriorityUnitPrice = 0;
 
-    prioritizationFees.forEach(
-      ({ prioritizationFee }: { prioritizationFee: number }) => {
-        if (prioritizationFee > maxCurrentPriorityUnitPrice) {
-          maxCurrentPriorityUnitPrice = prioritizationFee;
-        }
-      }
-    );
+    // prioritizationFees.forEach(
+    //   ({ prioritizationFee }: { prioritizationFee: number }) => {
+    //     if (prioritizationFee > maxCurrentPriorityUnitPrice) {
+    //       maxCurrentPriorityUnitPrice = prioritizationFee;
+    //     }
+    //   }
+    // );
 
     // Get all token balances for selected wallets
     const walletsWithBalances = await Promise.all(
       selectedWallets.map(async (wallet) => {
-        const balance = await this.calculateSellAmount(wallet);
+        //const balance = await this.calculateSellAmount(wallet);
+
+        const balance = BigInt(wallet.tokenBalance);
+
         return { wallet, balance };
       })
     );
@@ -141,16 +144,17 @@ export class SwarmFlushCommand {
       .sort((a, b) => {
         // Sort in descending order (largest balance first)
         if (a.balance > b.balance) return -1;
+
         if (a.balance < b.balance) return 1;
+        
         return 0;
       });
 
-    console.log(
-      `🔄 Executing sell orders for ${walletsToSell.length} wallets (sorted by balance)`
-    );
-
     // Execute sell instructions in order from largest to smallest balance
-    for (const { wallet, balance } of walletsToSell) {
+    //for (const { wallet, balance } of walletsToSell) {
+    for (let i = 0; i < walletsToSell.length; i++) {
+      const { wallet, balance } = walletsToSell[i];
+
       console.log(
         `💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`
       );
@@ -160,7 +164,7 @@ export class SwarmFlushCommand {
         mint: new PublicKey(this.tokenMint),
         sellTokenAmount: balance,
         slippageBasisPoints: this.slippageBasisPoints,
-        priorityFeeInSol: this.priorityFeeInSol,
+        priorityFeeInSol: this.priorityFeeInSol * (i === 0 ? 1.1 : 1),
         maxCurrentPriorityFee: this.priorityFeeInSol,
         computeUnitsConsumed: this.computeUnitsConsumed,
         costUnits: this.costUnits,
