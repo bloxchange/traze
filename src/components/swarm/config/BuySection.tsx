@@ -33,8 +33,9 @@ const BuySection: React.FC<BuyConfigProps> = ({
       <Form.Item name="buyAmounts" extra={t('swarm.amountInSolDescription')}>
         <Checkbox.Group
           options={availableAmounts.map((amount: string) => ({
-            label: `${amount} SOL`,
+            label: amount,
             value: amount,
+            style: { width: '80px' },
           }))}
         />
       </Form.Item>
