@@ -26,12 +26,20 @@ export const formatBalance = (
 };
 
 /**
- * Formats SOL balance with SOL suffix
- * @param balance - SOL balance to format
+ * Formats SOL balance with SOL suffix and improved precision
+ * @param balance - SOL balance in lamports to format
  * @returns Formatted SOL balance string
  */
 export const formatSolBalance = (balance: number): string => {
-  return `${formatBalance(balance, true)} SOL`;
+  if (balance === 0) return '0';
+  
+  // For very small amounts, use high precision formatting
+  if (balance < 0.001) {
+    return `${formatSmallNumber(balance)}`;
+  }
+  
+  // For larger amounts, use the standard formatting with K/M/B suffixes
+  return `${formatBalance(balance, true)}`;
 };
 
 /**

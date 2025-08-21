@@ -103,7 +103,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             />
           </Col>
           <Col span={8}>
-            <Space>
+            <Space size={2}>
               <label
                 htmlFor={wallet.publicKey}
                 style={{ cursor: 'pointer', fontFamily: 'monospace' }}
@@ -115,6 +115,20 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
                 icon={<CopyOutlined />}
                 onClick={() => handleCopyPublicKey(wallet.publicKey)}
               />
+              <Button
+                type="text"
+                onClick={() => window.open(`https://solscan.io/account/${wallet.publicKey}`, '_blank')}
+                style={{
+                  color: '#1890ff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: 0,
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                </svg>
+              </Button>
             </Space>
           </Col>
           <Col span={7}>
