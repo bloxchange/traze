@@ -89,9 +89,13 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
+    const minComputeUnitsConsumed = !buyParameters.computeUnitsConsumed || buyParameters.computeUnitsConsumed < 80_000
+      ? 80_000
+      : buyParameters.computeUnitsConsumed;
+
     const unitLimit = Math.min(1_00_000
-      , Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3
-        + (newTokenAccount ? 30_000 : 0)));
+      , minComputeUnitsConsumed
+        + (newTokenAccount ? 30_000 : 0));
     
     const unitPrice = Math.round(Math.max(
       buyParameters.costUnits || 0,
@@ -358,7 +362,9 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const unitLimit = Math.round((sellParameters.computeUnitsConsumed || 50_000) * 1.2);
+    const unitLimit = !sellParameters.computeUnitsConsumed || sellParameters.computeUnitsConsumed < 45_000
+      ? 45_000
+      : sellParameters.computeUnitsConsumed;
 
     const unitPrice = Math.round(Math.max(
       sellParameters.costUnits || 0,
