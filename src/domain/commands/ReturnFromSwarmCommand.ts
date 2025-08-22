@@ -201,7 +201,7 @@ export class ReturnFromSwarmCommand {
     destinationWallet: WalletInfo
   ): Promise<void> {
     const connection = ConnectionManager.getInstance().getConnection();
-    
+
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash();
 
@@ -216,8 +216,11 @@ export class ReturnFromSwarmCommand {
     const tx = new VersionedTransaction(compiledMsg);
 
     // Sign with destination wallet and all source wallets in this batch
-    const signersForBatch = [destinationWallet.keypair, ...batch.map(x => x.wallet.keypair)];
-    
+    const signersForBatch = [
+      destinationWallet.keypair,
+      ...batch.map((x) => x.wallet.keypair),
+    ];
+
     tx.sign(signersForBatch);
 
     const signature = await connection.sendTransaction(tx, {

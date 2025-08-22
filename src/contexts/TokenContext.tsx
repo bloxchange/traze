@@ -307,7 +307,12 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Only process successful transactions
       if (tradeInfo.status !== 'success') {
-        console.log('⚠️ Skipping non-successful transaction:', tradeInfo.signature, 'Status:', tradeInfo.status);
+        console.log(
+          '⚠️ Skipping non-successful transaction:',
+          tradeInfo.signature,
+          'Status:',
+          tradeInfo.status
+        );
         return;
       }
 
@@ -330,7 +335,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         newState.currentPrice = calculatedPrice;
-        
+
         // Save compute units and cost units from trade info based on transaction type
         if (tradeInfo.type === 'buy') {
           if (tradeInfo.computeUnitsConsumed !== undefined) {
@@ -417,11 +422,11 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     // Subscribe to balance change events for each wallet
     Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceChanged}_${publicKey}`;
-      
+
       const handler = handleWalletBalanceChanged(publicKey);
-      
+
       walletEventHandlers.set(publicKey, handler);
-      
+
       globalEventEmitter.on(eventName, handler);
     });
 
@@ -429,7 +434,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       // Unsubscribe from all wallet-specific events
       walletEventHandlers.forEach((handler, publicKey) => {
         const eventName = `${EVENTS.BalanceChanged}_${publicKey}`;
-        
+
         globalEventEmitter.off(eventName, handler);
       });
     };
@@ -459,11 +464,11 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
     // Subscribe to balance fetched events for each wallet
     Object.keys(tokenState.wallets).forEach((publicKey) => {
       const eventName = `${EVENTS.BalanceFetched}_${publicKey}`;
-      
+
       const handler = handleWalletBalanceFetched(publicKey);
-      
+
       walletFetchedHandlers.set(publicKey, handler);
-      
+
       globalEventEmitter.on(eventName, handler);
     });
 
@@ -471,7 +476,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({
       // Unsubscribe from all wallet-specific events
       walletFetchedHandlers.forEach((handler, publicKey) => {
         const eventName = `${EVENTS.BalanceFetched}_${publicKey}`;
-      
+
         globalEventEmitter.off(eventName, handler);
       });
     };

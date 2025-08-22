@@ -32,12 +32,12 @@ export const formatBalance = (
  */
 export const formatSolBalance = (balance: number): string => {
   if (balance === 0) return '0';
-  
+
   // For very small amounts, use high precision formatting
   if (balance < 0.001) {
     return `${formatSmallNumber(balance)}`;
   }
-  
+
   // For larger amounts, use the standard formatting with K/M/B suffixes
   return `${formatBalance(balance, true)}`;
 };

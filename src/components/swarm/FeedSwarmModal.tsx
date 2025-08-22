@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, InputNumber, Checkbox, App as AntdApp } from 'antd';
+import {
+  Modal,
+  Form,
+  Select,
+  InputNumber,
+  Checkbox,
+  App as AntdApp,
+} from 'antd';
 import { useTranslation } from 'react-i18next';
 import { FeedSwarmCommand } from '../../domain/commands';
 import { FeedSwarmByStepsCommand } from '../../domain/commands/FeedSwarmByStepsCommand';
@@ -125,13 +132,8 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
             placeholder={t('swarm.feedModal.amountPlaceholder')}
           />
         </Form.Item>
-        <Form.Item
-          name="useRandomAmount"
-          valuePropName="checked"
-        >
-          <Checkbox
-            onChange={(e) => setUseRandomAmount(e.target.checked)}
-          >
+        <Form.Item name="useRandomAmount" valuePropName="checked">
+          <Checkbox onChange={(e) => setUseRandomAmount(e.target.checked)}>
             {t('swarm.feedModal.useRandomAmount')}
           </Checkbox>
         </Form.Item>
@@ -140,9 +142,7 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
           valuePropName="checked"
           extra={t('swarm.feedModal.useMiddleWalletsWarning')}
         >
-          <Checkbox
-            onChange={(e) => setUseMiddleWallets(e.target.checked)}
-          >
+          <Checkbox onChange={(e) => setUseMiddleWallets(e.target.checked)}>
             {t('swarm.feedModal.useMiddleWallets')}
           </Checkbox>
         </Form.Item>

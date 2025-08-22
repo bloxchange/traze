@@ -19,7 +19,12 @@ export class FeedSwarmCommand {
   private wallets: WalletInfo[];
   private useRandomAmount: boolean;
 
-  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], useRandomAmount: boolean = false) {
+  constructor(
+    sourceWallet: string,
+    amount: number,
+    wallets: WalletInfo[],
+    useRandomAmount: boolean = false
+  ) {
     this.sourceWallet = sourceWallet;
     this.amount = amount;
     this.wallets = wallets;
@@ -86,9 +91,11 @@ export class FeedSwarmCommand {
 
     const randoms = this.useRandomAmount
       ? getRandomRange(remainingWallets.length)
-      : new Array(remainingWallets.length).fill(0).map(() => Math.round(100 / remainingWallets.length) / 100);
+      : new Array(remainingWallets.length)
+          .fill(0)
+          .map(() => Math.round(100 / remainingWallets.length) / 100);
 
-    const amountPerWallets = randoms.map(r => Math.round(r * totalAmount));
+    const amountPerWallets = randoms.map((r) => Math.round(r * totalAmount));
 
     const txMessage = new TransactionMessage({
       payerKey: sender!.keypair.publicKey,
@@ -167,9 +174,13 @@ export class FeedSwarmCommand {
 
     const randoms = this.useRandomAmount
       ? getRandomRange(remainingWallets.length)
-      : new Array(remainingWallets.length).fill(0).map(() => Math.round(100 / remainingWallets.length) / 100);
+      : new Array(remainingWallets.length)
+          .fill(0)
+          .map(() => Math.round(100 / remainingWallets.length) / 100);
 
-    const amountPerWallet = randoms.map(r => Math.round(r * this.amount * LAMPORTS_PER_SOL));
+    const amountPerWallet = randoms.map((r) =>
+      Math.round(r * this.amount * LAMPORTS_PER_SOL)
+    );
 
     const connection = ConnectionManager.getInstance().getConnection();
 

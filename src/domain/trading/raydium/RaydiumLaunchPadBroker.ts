@@ -120,11 +120,16 @@ export class RaydiumLaunchPadBroker implements IBroker {
         shareFeeRate: new BN(0),
         txVersion: TxVersion.V0,
         computeBudgetConfig: {
-          units: Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3),
-          microLamports: Math.round(Math.max(
-            buyParameters.costUnits || 0,
-            (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3)
-          )),
+          units: Math.round(
+            (buyParameters.computeUnitsConsumed || 70_000) * 1.3
+          ),
+          microLamports: Math.round(
+            Math.max(
+              buyParameters.costUnits || 0,
+              (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+                Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3)
+            )
+          ),
         },
       });
 
@@ -180,11 +185,18 @@ export class RaydiumLaunchPadBroker implements IBroker {
         shareFeeRate: new BN(0),
         txVersion: TxVersion.V0,
         computeBudgetConfig: {
-          units: Math.round((sellParameters.computeUnitsConsumed || 70_000) * 1.3),
-          microLamports: Math.round(Math.max(
-            sellParameters.costUnits || 0,
-            (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / Math.round((sellParameters.computeUnitsConsumed || 70_000) * 1.3)
-          )),
+          units: Math.round(
+            (sellParameters.computeUnitsConsumed || 70_000) * 1.3
+          ),
+          microLamports: Math.round(
+            Math.max(
+              sellParameters.costUnits || 0,
+              (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+                Math.round(
+                  (sellParameters.computeUnitsConsumed || 70_000) * 1.3
+                )
+            )
+          ),
         },
       });
 
