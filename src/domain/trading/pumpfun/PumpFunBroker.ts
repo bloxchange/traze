@@ -103,8 +103,7 @@ export class PumpFunBroker implements IBroker {
     const unitPrice = Math.round(
       Math.max(
         buyParameters.costUnits || 0,
-        (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-          unitLimit
+        Math.round((buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
       )
     );
 
@@ -377,8 +376,7 @@ export class PumpFunBroker implements IBroker {
     const unitPrice = Math.round(
       Math.max(
         sellParameters.costUnits || 0,
-        (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-          unitLimit
+        Math.round((sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
       )
     );
 

@@ -199,7 +199,7 @@ export class GetTokenInformationCommand {
         totalSupply: Number(dAsset.mint.supply),
         icon: imageUrl,
         externalUrl: externalUrl,
-        authority: undefined, // Metaplex doesn't provide authority info in the same format
+        authority: dAsset.metadata.updateAuthority,
       };
     } catch {
       return null;

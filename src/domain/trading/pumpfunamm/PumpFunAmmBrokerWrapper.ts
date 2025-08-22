@@ -35,6 +35,7 @@ import { PumpAmmSdk } from '@pump-fun/pump-swap-sdk';
 import type { PriorityFee } from '../pumpfun/types';
 import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 import * as borsh from '@coral-xyz/borsh';
+import { min } from 'bn.js';
 
 export class PumpFunAmmBrokerWrapper implements IBroker {
   private connection: Connection;
@@ -346,14 +347,20 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         buyParameters.priorityFeeInSol > 0
       ) {
         // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-        const unitLimit = Math.round(
-          (buyParameters.computeUnitsConsumed || 70_000) * 1.3
-        );
+        const minUnitLimit = !buyParameters.computeUnitsConsumed ||
+          buyParameters.computeUnitsConsumed < 200_000
+          ? 200_000
+          : buyParameters.computeUnitsConsumed;
+
+        const unitLimit = Math.min(
+          250_000,
+          minUnitLimit
+        )
+
         const unitPrice = Math.round(
           Math.max(
             buyParameters.costUnits || 0,
-            (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-              unitLimit
+            Math.round((buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
           )
         );
 
@@ -506,14 +513,21 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         sellParameters.priorityFeeInSol > 0
       ) {
         // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-        const unitLimit = Math.round(
-          (sellParameters.computeUnitsConsumed || 70_000) * 1.3
+        const minUnitLimit = 
+          !sellParameters.computeUnitsConsumed ||
+          sellParameters.computeUnitsConsumed < 120_000
+          ? 120_000
+          : sellParameters.computeUnitsConsumed;
+
+        const unitLimit = Math.min(
+          150_000,
+          minUnitLimit
         );
+
         const unitPrice = Math.round(
           Math.max(
             sellParameters.costUnits || 0,
-            (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-              unitLimit
+            Math.round((sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
           )
         );
 

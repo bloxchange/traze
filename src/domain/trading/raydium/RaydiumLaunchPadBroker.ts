@@ -111,6 +111,16 @@ export class RaydiumLaunchPadBroker implements IBroker {
       //   throw new Error('Launchpad pool not found');
       // }
 
+      const minUnitLimit = !buyParameters.computeUnitsConsumed || 
+        buyParameters.computeUnitsConsumed < 150_000
+        ? 150_000
+        : buyParameters.computeUnitsConsumed;
+
+      const unitLimit = Math.min(
+        200_000,
+        minUnitLimit
+      );
+
       // Execute the buy transaction using the correct parameter names
       const { execute, extInfo } = await raydium.launchpad.buyToken({
         programId: this.programId,
@@ -120,14 +130,11 @@ export class RaydiumLaunchPadBroker implements IBroker {
         shareFeeRate: new BN(0),
         txVersion: TxVersion.V0,
         computeBudgetConfig: {
-          units: Math.round(
-            (buyParameters.computeUnitsConsumed || 70_000) * 1.3
-          ),
+          units: unitLimit,
           microLamports: Math.round(
             Math.max(
               buyParameters.costUnits || 0,
-              (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-                Math.round((buyParameters.computeUnitsConsumed || 70_000) * 1.3)
+              Math.round((buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
             )
           ),
         },
@@ -176,6 +183,16 @@ export class RaydiumLaunchPadBroker implements IBroker {
       //   throw new Error('Launchpad pool not found');
       // }
 
+      const minUnitLimit = !sellParameters.computeUnitsConsumed ||
+        sellParameters.computeUnitsConsumed < 80_000
+        ? 80_000
+        : sellParameters.computeUnitsConsumed;
+
+        const unitLimit = Math.min(
+          100_000,
+          minUnitLimit
+        );
+
       // Execute the buy transaction using the correct parameter names
       const { execute, extInfo } = await raydium.launchpad.sellToken({
         programId: this.programId,
@@ -185,16 +202,11 @@ export class RaydiumLaunchPadBroker implements IBroker {
         shareFeeRate: new BN(0),
         txVersion: TxVersion.V0,
         computeBudgetConfig: {
-          units: Math.round(
-            (sellParameters.computeUnitsConsumed || 70_000) * 1.3
-          ),
+          units: unitLimit,
           microLamports: Math.round(
             Math.max(
               sellParameters.costUnits || 0,
-              (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
-                Math.round(
-                  (sellParameters.computeUnitsConsumed || 70_000) * 1.3
-                )
+              Math.round((sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
             )
           ),
         },
