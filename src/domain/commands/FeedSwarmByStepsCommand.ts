@@ -6,7 +6,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
   PublicKey,
-  Keypair
+  Keypair,
 } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
@@ -23,7 +23,13 @@ export class FeedSwarmByStepsCommand {
   private middleWalletCount: number;
   private useRandomAmount: boolean;
 
-  constructor(sourceWallet: string, amount: number, wallets: WalletInfo[], middleWalletCount: number, useRandomAmount: boolean = false) {
+  constructor(
+    sourceWallet: string,
+    amount: number,
+    wallets: WalletInfo[],
+    middleWalletCount: number,
+    useRandomAmount: boolean = false
+  ) {
     this.sourceWallet = sourceWallet;
     this.amount = amount;
     this.wallets = wallets;
@@ -33,11 +39,11 @@ export class FeedSwarmByStepsCommand {
 
   async execute(): Promise<void> {
     const totalAmount = this.amount * LAMPORTS_PER_SOL;
-    
+
     // Start the chain transfer
     let currentSourcePublicKey: PublicKey;
     let currentSourceKeypair: Keypair | null = null;
-    
+
     if (this.sourceWallet === 'phantom') {
       if (!window.solana || !window.solana.isPhantom) {
         throw new Error('Phantom wallet not installed');
@@ -50,11 +56,11 @@ export class FeedSwarmByStepsCommand {
       const sourceWalletInfo = this.wallets.find(
         (wallet) => wallet.publicKey === this.sourceWallet
       );
-      
+
       if (!sourceWalletInfo) {
         throw new Error('Source wallet not found in swarm');
       }
-      
+
       currentSourcePublicKey = sourceWalletInfo.keypair.publicKey;
       currentSourceKeypair = sourceWalletInfo.keypair;
     }
@@ -63,15 +69,17 @@ export class FeedSwarmByStepsCommand {
     const destinationWallets = this.wallets.filter(
       (wallet) => wallet.publicKey !== currentSourcePublicKey.toBase58()
     );
-    
+
     const destinationWalletCount = destinationWallets.length;
 
     const randoms = this.useRandomAmount
       ? getRandomRange(destinationWallets.length)
-      : new Array(destinationWallets.length).fill(0).map(() => Math.round(100 / destinationWallets.length) / 100);
+      : new Array(destinationWallets.length)
+          .fill(0)
+          .map(() => Math.round(100 / destinationWallets.length) / 100);
 
-    const amountPerWallet = randoms.map(r => Math.round(r * totalAmount));
-    
+    const amountPerWallet = randoms.map((r) => Math.round(r * totalAmount));
+
     // Calculate total fees: (middleWalletCount + 1) transfers per destination wallet
     const transfersPerDestination = this.middleWalletCount + 1;
     const totalTransfers = transfersPerDestination * destinationWalletCount;
@@ -80,20 +88,20 @@ export class FeedSwarmByStepsCommand {
 
     // Calculate total initial amount (add total fees but subtract one fee from original source)
     const totalInitialAmount = totalAmount + totalFees - feePerTransaction;
-    
+
     // Transfer in chain: source -> destination1 -> destination2 -> destination3...
     for (let i = 0; i < destinationWallets.length; i++) {
       const destinationWallet = destinationWallets[i];
-      
+
       // calculate transfered amount
       let transeferedAmount = 0;
 
-      for (let j = 0; j < i; j++){
+      for (let j = 0; j < i; j++) {
         transeferedAmount += amountPerWallet[j];
       }
 
       const transferAmount = totalInitialAmount - transeferedAmount;
-      
+
       await this.transferWithMiddleWallets(
         currentSourcePublicKey,
         destinationWallet.keypair.publicKey,
@@ -101,7 +109,7 @@ export class FeedSwarmByStepsCommand {
         this.middleWalletCount,
         currentSourceKeypair
       );
-      
+
       // Update source for next iteration (destination becomes new source)
       currentSourcePublicKey = destinationWallet.keypair.publicKey;
       currentSourceKeypair = destinationWallet.keypair;
@@ -116,13 +124,27 @@ export class FeedSwarmByStepsCommand {
     sourceKeypair?: Keypair | null
   ): Promise<void> {
     // Emit source wallet event (negative amount)
-    await this.dispatchTransferEvents(sourcePublicKey, destinationPublicKey, -amount);
-    
+    await this.dispatchTransferEvents(
+      sourcePublicKey,
+      destinationPublicKey,
+      -amount
+    );
+
     if (middleWalletCount === 0) {
       // Direct transfer without middle wallets
-      await this.directTransfer(sourcePublicKey, destinationPublicKey, amount, sourceKeypair, false);
+      await this.directTransfer(
+        sourcePublicKey,
+        destinationPublicKey,
+        amount,
+        sourceKeypair,
+        false
+      );
       // Emit destination wallet event (positive amount)
-      await this.dispatchTransferEvents(sourcePublicKey, destinationPublicKey, amount);
+      await this.dispatchTransferEvents(
+        sourcePublicKey,
+        destinationPublicKey,
+        amount
+      );
       return;
     }
 
@@ -149,7 +171,7 @@ export class FeedSwarmByStepsCommand {
     }
 
     const feePerTransaction = 5000; // 5000 lamports per transaction
-    
+
     // Transfer from source to first middle wallet (sender pays fee)
     await this.directTransfer(
       sourcePublicKey,
@@ -162,11 +184,13 @@ export class FeedSwarmByStepsCommand {
     // The next wallet pays the transaction fee
     for (let i = 0; i < middleWalletCount - 1; i++) {
       // Get the current balance of the middle wallet
-      const currentBalance = await connection.getBalance(middleWallets[i].publicKey);
-      
+      const currentBalance = await connection.getBalance(
+        middleWallets[i].publicKey
+      );
+
       // Transfer all SOL minus 5000 lamports (for fees)
       const transferAmount = currentBalance - feePerTransaction;
-      
+
       if (transferAmount > 0) {
         await this.directTransfer(
           middleWallets[i].publicKey,
@@ -179,9 +203,11 @@ export class FeedSwarmByStepsCommand {
 
     // Final transfer from last middle wallet to destination
     // Transfer all remaining SOL minus 5000 lamports (destination wallet pays fee)
-    const lastWalletBalance = await connection.getBalance(middleWallets[middleWalletCount - 1].publicKey);
+    const lastWalletBalance = await connection.getBalance(
+      middleWallets[middleWalletCount - 1].publicKey
+    );
     const finalTransferAmount = lastWalletBalance - feePerTransaction;
-    
+
     if (finalTransferAmount > 0) {
       await this.directTransfer(
         middleWallets[middleWalletCount - 1].publicKey,
@@ -191,15 +217,19 @@ export class FeedSwarmByStepsCommand {
         false // Don't emit events in directTransfer, we handle them here
       );
     }
-    
+
     // Emit destination wallet event (positive amount)
-    await this.dispatchTransferEvents(sourcePublicKey, destinationPublicKey, amount);
+    await this.dispatchTransferEvents(
+      sourcePublicKey,
+      destinationPublicKey,
+      amount
+    );
   }
 
   /**
    * Executes a direct transfer between two wallets with sender as fee payer
    * @param sourcePublicKey - The source wallet public key
-   * @param destinationPublicKey - The destination wallet public key  
+   * @param destinationPublicKey - The destination wallet public key
    * @param amount - The amount to transfer in lamports
    * @param sourceKeypair - The source wallet keypair (null for Phantom)
    * @param isFinalDestination - Whether this is a transfer to the final destination wallet
@@ -225,7 +255,7 @@ export class FeedSwarmByStepsCommand {
       const transaction = new Transaction();
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = actualFeePayer;
-      
+
       transaction.add(
         SystemProgram.transfer({
           fromPubkey: sourcePublicKey,
@@ -246,20 +276,22 @@ export class FeedSwarmByStepsCommand {
             fromPubkey: sourcePublicKey,
             toPubkey: destinationPublicKey,
             lamports: amount,
-          })
+          }),
         ],
       }).compileToV0Message();
 
       const tx = new VersionedTransaction(txMessage);
-      const signers = [sourceKeypair].filter((signer): signer is Keypair => signer !== undefined);
-      
+      const signers = [sourceKeypair].filter(
+        (signer): signer is Keypair => signer !== undefined
+      );
+
       tx.sign(signers);
 
       const signature = await connection.sendTransaction(tx, {
         skipPreflight: true,
       });
 
-      while(1){
+      while (1) {
         await delay(500);
 
         const status = await connection.getSignatureStatus(signature);
@@ -270,14 +302,17 @@ export class FeedSwarmByStepsCommand {
           throw new Error('Transaction error');
         }
 
-        if (status?.value?.confirmationStatus === 'confirmed' || status?.value?.confirmationStatus === 'finalized') {
+        if (
+          status?.value?.confirmationStatus === 'confirmed' ||
+          status?.value?.confirmationStatus === 'finalized'
+        ) {
           console.log('Transaction confirmed');
 
           break;
         }
       }
     }
-    
+
     // Emit balance change events only for final destination transfers
     if (isFinalDestination) {
       await this.dispatchTransferEvents(

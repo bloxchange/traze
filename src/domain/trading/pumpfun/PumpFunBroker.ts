@@ -89,18 +89,24 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const minComputeUnitsConsumed = !buyParameters.computeUnitsConsumed || buyParameters.computeUnitsConsumed < 80_000
-      ? 80_000
-      : buyParameters.computeUnitsConsumed;
+    const minComputeUnitsConsumed =
+      !buyParameters.computeUnitsConsumed ||
+      buyParameters.computeUnitsConsumed < 80_000
+        ? 80_000
+        : buyParameters.computeUnitsConsumed;
 
-    const unitLimit = Math.min(1_00_000
-      , minComputeUnitsConsumed
-        + (newTokenAccount ? 30_000 : 0));
-    
-    const unitPrice = Math.round(Math.max(
-      buyParameters.costUnits || 0,
-      (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
-    ));
+    const unitLimit = Math.min(
+      1_00_000,
+      minComputeUnitsConsumed + (newTokenAccount ? 30_000 : 0)
+    );
+
+    const unitPrice = Math.round(
+      Math.max(
+        buyParameters.costUnits || 0,
+        (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+          unitLimit
+      )
+    );
 
     const priorityFees = {
       unitLimit,
@@ -362,14 +368,19 @@ export class PumpFunBroker implements IBroker {
       );
 
     // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-    const unitLimit = !sellParameters.computeUnitsConsumed || sellParameters.computeUnitsConsumed < 45_000
-      ? 45_000
-      : sellParameters.computeUnitsConsumed;
+    const unitLimit =
+      !sellParameters.computeUnitsConsumed ||
+      sellParameters.computeUnitsConsumed < 45_000
+        ? 45_000
+        : sellParameters.computeUnitsConsumed;
 
-    const unitPrice = Math.round(Math.max(
-      sellParameters.costUnits || 0,
-      (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit
-    ));
+    const unitPrice = Math.round(
+      Math.max(
+        sellParameters.costUnits || 0,
+        (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+          unitLimit
+      )
+    );
 
     const priorityFees = {
       unitLimit,
@@ -389,7 +400,10 @@ export class PumpFunBroker implements IBroker {
       totalSolReceived
     );
 
-    console.log('begin sell transaction', sellParameters.seller.publicKey.toBase58());
+    console.log(
+      'begin sell transaction',
+      sellParameters.seller.publicKey.toBase58()
+    );
 
     const result = await sendTransaction(
       this.connection,

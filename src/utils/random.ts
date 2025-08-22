@@ -22,12 +22,12 @@ export function getRandomRange(count: number): number[] {
   const sum = values.reduce((acc, val) => acc + val, 0);
 
   // Normalize to sum to 1.0 and round to 2 decimal places
-  const normalized = values.map(val => Math.round((val / sum) * 100) / 100);
+  const normalized = values.map((val) => Math.round((val / sum) * 100) / 100);
 
   // Adjust for rounding errors to ensure sum equals 1.0
   const currentSum = normalized.reduce((acc, val) => acc + val, 0);
   const difference = Math.round((1.0 - currentSum) * 100) / 100;
-  
+
   if (difference !== 0) {
     // Add the difference to the first element
     normalized[0] = Math.round((normalized[0] + difference) * 100) / 100;
