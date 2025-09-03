@@ -39,7 +39,10 @@ export class LiquidityPoolCache {
     }
 
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(LiquidityPoolCache.DB_NAME, LiquidityPoolCache.DB_VERSION);
+      const request = indexedDB.open(
+        LiquidityPoolCache.DB_NAME,
+        LiquidityPoolCache.DB_VERSION
+      );
 
       request.onerror = () => {
         reject(new Error('Failed to open IndexedDB'));
@@ -52,12 +55,12 @@ export class LiquidityPoolCache {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         if (!db.objectStoreNames.contains(LiquidityPoolCache.STORE_NAME)) {
           const store = db.createObjectStore(LiquidityPoolCache.STORE_NAME, {
-            keyPath: 'tokenMint'
+            keyPath: 'tokenMint',
           });
-          
+
           // Create index for expiry time to enable cleanup
           store.createIndex('expiryTime', 'expiryTime', { unique: false });
         }
@@ -73,24 +76,27 @@ export class LiquidityPoolCache {
   async getCachedPools(tokenMint: string): Promise<PoolData[] | null> {
     try {
       const db = await this.initDB();
-      const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readonly');
+      const transaction = db.transaction(
+        [LiquidityPoolCache.STORE_NAME],
+        'readonly'
+      );
       const store = transaction.objectStore(LiquidityPoolCache.STORE_NAME);
-      
+
       return new Promise((resolve, reject) => {
         const request = store.get(tokenMint);
-        
+
         request.onerror = () => {
           reject(new Error('Failed to get cached pools'));
         };
-        
+
         request.onsuccess = () => {
           const result = request.result as CachedLiquidityPool | undefined;
-          
+
           if (!result) {
             resolve(null);
             return;
           }
-          
+
           // Check if cache is expired
           const now = Date.now();
           if (now > result.expiryTime) {
@@ -99,7 +105,7 @@ export class LiquidityPoolCache {
             resolve(null);
             return;
           }
-          
+
           resolve(result.pools);
         };
       });
@@ -117,25 +123,28 @@ export class LiquidityPoolCache {
   async cachePools(tokenMint: string, pools: PoolData[]): Promise<void> {
     try {
       const db = await this.initDB();
-      const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readwrite');
+      const transaction = db.transaction(
+        [LiquidityPoolCache.STORE_NAME],
+        'readwrite'
+      );
       const store = transaction.objectStore(LiquidityPoolCache.STORE_NAME);
-      
+
       const now = Date.now();
-      
+
       const cachedData: CachedLiquidityPool = {
         tokenMint,
         pools,
         timestamp: now,
-        expiryTime: now + LiquidityPoolCache.CACHE_DURATION
+        expiryTime: now + LiquidityPoolCache.CACHE_DURATION,
       };
-      
+
       return new Promise((resolve, reject) => {
         const request = store.put(cachedData);
-        
+
         request.onerror = () => {
           reject(new Error('Failed to cache pools'));
         };
-        
+
         request.onsuccess = () => {
           resolve();
         };
@@ -152,16 +161,19 @@ export class LiquidityPoolCache {
   async removeCachedPools(tokenMint: string): Promise<void> {
     try {
       const db = await this.initDB();
-      const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readwrite');
+      const transaction = db.transaction(
+        [LiquidityPoolCache.STORE_NAME],
+        'readwrite'
+      );
       const store = transaction.objectStore(LiquidityPoolCache.STORE_NAME);
-      
+
       return new Promise((resolve, reject) => {
         const request = store.delete(tokenMint);
-        
+
         request.onerror = () => {
           reject(new Error('Failed to remove cached pools'));
         };
-        
+
         request.onsuccess = () => {
           resolve();
         };
@@ -177,23 +189,26 @@ export class LiquidityPoolCache {
   async clearExpiredCache(): Promise<void> {
     try {
       const db = await this.initDB();
-      const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readwrite');
+      const transaction = db.transaction(
+        [LiquidityPoolCache.STORE_NAME],
+        'readwrite'
+      );
       const store = transaction.objectStore(LiquidityPoolCache.STORE_NAME);
       const index = store.index('expiryTime');
-      
+
       const now = Date.now();
       const range = IDBKeyRange.upperBound(now);
-      
+
       return new Promise((resolve, reject) => {
         const request = index.openCursor(range);
-        
+
         request.onerror = () => {
           reject(new Error('Failed to clear expired cache'));
         };
-        
+
         request.onsuccess = (event) => {
           const cursor = (event.target as IDBRequest).result;
-          
+
           if (cursor) {
             cursor.delete();
             cursor.continue();

@@ -111,15 +111,13 @@ export class RaydiumLaunchPadBroker implements IBroker {
       //   throw new Error('Launchpad pool not found');
       // }
 
-      const minUnitLimit = !buyParameters.computeUnitsConsumed || 
+      const minUnitLimit =
+        !buyParameters.computeUnitsConsumed ||
         buyParameters.computeUnitsConsumed < 150_000
-        ? 150_000
-        : buyParameters.computeUnitsConsumed;
+          ? 150_000
+          : buyParameters.computeUnitsConsumed;
 
-      const unitLimit = Math.min(
-        200_000,
-        minUnitLimit
-      );
+      const unitLimit = Math.min(200_000, minUnitLimit);
 
       // Execute the buy transaction using the correct parameter names
       const { execute, extInfo } = await raydium.launchpad.buyToken({
@@ -134,7 +132,12 @@ export class RaydiumLaunchPadBroker implements IBroker {
           microLamports: Math.round(
             Math.max(
               buyParameters.costUnits || 0,
-              Math.round((buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
+              Math.round(
+                (buyParameters.priorityFeeInSol *
+                  LAMPORTS_PER_SOL *
+                  1_000_000) /
+                  unitLimit
+              )
             )
           ),
         },
@@ -183,15 +186,13 @@ export class RaydiumLaunchPadBroker implements IBroker {
       //   throw new Error('Launchpad pool not found');
       // }
 
-      const minUnitLimit = !sellParameters.computeUnitsConsumed ||
+      const minUnitLimit =
+        !sellParameters.computeUnitsConsumed ||
         sellParameters.computeUnitsConsumed < 80_000
-        ? 80_000
-        : sellParameters.computeUnitsConsumed;
+          ? 80_000
+          : sellParameters.computeUnitsConsumed;
 
-        const unitLimit = Math.min(
-          100_000,
-          minUnitLimit
-        );
+      const unitLimit = Math.min(100_000, minUnitLimit);
 
       // Execute the buy transaction using the correct parameter names
       const { execute, extInfo } = await raydium.launchpad.sellToken({
@@ -206,7 +207,12 @@ export class RaydiumLaunchPadBroker implements IBroker {
           microLamports: Math.round(
             Math.max(
               sellParameters.costUnits || 0,
-              Math.round((sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
+              Math.round(
+                (sellParameters.priorityFeeInSol *
+                  LAMPORTS_PER_SOL *
+                  1_000_000) /
+                  unitLimit
+              )
             )
           ),
         },
@@ -343,7 +349,7 @@ export class RaydiumLaunchPadBroker implements IBroker {
     }
 
     // Convert token amount from raw to decimal format
-    const formattedTokenAmount = tokensReceived / Math.pow(10, decimals);
+    const formattedTokenAmount = tokensReceived; // / Math.pow(10, decimals);
 
     // Emit SOL balance change (negative) with buyer-specific event key
     const solBalanceChange: BalanceChangeData = {
@@ -388,7 +394,7 @@ export class RaydiumLaunchPadBroker implements IBroker {
     }
 
     // Convert token amount from raw to decimal format
-    const formattedTokenAmount = sellTokenAmount / Math.pow(10, decimals);
+    const formattedTokenAmount = sellTokenAmount; // / Math.pow(10, decimals);
 
     // Emit token balance change (negative) with seller-specific event key
     const tokenBalanceChange: BalanceChangeData = {
