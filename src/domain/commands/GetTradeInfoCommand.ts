@@ -45,10 +45,17 @@ export class GetTradeInfoCommand {
     const solBalanceAfter = postBalances[0];
     const fromTokenAmount = Math.abs(solBalanceBefore - solBalanceAfter);
 
+    // find owner
+    const owner = transaction.transaction.message.accountKeys
+      .find((a) => a.signer)
+      ?.pubkey.toBase58();
+
     // Calculate token amount received/sold (toTokenAmount)
     // Index 1 is typically the token account
-    const tokenBalanceBefore = preTokenBalances[1]?.uiTokenAmount?.amount;
-    const tokenBalanceAfter = postTokenBalances[1]?.uiTokenAmount?.amount;
+    const tokenBalanceBefore = preTokenBalances.find((b) => b.owner === owner)
+      ?.uiTokenAmount?.amount;
+    const tokenBalanceAfter = postTokenBalances.find((b) => b.owner === owner)
+      ?.uiTokenAmount?.amount;
 
     if (!tokenBalanceBefore || !tokenBalanceAfter) {
       return null;

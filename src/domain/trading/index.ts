@@ -4,7 +4,7 @@ export type { IBuyParameters } from './IBuyParameters';
 export type { ISellParameters } from './ISellParameters';
 
 // PumpFun broker
-export { PumpFunBroker } from './pumpfun/PumpFunBroker';
+export { PumpFunSdk } from './pumpfun/PumpFunSdk';
 export type { PumpFunSellParameters } from './pumpfun/SellParameters';
 export type { PumpFunBuyParameters } from './pumpfun/BuyParameters';
 

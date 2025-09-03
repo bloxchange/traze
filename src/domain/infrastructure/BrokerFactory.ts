@@ -1,6 +1,6 @@
 import type { Provider } from '@coral-xyz/anchor';
 import type { IBroker } from '../trading/IBroker';
-import { PumpFunBroker } from '../trading/pumpfun/PumpFunBroker';
+import { PumpFunSdk } from '../trading/pumpfun/PumpFunSdk';
 import { PumpFunAmmBrokerWrapper } from '../trading/pumpfunamm/PumpFunAmmBrokerWrapper';
 import { PUMPFUN_PROGRAM_ID, PUMPFUN_AMM_PROGRAM_ID } from './consts';
 
@@ -16,7 +16,7 @@ export class BrokerFactory {
 
     switch (programId) {
       case PUMPFUN_PROGRAM_ID:
-        broker = new PumpFunBroker(provider);
+        broker = new PumpFunSdk(provider!.connection);
         break;
 
       case PUMPFUN_AMM_PROGRAM_ID:

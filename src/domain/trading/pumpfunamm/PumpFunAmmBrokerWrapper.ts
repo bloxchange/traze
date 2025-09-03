@@ -2,9 +2,7 @@ import type { IBroker } from '../IBroker';
 import type { IBuyParameters } from '../IBuyParameters';
 import type { ISellParameters } from '../ISellParameters';
 import type TradeEventInfo from '../../models/TradeEventInfo';
-import {
-  type PumpFunAmmConfig
-} from './PumpFunAmmBroker';
+import { type PumpFunAmmConfig } from './PumpFunAmmBroker';
 import {
   PublicKey,
   LAMPORTS_PER_SOL,
@@ -22,7 +20,7 @@ import {
 } from '../../infrastructure/events/types';
 import {
   PUMPFUN_AMM_PROGRAM_ID,
-  WRAPPED_SOL_MINT
+  WRAPPED_SOL_MINT,
 } from '../../infrastructure/consts';
 import { PoolAccount } from './PoolAccount';
 import { getBalance } from '@/domain/rpc';
@@ -65,16 +63,19 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
    * @param instructions Array of instructions from buyQuoteInput or sellBaseInput result
    * @returns Decoded amounts or null if decoding fails
    */
-  private decodeInstructionAmounts(instructions: any[]): {
+  private decodeInstructionAmounts(
+    instructions: any[],
+    isBuy: boolean
+  ): {
     type: 'buy' | 'sell';
     baseAmount: bigint;
     quoteAmount: bigint;
   } | null {
-    if (!instructions || instructions.length < 4) {
+    if (!instructions || instructions.length < 3) {
       return null;
     }
 
-    const fourthInstruction = instructions[3];
+    const fourthInstruction = instructions[isBuy ? 3 : 1];
     if (!fourthInstruction?.data) {
       return null;
     }
@@ -188,13 +189,14 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
    * @returns Array of liquidity pool accounts
    */
 
-
   /**
    * Get liquidity pool data for a token mint
    * @param tokenMint - The token mint address
    * @returns Array of PoolData objects containing both account and pubkey
    */
-  private async getLiquidityPoolDataByTokenMint(tokenMint: string): Promise<{account: PoolAccount, pubkey: string}[]> {
+  private async getLiquidityPoolDataByTokenMint(
+    tokenMint: string
+  ): Promise<{ account: PoolAccount; pubkey: string }[]> {
     try {
       // Check cache for pools first
       const cachedPools = await liquidityPoolCache.getCachedPools(tokenMint);
@@ -242,16 +244,16 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
           ],
         })
       );
-      
+
       // Create PoolData objects with both decoded account and pubkey
-      const poolDataArray = accounts.map(poolResponse => ({
+      const poolDataArray = accounts.map((poolResponse) => ({
         account: PoolAccount.fromBuffer(poolResponse.account.data),
-        pubkey: poolResponse.pubkey.toBase58()
+        pubkey: poolResponse.pubkey.toBase58(),
       }));
-      
+
       // Cache the pool data
       await liquidityPoolCache.cachePools(tokenMint, poolDataArray);
-      
+
       return poolDataArray;
     } catch (error) {
       console.error('Error fetching decoded liquidity pools:', error);
@@ -260,9 +262,12 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
   }
 
   private async getBestBuyPool(
-    poolDataArray: {account: PoolAccount, pubkey: string}[]
-  ): Promise<{ poolData: {account: PoolAccount, pubkey: string} | null; price: number }> {
-    let bestPoolData: {account: PoolAccount, pubkey: string} | null = null;
+    poolDataArray: { account: PoolAccount; pubkey: string }[]
+  ): Promise<{
+    poolData: { account: PoolAccount; pubkey: string } | null;
+    price: number;
+  }> {
+    let bestPoolData: { account: PoolAccount; pubkey: string } | null = null;
 
     let bestPrice = 99999999999;
 
@@ -347,20 +352,21 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         buyParameters.priorityFeeInSol > 0
       ) {
         // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-        const minUnitLimit = !buyParameters.computeUnitsConsumed ||
+        const minUnitLimit =
+          !buyParameters.computeUnitsConsumed ||
           buyParameters.computeUnitsConsumed < 200_000
-          ? 200_000
-          : buyParameters.computeUnitsConsumed;
+            ? 200_000
+            : buyParameters.computeUnitsConsumed;
 
-        const unitLimit = Math.min(
-          250_000,
-          minUnitLimit
-        )
+        const unitLimit = Math.min(250_000, minUnitLimit);
 
         const unitPrice = Math.round(
           Math.max(
             buyParameters.costUnits || 0,
-            Math.round((buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
+            Math.round(
+              (buyParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+                unitLimit
+            )
           )
         );
 
@@ -405,7 +411,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
       console.log(`Buy transaction sent with signature: ${signature}`);
 
       // Decode instruction amounts from the 4th instruction
-      const decodedAmounts = this.decodeInstructionAmounts(instructions);
+      const decodedAmounts = this.decodeInstructionAmounts(instructions, true);
 
       // Emit balance change events
       const solSpentLamports = buyParameters.amountInSol * LAMPORTS_PER_SOL;
@@ -495,21 +501,21 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         sellParameters.priorityFeeInSol > 0
       ) {
         // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
-        const minUnitLimit = 
+        const minUnitLimit =
           !sellParameters.computeUnitsConsumed ||
-          sellParameters.computeUnitsConsumed < 120_000
-          ? 120_000
-          : sellParameters.computeUnitsConsumed;
+          sellParameters.computeUnitsConsumed < 150_000
+            ? 150_000
+            : sellParameters.computeUnitsConsumed;
 
-        const unitLimit = Math.min(
-          150_000,
-          minUnitLimit
-        );
+        const unitLimit = Math.min(200_000, minUnitLimit);
 
         const unitPrice = Math.round(
           Math.max(
             sellParameters.costUnits || 0,
-            Math.round((sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) / unitLimit)
+            Math.round(
+              (sellParameters.priorityFeeInSol * LAMPORTS_PER_SOL * 1_000_000) /
+                unitLimit
+            )
           )
         );
 
@@ -554,7 +560,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
       console.log(`Sell transaction sent with signature: ${signature}`);
 
       // Decode instruction amounts from the 4th instruction
-      const decodedAmounts = this.decodeInstructionAmounts(instructions);
+      const decodedAmounts = this.decodeInstructionAmounts(instructions, false);
 
       // Emit balance change events
       const priorityFeeLamports =
@@ -588,13 +594,11 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
       const netSolReceivedLamports =
         solReceivedLamports - priorityFeeLamports - gasFee;
 
-      const netSolReceived = netSolReceivedLamports / LAMPORTS_PER_SOL;
-
       await this.dispatchSellEvents(
         sellParameters.mint.toBase58(),
         sellParameters.seller.publicKey,
         tokensSold,
-        netSolReceived
+        netSolReceivedLamports
       );
 
       return signature;
