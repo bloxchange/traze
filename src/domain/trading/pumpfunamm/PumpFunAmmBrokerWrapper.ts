@@ -3,16 +3,12 @@ import type { IBuyParameters } from '../IBuyParameters';
 import type { ISellParameters } from '../ISellParameters';
 import type TradeEventInfo from '../../models/TradeEventInfo';
 import {
-  PumpFunAmmBroker,
-  type PumpFunAmmConfig,
-  type BuyParams,
-  type SellParams,
+  type PumpFunAmmConfig
 } from './PumpFunAmmBroker';
 import {
   PublicKey,
   LAMPORTS_PER_SOL,
   Connection,
-  type AccountInfo,
   type GetProgramAccountsResponse,
   Transaction,
   sendAndConfirmTransaction,
@@ -26,16 +22,14 @@ import {
 } from '../../infrastructure/events/types';
 import {
   PUMPFUN_AMM_PROGRAM_ID,
-  WRAPPED_SOL_MINT,
-  DEFAULT_DECIMALS,
+  WRAPPED_SOL_MINT
 } from '../../infrastructure/consts';
 import { PoolAccount } from './PoolAccount';
 import { getBalance } from '@/domain/rpc';
 import { PumpAmmSdk } from '@pump-fun/pump-swap-sdk';
 import type { PriorityFee } from '../pumpfun/types';
-import { GetTokenInformationCommand } from '../../commands/GetTokenInformationCommand';
 import * as borsh from '@coral-xyz/borsh';
-import { min } from 'bn.js';
+import { liquidityPoolCache } from '../../infrastructure/liquidityPoolCache';
 
 export class PumpFunAmmBrokerWrapper implements IBroker {
   private connection: Connection;
@@ -189,12 +183,13 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
   }
 
   /**
-   * Get liquidity pools by token mint using getProgramAccounts
+   * Get liquidity pools by token mint using getProgramAccounts with IndexedDB caching
    * @param tokenMint - The token mint address to filter pools by
    * @returns Array of liquidity pool accounts
    */
   private async getLiquidityPoolsByTokenMint(tokenMint: string) {
     try {
+      console.log(`Fetching liquidity pools from RPC for token: ${tokenMint}`);
       const programId = new PublicKey(PUMPFUN_AMM_PROGRAM_ID);
 
       let accounts = await this.connection.getProgramAccounts(programId, {
@@ -232,7 +227,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
           ],
         })
       );
-
+      
       return accounts;
     } catch (error) {
       console.error('Error fetching liquidity pools:', error);
@@ -240,16 +235,44 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
     }
   }
 
+  /**
+   * Get decoded liquidity pool accounts for a token mint
+   * @param tokenMint - The token mint address
+   * @returns Array of decoded PoolAccount objects
+   */
+  private async getDecodedLiquidityPoolsByTokenMint(tokenMint: string): Promise<PoolAccount[]> {
+    try {
+      // Check cache for pools first
+      const cachedPools = await liquidityPoolCache.getCachedPools(tokenMint);
+      if (cachedPools) {
+        console.log(`Using cached liquidity pools for token: ${tokenMint}`);
+        return cachedPools;
+      }
+
+      // If no cached pools, get raw pools and decode them
+      const rawPools = await this.getLiquidityPoolsByTokenMint(tokenMint);
+      const decodedPools = rawPools.map(poolResponse => 
+        PoolAccount.fromBuffer(poolResponse.account.data)
+      );
+      
+      // Cache the decoded pools
+      await liquidityPoolCache.cachePools(tokenMint, decodedPools);
+      
+      return decodedPools;
+    } catch (error) {
+      console.error('Error fetching decoded liquidity pools:', error);
+      return [];
+    }
+  }
+
   private async getBestBuyPool(
-    poolResponses: GetProgramAccountsResponse
+    poolAccounts: PoolAccount[]
   ): Promise<{ poolAccount: PoolAccount | null; price: number }> {
     let bestPool: PoolAccount | null = null;
 
     let bestPrice = 99999999999;
 
-    for (const poolResponse of poolResponses) {
-      const poolAccount = PoolAccount.fromBuffer(poolResponse.account.data);
-
+    for (const poolAccount of poolAccounts) {
       if (bestPool === null) {
         bestPool = poolAccount;
       } else {
@@ -284,17 +307,22 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
     try {
-      // Get liquidity pools for the token
+      // Get raw liquidity pools for the token (needed for pool response lookup)
       const liquidityPools = await this.getLiquidityPoolsByTokenMint(
         buyParameters.tokenMint
       );
 
-      if (!liquidityPools || liquidityPools.length === 0) {
+      // Get decoded liquidity pools for efficient processing
+      const decodedPools = await this.getDecodedLiquidityPoolsByTokenMint(
+        buyParameters.tokenMint
+      );
+
+      if (!liquidityPools || liquidityPools.length === 0 || !decodedPools || decodedPools.length === 0) {
         throw new Error('No liquidity pools found for token');
       }
 
-      // Get the best pool for buying
-      const { poolAccount } = await this.getBestBuyPool(liquidityPools);
+      // Get the best pool for buying using decoded pools
+      const { poolAccount } = await this.getBestBuyPool(decodedPools);
 
       if (!poolAccount) {
         throw new Error('No suitable pool found for buying');
@@ -448,17 +476,22 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
 
   async sell(sellParameters: ISellParameters): Promise<string | null> {
     try {
-      // Get liquidity pools for the token
+      // Get raw liquidity pools for the token (needed for pool response lookup)
       const liquidityPools = await this.getLiquidityPoolsByTokenMint(
         sellParameters.mint.toBase58()
       );
 
-      if (!liquidityPools || liquidityPools.length === 0) {
+      // Get decoded liquidity pools for efficient processing
+      const decodedPools = await this.getDecodedLiquidityPoolsByTokenMint(
+        sellParameters.mint.toBase58()
+      );
+
+      if (!liquidityPools || liquidityPools.length === 0 || !decodedPools || decodedPools.length === 0) {
         throw new Error('No liquidity pools found for token');
       }
 
-      // Get the best pool for selling
-      const { poolAccount } = await this.getBestBuyPool(liquidityPools);
+      // Get the best pool for selling using decoded pools
+      const { poolAccount } = await this.getBestBuyPool(decodedPools);
 
       if (!poolAccount) {
         throw new Error('No suitable pool found for selling');
