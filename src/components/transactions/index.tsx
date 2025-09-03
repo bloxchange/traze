@@ -30,7 +30,7 @@ const Transactions: React.FC<TransactionsProps> = () => {
       const tokenMint = data.tradeInfo.toTokenMint;
 
       // Fetch token decimals if not already cached
-      if (!tokenDecimals[tokenMint]) {
+      if (tokenMint && !tokenDecimals[tokenMint]) {
         try {
           const tokenInfo = await new GetTokenInformationCommand(
             tokenMint
