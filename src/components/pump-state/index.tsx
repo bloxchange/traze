@@ -69,7 +69,9 @@ const PumpState: React.FC = () => {
 
     // Calculate portfolio value and profit/loss
     // Portfolio value = total tokens * price per token (in SOL)
-    const portfolioValueSol = totalWalletTokenBalance * currentPrice; // Value in SOL
+    // Convert raw token balance to actual token amount by dividing by decimals
+    const actualTokenBalance = totalWalletTokenBalance / Math.pow(10, tokenDecimals);
+    const portfolioValueSol = actualTokenBalance * currentPrice; // Value in SOL
     const investedSol = totalInvestedSol / LAMPORTS_PER_SOL; // Convert to SOL
     const profitLoss = portfolioValueSol - investedSol;
     const profitLossPercentage =

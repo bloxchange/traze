@@ -187,8 +187,23 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
    * @param tokenMint - The token mint address to filter pools by
    * @returns Array of liquidity pool accounts
    */
-  private async getLiquidityPoolsByTokenMint(tokenMint: string) {
+
+
+  /**
+   * Get liquidity pool data for a token mint
+   * @param tokenMint - The token mint address
+   * @returns Array of PoolData objects containing both account and pubkey
+   */
+  private async getLiquidityPoolDataByTokenMint(tokenMint: string): Promise<{account: PoolAccount, pubkey: string}[]> {
     try {
+      // Check cache for pools first
+      const cachedPools = await liquidityPoolCache.getCachedPools(tokenMint);
+      if (cachedPools) {
+        console.log(`Using cached liquidity pools for token: ${tokenMint}`);
+        return cachedPools;
+      }
+
+      // If no cached pools, fetch and decode them
       console.log(`Fetching liquidity pools from RPC for token: ${tokenMint}`);
       const programId = new PublicKey(PUMPFUN_AMM_PROGRAM_ID);
 
@@ -228,37 +243,16 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         })
       );
       
-      return accounts;
-    } catch (error) {
-      console.error('Error fetching liquidity pools:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get decoded liquidity pool accounts for a token mint
-   * @param tokenMint - The token mint address
-   * @returns Array of decoded PoolAccount objects
-   */
-  private async getDecodedLiquidityPoolsByTokenMint(tokenMint: string): Promise<PoolAccount[]> {
-    try {
-      // Check cache for pools first
-      const cachedPools = await liquidityPoolCache.getCachedPools(tokenMint);
-      if (cachedPools) {
-        console.log(`Using cached liquidity pools for token: ${tokenMint}`);
-        return cachedPools;
-      }
-
-      // If no cached pools, get raw pools and decode them
-      const rawPools = await this.getLiquidityPoolsByTokenMint(tokenMint);
-      const decodedPools = rawPools.map(poolResponse => 
-        PoolAccount.fromBuffer(poolResponse.account.data)
-      );
+      // Create PoolData objects with both decoded account and pubkey
+      const poolDataArray = accounts.map(poolResponse => ({
+        account: PoolAccount.fromBuffer(poolResponse.account.data),
+        pubkey: poolResponse.pubkey.toBase58()
+      }));
       
-      // Cache the decoded pools
-      await liquidityPoolCache.cachePools(tokenMint, decodedPools);
+      // Cache the pool data
+      await liquidityPoolCache.cachePools(tokenMint, poolDataArray);
       
-      return decodedPools;
+      return poolDataArray;
     } catch (error) {
       console.error('Error fetching decoded liquidity pools:', error);
       return [];
@@ -266,15 +260,16 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
   }
 
   private async getBestBuyPool(
-    poolAccounts: PoolAccount[]
-  ): Promise<{ poolAccount: PoolAccount | null; price: number }> {
-    let bestPool: PoolAccount | null = null;
+    poolDataArray: {account: PoolAccount, pubkey: string}[]
+  ): Promise<{ poolData: {account: PoolAccount, pubkey: string} | null; price: number }> {
+    let bestPoolData: {account: PoolAccount, pubkey: string} | null = null;
 
     let bestPrice = 99999999999;
 
-    for (const poolAccount of poolAccounts) {
-      if (bestPool === null) {
-        bestPool = poolAccount;
+    for (const poolData of poolDataArray) {
+      const poolAccount = poolData.account;
+      if (bestPoolData === null) {
+        bestPoolData = poolData;
       } else {
         const baseTokenAmount = await getBalance(
           poolAccount.poolBaseTokenAccount.toBase58()
@@ -293,12 +288,12 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         if (price < bestPrice) {
           bestPrice = price;
 
-          bestPool = poolAccount;
+          bestPoolData = poolData;
         }
       }
     }
 
-    return { poolAccount: bestPool, price: bestPrice };
+    return { poolData: bestPoolData, price: bestPrice };
   }
 
   async transfer(amount: number, from: string, to: string): Promise<void> {
@@ -307,46 +302,23 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
 
   async buy(buyParameters: IBuyParameters): Promise<string | null> {
     try {
-      // Get raw liquidity pools for the token (needed for pool response lookup)
-      const liquidityPools = await this.getLiquidityPoolsByTokenMint(
-        buyParameters.tokenMint
-      );
-
       // Get decoded liquidity pools for efficient processing
-      const decodedPools = await this.getDecodedLiquidityPoolsByTokenMint(
+      const poolDataArray = await this.getLiquidityPoolDataByTokenMint(
         buyParameters.tokenMint
       );
 
-      if (!liquidityPools || liquidityPools.length === 0 || !decodedPools || decodedPools.length === 0) {
+      if (!poolDataArray || poolDataArray.length === 0) {
         throw new Error('No liquidity pools found for token');
       }
 
       // Get the best pool for buying using decoded pools
-      const { poolAccount } = await this.getBestBuyPool(decodedPools);
+      const { poolData } = await this.getBestBuyPool(poolDataArray);
 
-      if (!poolAccount) {
+      if (!poolData) {
         throw new Error('No suitable pool found for buying');
       }
 
-      // Find the pool ID from the liquidity pools response
-      const poolResponse = liquidityPools.find((pool) => {
-        try {
-          const account = PoolAccount.fromBuffer(pool.account.data);
-
-          return (
-            account.baseMint.equals(poolAccount.baseMint) &&
-            account.quoteMint.equals(poolAccount.quoteMint)
-          );
-        } catch {
-          return false;
-        }
-      });
-
-      if (!poolResponse) {
-        throw new Error('Pool response not found');
-      }
-
-      const poolKey = poolResponse.pubkey;
+      const poolKey = new PublicKey(poolData.pubkey);
 
       // Create swap state using the SDK
       const swapSolanaState = await this.pumpAmmSdk.swapSolanaState(
@@ -476,46 +448,23 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
 
   async sell(sellParameters: ISellParameters): Promise<string | null> {
     try {
-      // Get raw liquidity pools for the token (needed for pool response lookup)
-      const liquidityPools = await this.getLiquidityPoolsByTokenMint(
-        sellParameters.mint.toBase58()
-      );
-
       // Get decoded liquidity pools for efficient processing
-      const decodedPools = await this.getDecodedLiquidityPoolsByTokenMint(
+      const poolDataArray = await this.getLiquidityPoolDataByTokenMint(
         sellParameters.mint.toBase58()
       );
 
-      if (!liquidityPools || liquidityPools.length === 0 || !decodedPools || decodedPools.length === 0) {
+      if (!poolDataArray || poolDataArray.length === 0) {
         throw new Error('No liquidity pools found for token');
       }
 
       // Get the best pool for selling using decoded pools
-      const { poolAccount } = await this.getBestBuyPool(decodedPools);
+      const { poolData } = await this.getBestBuyPool(poolDataArray);
 
-      if (!poolAccount) {
+      if (!poolData) {
         throw new Error('No suitable pool found for selling');
       }
 
-      // Find the pool ID from the liquidity pools response
-      const poolResponse = liquidityPools.find((pool) => {
-        try {
-          const account = PoolAccount.fromBuffer(pool.account.data);
-
-          return (
-            account.baseMint.equals(poolAccount.baseMint) &&
-            account.quoteMint.equals(poolAccount.quoteMint)
-          );
-        } catch {
-          return false;
-        }
-      });
-
-      if (!poolResponse) {
-        throw new Error('Pool response not found');
-      }
-
-      const poolKey = poolResponse.pubkey;
+      const poolKey = new PublicKey(poolData.pubkey);
 
       // Create swap state using the SDK
       const swapSolanaState = await this.pumpAmmSdk.swapSolanaState(

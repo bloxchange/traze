@@ -2,11 +2,19 @@ import type { GetProgramAccountsResponse } from '@solana/web3.js';
 import { PoolAccount } from '../trading/pumpfunamm/PoolAccount';
 
 /**
+ * Interface for pool data with both decoded account and public key
+ */
+interface PoolData {
+  account: PoolAccount;
+  pubkey: string;
+}
+
+/**
  * Interface for cached liquidity pool data
  */
 interface CachedLiquidityPool {
   tokenMint: string;
-  pools: PoolAccount[];
+  pools: PoolData[];
   timestamp: number;
   expiryTime: number;
 }
@@ -62,7 +70,7 @@ export class LiquidityPoolCache {
    * @param tokenMint - The token mint address
    * @returns Cached pools or null if not found or expired
    */
-  async getCachedPools(tokenMint: string): Promise<PoolAccount[] | null> {
+  async getCachedPools(tokenMint: string): Promise<PoolData[] | null> {
     try {
       const db = await this.initDB();
       const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readonly');
@@ -106,7 +114,7 @@ export class LiquidityPoolCache {
    * @param tokenMint - The token mint address
    * @param pools - The liquidity pools to cache
    */
-  async cachePools(tokenMint: string, pools: PoolAccount[]): Promise<void> {
+  async cachePools(tokenMint: string, pools: PoolData[]): Promise<void> {
     try {
       const db = await this.initDB();
       const transaction = db.transaction([LiquidityPoolCache.STORE_NAME], 'readwrite');
