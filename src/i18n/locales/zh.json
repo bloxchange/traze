@@ -34,6 +34,8 @@
     "config": "配置",
     "showList": "显示列表",
     "buy": "买入",
+    "buyAllSol": "买入所有SOL",
+    "buyAllInOne": "买入至耗尽",
     "sell": "卖出",
     "flush": "清仓",
     "wallet": "钱包",

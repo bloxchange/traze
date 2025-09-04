@@ -12,6 +12,8 @@ import type { SwarmConfigFormValues } from '../../models';
 import {
   CreateSwarmCommand,
   SwarmBuyCommand,
+  SwarmBuyAllSolCommand,
+  SwarmBuyTillRunOutCommand,
   SwarmSellCommand,
   GetWalletBalanceCommand,
 } from '../../domain/commands';
@@ -361,6 +363,75 @@ const Swarm: React.FC<SwarmProps> = ({
     }
   };
 
+  const handleBuyAllSol = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+
+      return;
+    }
+
+    if (!swarmConfig) {
+      message.error(t('swarm.noConfigSet'));
+
+      return;
+    }
+
+    try {
+      const buyAllSolCommand = new SwarmBuyAllSolCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        swarmConfig.buyDelay,
+        swarmConfig.slippageBasisPoints,
+        swarmConfig.priorityFee,
+        tokenState.buyComputeUnitsConsumed,
+        tokenState.buyCostUnits
+      );
+
+      await buyAllSolCommand.execute();
+
+      message.success(t('swarm.buySuccess'));
+    } catch (error) {
+      message.error(t('swarm.buyError'));
+
+      console.error('Buy All SOL error:', error);
+    }
+  };
+
+  const handleBuyAllInOne = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+
+      return;
+    }
+
+    if (!swarmConfig) {
+      message.error(t('swarm.noConfigSet'));
+
+      return;
+    }
+
+    try {
+      const buyTillRunOutCommand = new SwarmBuyTillRunOutCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        swarmConfig.buyAmounts,
+        swarmConfig.buyDelay,
+        swarmConfig.slippageBasisPoints,
+        swarmConfig.priorityFee,
+        tokenState.buyComputeUnitsConsumed,
+        tokenState.buyCostUnits
+      );
+
+      await buyTillRunOutCommand.execute();
+
+      message.success(t('swarm.buySuccess'));
+    } catch (error) {
+      message.error(t('swarm.buyError'));
+
+      console.error('Buy All in One error:', error);
+    }
+  };
+
   const handleSell = async () => {
     if (!tokenState.currentToken) {
       message.error(t('swarm.noTokenSelected'));
@@ -473,6 +544,8 @@ const Swarm: React.FC<SwarmProps> = ({
       />
       <SwarmFooter
         onBuy={handleBuy}
+        onBuyAllSol={handleBuyAllSol}
+        onBuyAllInOne={handleBuyAllInOne}
         onSell={handleSell}
         onFlush={handleFlush}
       />
