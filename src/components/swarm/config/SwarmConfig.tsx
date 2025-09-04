@@ -13,6 +13,7 @@ interface SwarmConfigProps {
   initialConfig: SwarmConfigFormValues;
   availableBuyAmounts: string[];
   onAvailableBuyAmountsChange: (amounts: string[]) => void;
+  disabled?: boolean;
 }
 
 const SwarmConfig: React.FC<SwarmConfigProps> = ({
@@ -20,6 +21,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
   initialConfig,
   availableBuyAmounts,
   onAvailableBuyAmountsChange,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -60,6 +62,7 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
         layout="vertical"
         onValuesChange={handleValuesChange}
         initialValues={initialConfig}
+        disabled={disabled}
       >
         <Tabs
           defaultActiveKey="buy"

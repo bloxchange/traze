@@ -503,8 +503,8 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         // Use computeUnitsConsumed and costUnits from parameters if available, otherwise fallback to defaults
         const minUnitLimit =
           !sellParameters.computeUnitsConsumed ||
-          sellParameters.computeUnitsConsumed < 150_000
-            ? 150_000
+          sellParameters.computeUnitsConsumed < 180_000
+            ? 180_000
             : sellParameters.computeUnitsConsumed;
 
         const unitLimit = Math.min(200_000, minUnitLimit);

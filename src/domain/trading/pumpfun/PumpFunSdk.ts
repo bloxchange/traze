@@ -129,11 +129,11 @@ export class PumpFunSdk implements IBroker {
 
       const minComputeUnitsConsumed =
         !buyParameters.computeUnitsConsumed ||
-        buyParameters.computeUnitsConsumed < 80_000
-          ? 80_000
+        buyParameters.computeUnitsConsumed < 90_000
+          ? 90_000
           : buyParameters.computeUnitsConsumed;
 
-      const unitLimit = Math.min(1_00_000, minComputeUnitsConsumed + 30_000);
+      const unitLimit = Math.min(120_000, minComputeUnitsConsumed + 30_000);
 
       const unitPrice = Math.round(
         Math.max(
