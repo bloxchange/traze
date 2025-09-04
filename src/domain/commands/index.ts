@@ -1,6 +1,8 @@
 export * from './FeedSwarmCommand';
 export { CreateSwarmCommand } from './CreateSwarmCommand';
 export { SwarmBuyCommand } from './SwarmBuyCommand';
+export { SwarmBuyAllSolCommand } from './SwarmBuyAllSolCommand';
+export { SwarmBuyTillRunOutCommand } from './SwarmBuyTillRunOutCommand';
 export { SwarmSellCommand } from './SwarmSellCommand';
 export * from './ReturnFromSwarmCommand';
 export { ReturnTokenFromSwarmCommand } from './ReturnTokenFromSwarmCommand';

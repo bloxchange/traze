@@ -133,26 +133,35 @@ export class SwarmFlushCommand {
     // Execute sell instructions in order from largest to smallest balance
     //for (const { wallet, balance } of walletsToSell) {
     for (let i = 0; i < walletsToSell.length; i++) {
-      const { wallet, balance } = walletsToSell[i];
+      try {
+        const { wallet, balance } = walletsToSell[i];
 
-      console.log(
-        `💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`
-      );
+        console.log(
+          `💰 Selling ${balance} tokens from wallet ${wallet.publicKey}`
+        );
 
-      const sellParameters: ISellParameters = {
-        seller: wallet.keypair,
-        mint: new PublicKey(this.tokenMint),
-        sellTokenAmount: balance,
-        slippageBasisPoints: BigInt(9999),
-        priorityFeeInSol: this.priorityFeeInSol * (i === 0 ? 1.1 : 1),
-        maxCurrentPriorityFee: this.priorityFeeInSol,
-        computeUnitsConsumed: this.computeUnitsConsumed,
-        costUnits: this.costUnits,
-      };
+        const sellParameters: ISellParameters = {
+          seller: wallet.keypair,
+          mint: new PublicKey(this.tokenMint),
+          sellTokenAmount: balance,
+          slippageBasisPoints: BigInt(9999),
+          priorityFeeInSol: this.priorityFeeInSol * (i === 0 ? 1.1 : 1),
+          maxCurrentPriorityFee: this.priorityFeeInSol,
+          computeUnitsConsumed: this.computeUnitsConsumed,
+          costUnits: this.costUnits,
+        };
 
-      broker.sell(sellParameters).then((signature) => {
-        // Transaction signature is handled by logs subscription in TokenContext
-      });
+        broker.sell(sellParameters).then((signature) => {
+          // Transaction signature is handled by logs subscription in TokenContext
+          console.log(`💸 Flush transaction completed for wallet ${wallet.publicKey} with signature:`, signature);
+        }).catch((error) => {
+          console.error(`❌ Flush transaction failed for wallet ${wallet.publicKey}:`, error);
+        });
+      } catch (error) {
+        const { wallet } = walletsToSell[i];
+        console.error(`❌ Error processing wallet ${wallet.publicKey}:`, error);
+        // Continue to next wallet
+      }
     }
   }
 }

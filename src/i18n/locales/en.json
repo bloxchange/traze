@@ -34,6 +34,8 @@
     "config": "Configuration",
     "showList": "Show List",
     "buy": "Buy",
+    "buyAllSol": "Buy All SOL",
+    "buyAllInOne": "Buy Till Run Out",
     "sell": "Sell",
     "flush": "Flush",
     "wallet": "Wallet",

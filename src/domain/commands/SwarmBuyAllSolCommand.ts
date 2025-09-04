@@ -11,10 +11,12 @@ import { RaydiumLaunchPadBroker } from '../trading/raydium/RaydiumLaunchPadBroke
 import { GetTokenInformationCommand } from './GetTokenInformationCommand';
 import { LAUNCHPAD_AUTH, DEV_LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
 
-export class SwarmBuyCommand {
+/**
+ * Command to execute buy operations using all available SOL from each selected wallet
+ */
+export class SwarmBuyAllSolCommand {
   private wallets: WalletInfo[];
   private tokenMint: string;
-  private buyAmounts: string[];
   private buyDelay: number;
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
@@ -24,7 +26,6 @@ export class SwarmBuyCommand {
   constructor(
     wallets: WalletInfo[],
     tokenMint: string,
-    buyAmounts: string[],
     buyDelay: number,
     slippageBasisPoints: number,
     priorityFeeInSol: number,
@@ -33,7 +34,6 @@ export class SwarmBuyCommand {
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
-    this.buyAmounts = buyAmounts;
     this.buyDelay = buyDelay;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
@@ -41,30 +41,34 @@ export class SwarmBuyCommand {
     this.costUnits = costUnits;
   }
 
-  private async getRandomAmount(
-    wallet: PublicKey,
+  /**
+   * Calculate available SOL for a wallet (minus fees and buffer for future sell)
+   */
+  private async getAvailableSol(
+    wallet: WalletInfo,
     priorityFeeInSol: number
   ): Promise<number> {
-    const randomIndex = Math.floor(Math.random() * this.buyAmounts.length);
-
-    const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
-
-    const balance =
-      (await ConnectionManager.getInstance()
-        .getConnection()
-        .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
-
-    const availableBalance = balance - priorityFeeInSol;
-
-    return availableBalance > estimatedAmount
-      ? estimatedAmount
-      : availableBalance;
+    // Buffer for future sell operation: gas fee (0.00005 SOL) + priority fee + additional safety buffer
+    const sellGasFeeBuffer = 0.00005; // DEFAULT_GAS_FEE in SOL
+    const sellPriorityFeeBuffer = priorityFeeInSol; // Same priority fee for sell
+    const additionalSafetyBuffer = 0.001; // Additional safety buffer
+    
+    const totalBuffer = priorityFeeInSol + sellGasFeeBuffer + sellPriorityFeeBuffer + additionalSafetyBuffer;
+    const availableSol = (wallet.solBalance / LAMPORTS_PER_SOL) - totalBuffer;
+    
+    return Math.max(0, availableSol);
   }
 
+  /**
+   * Delay execution for specified milliseconds
+   */
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  /**
+   * Execute buy all SOL command for all selected wallets
+   */
   async execute(): Promise<void> {
     const selectedWallets = this.wallets.filter((wallet) => wallet.selected);
 
@@ -115,12 +119,13 @@ export class SwarmBuyCommand {
 
     for (const wallet of selectedWallets) {
       try {
-        const amountInSol = await this.getRandomAmount(
-          wallet.keypair.publicKey,
+        const amountInSol = await this.getAvailableSol(
+          wallet,
           this.priorityFeeInSol
         );
 
         if (amountInSol <= 0) {
+          console.log(`Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient SOL balance`);
           continue;
         }
 
@@ -136,10 +141,9 @@ export class SwarmBuyCommand {
         };
 
         broker.buy(buyParameters).then((signature) => {
-          // Transaction signature is now handled by logs subscription in TokenContext
-          console.log('💰 Buy transaction completed with signature:', signature);
+          console.log(`💰 Buy All SOL transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with signature:`, signature);
         }).catch((error) => {
-          console.error(`❌ Buy transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+          console.error(`❌ Buy All SOL transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
         });
 
         if (this.buyDelay > 0) {

@@ -113,33 +113,40 @@ export class SwarmSellCommand {
     }
 
     for (const wallet of selectedWallets) {
-      const sellAmount = await this.calculateSellAmount(wallet);
+      try {
+        const sellAmount = await this.calculateSellAmount(wallet);
 
-      if (sellAmount <= 0) {
-        continue;
-      }
+        if (sellAmount <= 0) {
+          continue;
+        }
 
-      const sellParameters: ISellParameters = {
-        seller: wallet.keypair,
-        mint: new PublicKey(this.tokenMint),
-        sellTokenAmount: sellAmount,
-        slippageBasisPoints: BigInt(this.slippageBasisPoints),
-        priorityFeeInSol: this.priorityFeeInSol,
-        maxCurrentPriorityFee: this.priorityFeeInSol,
-        computeUnitsConsumed: this.computeUnitsConsumed,
-        costUnits: this.costUnits,
-      };
+        const sellParameters: ISellParameters = {
+          seller: wallet.keypair,
+          mint: new PublicKey(this.tokenMint),
+          sellTokenAmount: sellAmount,
+          slippageBasisPoints: BigInt(this.slippageBasisPoints),
+          priorityFeeInSol: this.priorityFeeInSol,
+          maxCurrentPriorityFee: this.priorityFeeInSol,
+          computeUnitsConsumed: this.computeUnitsConsumed,
+          costUnits: this.costUnits,
+        };
 
-      broker.sell(sellParameters).then((signature) => {
-        // Transaction signature is now handled by logs subscription in TokenContext
-        console.log('💸 Sell transaction completed with signature:', signature);
-      });
+        broker.sell(sellParameters).then((signature) => {
+          // Transaction signature is now handled by logs subscription in TokenContext
+          console.log('💸 Sell transaction completed with signature:', signature);
+        }).catch((error) => {
+          console.error(`❌ Sell transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+        });
 
-      if (
-        this.sellDelay > 0 &&
-        selectedWallets.indexOf(wallet) < selectedWallets.length - 1
-      ) {
-        await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds
+        if (
+          this.sellDelay > 0 &&
+          selectedWallets.indexOf(wallet) < selectedWallets.length - 1
+        ) {
+          await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds
+        }
+      } catch (error) {
+        console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+        // Continue to next wallet
       }
     }
   }
