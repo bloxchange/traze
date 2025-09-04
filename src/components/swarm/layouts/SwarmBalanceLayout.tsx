@@ -22,12 +22,14 @@ interface SwarmBalanceLayoutProps {
   wallets: WalletInfo[];
   onWalletSelection: (publicKey: string, selected: boolean) => void;
   onSelectAll?: (selected: boolean) => void;
+  disabled?: boolean;
 }
 
 const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
   wallets,
   onWalletSelection,
   onSelectAll,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
   const { tokenState } = useToken();
@@ -79,6 +81,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
             indeterminate={
               wallets.some((wallet) => wallet.selected) && !allSelected
             }
+            disabled={disabled}
           />
         </Col>
         <Col span={8}>
@@ -100,6 +103,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
               onChange={(e) =>
                 onWalletSelection(wallet.publicKey, e.target.checked)
               }
+              disabled={disabled}
             />
           </Col>
           <Col span={8}>
@@ -114,6 +118,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
                 type="text"
                 icon={<CopyOutlined />}
                 onClick={() => handleCopyPublicKey(wallet.publicKey)}
+                disabled={disabled}
               />
               <Button
                 type="text"
@@ -129,6 +134,7 @@ const SwarmBalanceLayout: React.FC<SwarmBalanceLayoutProps> = ({
                   alignItems: 'center',
                   padding: 0,
                 }}
+                disabled={disabled}
               >
                 <svg
                   viewBox="0 0 24 24"

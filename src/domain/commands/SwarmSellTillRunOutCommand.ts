@@ -1,26 +1,27 @@
 import type { WalletInfo } from '@/models';
 import type { IBroker } from '../trading/IBroker';
-import type { IBuyParameters } from '../trading/IBuyParameters';
+import type { ISellParameters } from '../trading/ISellParameters';
 import { BrokerFactory } from '../infrastructure/BrokerFactory';
-import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import NodeWallet from '../infrastructure/NodeWallet';
+import { getTokenBalance } from '../rpc/getTokenBalance';
 import { getBrokerProgramId } from '../utils/bondingCurveUtils';
 import { RaydiumLaunchPadBroker } from '../trading/raydium/RaydiumLaunchPadBroker';
 import { GetTokenInformationCommand } from './GetTokenInformationCommand';
-import { LAUNCHPAD_AUTH, DEV_LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
+import { DEV_LAUNCHPAD_AUTH, LAUNCHPAD_AUTH } from '@raydium-io/raydium-sdk-v2';
 import { globalEventEmitter } from '../infrastructure/events/EventEmitter';
 import { EVENTS, type StopSignalData } from '../infrastructure/events/types';
 
 /**
- * Command to execute buy operations repeatedly until all wallets run out of sufficient balance
+ * Command to execute sell operations repeatedly until all wallets run out of tokens
  */
-export class SwarmBuyTillRunOutCommand {
+export class SwarmSellTillRunOutCommand {
   private wallets: WalletInfo[];
   private tokenMint: string;
-  private buyAmounts: string[];
-  private buyDelay: number;
+  private sellPercentages: string[];
+  private sellDelay: number;
   private slippageBasisPoints: number;
   private priorityFeeInSol: number;
   private computeUnitsConsumed?: number;
@@ -31,8 +32,8 @@ export class SwarmBuyTillRunOutCommand {
   constructor(
     wallets: WalletInfo[],
     tokenMint: string,
-    buyAmounts: string[],
-    buyDelay: number,
+    sellPercentages: string[],
+    sellDelay: number,
     slippageBasisPoints: number,
     priorityFeeInSol: number,
     computeUnitsConsumed?: number,
@@ -41,8 +42,8 @@ export class SwarmBuyTillRunOutCommand {
   ) {
     this.wallets = wallets;
     this.tokenMint = tokenMint;
-    this.buyAmounts = buyAmounts;
-    this.buyDelay = buyDelay;
+    this.sellPercentages = sellPercentages;
+    this.sellDelay = sellDelay;
     this.slippageBasisPoints = slippageBasisPoints;
     this.priorityFeeInSol = priorityFeeInSol;
     this.computeUnitsConsumed = computeUnitsConsumed;
@@ -59,8 +60,8 @@ export class SwarmBuyTillRunOutCommand {
    * Handle stop signal events
    */
   private handleStopSignal(data: StopSignalData): void {
-    if (data.componentId === this.componentId && data.operation === 'buyTillRunOut') {
-      console.log('🛑 Stop signal received for buy till run out operation');
+    if (data.componentId === this.componentId && data.operation === 'sellTillRunOut') {
+      console.log('🛑 Stop signal received for sell till run out operation');
       this.stopped = true;
       // Clean up event listener
       globalEventEmitter.off(EVENTS.StopSignal, this.handleStopSignal.bind(this));
@@ -68,38 +69,39 @@ export class SwarmBuyTillRunOutCommand {
   }
 
   /**
-   * Get a random buy amount for a wallet, ensuring it doesn't exceed available balance
+   * Get a random sell percentage for a wallet and calculate the sell amount
    */
-  private async getRandomAmount(
-    wallet: PublicKey,
-    priorityFeeInSol: number
-  ): Promise<number> {
-    const randomIndex = Math.floor(Math.random() * this.buyAmounts.length);
+  private async getRandomSellAmount(
+    wallet: PublicKey
+  ): Promise<bigint> {
+    const balance = await getTokenBalance(wallet.toBase58(), this.tokenMint);
+    
+    if (balance <= 0) {
+      return BigInt(0);
+    }
 
-    const estimatedAmount = parseFloat(this.buyAmounts[randomIndex]);
+    // If balance is less than 500,000, sell all tokens
+    if (balance < 500_000_000_000) {
+      return BigInt(balance);
+    }
 
-    const balance =
-      (await ConnectionManager.getInstance()
-        .getConnection()
-        .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
+    const randomPercentage = this.sellPercentages[
+      Math.floor(Math.random() * this.sellPercentages.length)
+    ];
 
-    const availableBalance = balance - priorityFeeInSol;
+    const percentage = parseFloat(randomPercentage) / 100;
+    const sellAmount = Math.floor(balance * percentage);
 
-    return availableBalance > estimatedAmount
-      ? estimatedAmount
-      : availableBalance;
+    return BigInt(sellAmount);
   }
 
   /**
    * Delay execution for specified milliseconds
    */
   private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /**
-   * Execute buy operations repeatedly until all wallets run out of sufficient balance
-   */
   async execute(): Promise<void> {
     const selectedWallets = this.wallets.filter((wallet) => wallet.selected);
 
@@ -152,17 +154,17 @@ export class SwarmBuyTillRunOutCommand {
     const maxRoundCount = 10;
     const runOutWallets = new Set<string>();
     
-    // Continue buying until all wallets run out of funds or max rounds reached
+    // Continue selling until all wallets run out of tokens or max rounds reached
     while (true) {
-      // Break if stop signal received
+      // Check for stop signal
       if (this.stopped) {
-        console.log('🛑 Stop signal received. Stopping buy till run out execution.');
+        console.log('🛑 Sell till run out operation stopped by user');
         break;
       }
       
-      // Break if all wallets have run out of funds
+      // Break if all wallets have run out of tokens
       if (runOutWallets.size === selectedWallets.length) {
-        console.log(`🏁 All wallets have run out of funds. Stopping execution.`);
+        console.log(`🏁 All wallets have run out of tokens. Stopping execution.`);
         break;
       }
       
@@ -173,68 +175,56 @@ export class SwarmBuyTillRunOutCommand {
       }
       
       roundCount++;
-      console.log(`🔄 Starting buy round ${roundCount}`);
+      console.log(`🔄 Starting sell round ${roundCount}`);
       
       let transactionsInRound = 0;
       
       for (const wallet of selectedWallets) {
-        // Break if stop signal received during wallet processing
+        // Check for stop signal during wallet processing
         if (this.stopped) {
-          console.log('🛑 Stop signal received during wallet processing.');
+          console.log('🛑 Sell till run out operation stopped by user during wallet processing');
           break;
         }
         
-        // Skip wallets that have already run out of funds
+        // Skip wallets that have already run out of tokens
         if (runOutWallets.has(wallet.keypair.publicKey.toBase58())) {
           continue;
         }
+        
         try {
-          const amountInSol = await this.getRandomAmount(
-            wallet.keypair.publicKey,
-            this.priorityFeeInSol
+          const sellAmount = await this.getRandomSellAmount(
+            wallet.keypair.publicKey
           );
 
-          if (amountInSol <= 0) {
-            continue;
-          }
-
-          // Get current wallet balance and compare with required amount
-          const currentBalance = (await ConnectionManager.getInstance()
-            .getConnection()
-            .getBalance(wallet.keypair.publicKey, 'confirmed')) / LAMPORTS_PER_SOL;
-          
-          const totalRequired = amountInSol + this.priorityFeeInSol;
-          
-          if (currentBalance < totalRequired) {
-            console.log(`⚠️ Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient balance: ${currentBalance.toFixed(4)} SOL < ${totalRequired.toFixed(4)} SOL required`);
+          if (sellAmount <= 0) {
+            console.log(`⚠️ Wallet ${wallet.keypair.publicKey.toBase58()} has no tokens to sell`);
             runOutWallets.add(wallet.keypair.publicKey.toBase58());
             continue;
           }
           
-          console.log(`✅ Wallet ${wallet.keypair.publicKey.toBase58()} has sufficient balance: ${currentBalance.toFixed(4)} SOL >= ${totalRequired.toFixed(4)} SOL required`);
+          console.log(`✅ Wallet ${wallet.keypair.publicKey.toBase58()} selling ${sellAmount} tokens`);
 
-
-          const buyParameters: IBuyParameters = {
-            buyer: wallet.keypair,
-            tokenMint: this.tokenMint,
-            amountInSol: amountInSol,
-            slippageBasisPoints: this.slippageBasisPoints,
+          const sellParameters: ISellParameters = {
+            seller: wallet.keypair,
+            mint: new PublicKey(this.tokenMint),
+            sellTokenAmount: sellAmount,
+            slippageBasisPoints: BigInt(this.slippageBasisPoints),
             priorityFeeInSol: this.priorityFeeInSol,
             maxCurrentPriorityFee: this.priorityFeeInSol,
             computeUnitsConsumed: this.computeUnitsConsumed,
             costUnits: this.costUnits,
           };
 
-          broker.buy(buyParameters).then((signature) => {
-            console.log(`💰 Buy Till Run Out transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with ${amountInSol.toFixed(4)} SOL, signature:`, signature);
+          broker.sell(sellParameters).then((signature) => {
+            console.log(`💸 Sell Till Run Out transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with signature:`, signature);
           }).catch((error) => {
-            console.error(`❌ Buy Till Run Out transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+            console.error(`❌ Sell Till Run Out transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
           });
           
           transactionsInRound++;
 
-          if (this.buyDelay > 0) {
-            await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds
+          if (this.sellDelay > 0) {
+            await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds
           }
         } catch (error) {
           console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
@@ -247,9 +237,9 @@ export class SwarmBuyTillRunOutCommand {
         break;
       }
       
-      console.log(`✅ Completed buy round ${roundCount} with ${transactionsInRound} transactions`);
+      console.log(`✅ Completed sell round ${roundCount} with ${transactionsInRound} transactions`);
     }
     
-    console.log(`🏁 Buy Till Run Out completed after ${roundCount} rounds`);
+    console.log(`🏁 Sell Till Run Out completed after ${roundCount} rounds`);
   }
 }

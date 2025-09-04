@@ -40,6 +40,8 @@ interface SwarmHeaderProps {
   walletCount: number;
   totalSolBalance: number;
   totalTokenBalance: number;
+  disabled?: boolean;
+  showMask?: boolean;
 }
 
 const SwarmHeader: React.FC<SwarmHeaderProps> = ({
@@ -55,6 +57,8 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   walletCount,
   totalSolBalance,
   totalTokenBalance,
+  disabled = false,
+  showMask = false,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -129,8 +133,23 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
           padding: '0 8px',
           minHeight: '40px',
           overflow: 'hidden',
+          position: 'relative',
         }}
       >
+        {showMask && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              zIndex: 10,
+              cursor: 'not-allowed',
+            }}
+          />
+        )}
         <div
           style={{
             display: 'flex',
@@ -178,13 +197,14 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         <div style={{ flexShrink: 0 }}>
           <Space size="small">
             <Tooltip title={t('swarm.editName')}>
-              <Button icon={<EditOutlined />} onClick={showModal} type="text" />
+              <Button icon={<EditOutlined />} onClick={showModal} type="text" disabled={disabled} />
             </Tooltip>
             <Tooltip title={t('swarm.feed')}>
               <Button
                 icon={<CoinOutlined style={{ color: token.colorPrimary }} />}
                 onClick={onFeed}
                 type="text"
+                disabled={disabled}
               />
             </Tooltip>
             <Tooltip title={t('swarm.return')}>
@@ -194,6 +214,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                 }
                 onClick={onReturn}
                 type="text"
+                disabled={disabled}
               />
             </Tooltip>
             <Tooltip
@@ -206,6 +227,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                   icon={<PlusCircleOutlined />}
                   onClick={onClear}
                   type="text"
+                  disabled={disabled}
                 />
               ) : (
                 <Popconfirm
@@ -215,7 +237,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                   cancelText={t('common.cancel')}
                   onConfirm={onClear}
                 >
-                  <Button icon={<ClearOutlined />} type="text" danger />
+                  <Button icon={<ClearOutlined />} type="text" danger disabled={disabled} />
                 </Popconfirm>
               )}
             </Tooltip>
@@ -225,6 +247,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                   icon={<UnorderedListOutlined />}
                   onClick={onShowList}
                   type="text"
+                  disabled={disabled}
                 />
               </Tooltip>
             ) : (
@@ -234,6 +257,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                     icon={<ReloadOutlined />}
                     onClick={onRefresh}
                     type="text"
+                    disabled={disabled}
                   />
                 </Tooltip>
                 <Tooltip title={t('settings.configuration')}>
@@ -241,6 +265,7 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                     icon={<SettingOutlined />}
                     onClick={onConfig}
                     type="text"
+                    disabled={disabled}
                   />
                 </Tooltip>
               </>

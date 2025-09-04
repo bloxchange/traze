@@ -26,6 +26,7 @@ interface SwarmConfigLayoutProps {
   onConfigChange: (values: SwarmConfigFormValues) => void;
   availableBuyAmounts: string[];
   onAvailableBuyAmountsChange: (amounts: string[]) => void;
+  disabled?: boolean;
 }
 
 const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
@@ -36,6 +37,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
   onConfigChange,
   availableBuyAmounts,
   onAvailableBuyAmountsChange,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -68,6 +70,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
               indeterminate={
                 wallets.some((wallet) => wallet.selected) && !allSelected
               }
+              disabled={disabled}
             />
           </Col>
           <Col span={12}>
@@ -90,6 +93,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
                 onChange={(e) =>
                   onWalletSelection(wallet.publicKey, e.target.checked)
                 }
+                disabled={disabled}
               />
             </Col>
             <Col span={12}>
@@ -104,6 +108,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
                   type="text"
                   icon={<CopyOutlined />}
                   onClick={() => handleCopyPublicKey(wallet.publicKey)}
+                  disabled={disabled}
                 />
                 <Button
                   type="text"
@@ -119,6 +124,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
                     alignItems: 'center',
                     padding: 0,
                   }}
+                  disabled={disabled}
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -145,6 +151,7 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
           onConfigChange={onConfigChange}
           availableBuyAmounts={availableBuyAmounts}
           onAvailableBuyAmountsChange={onAvailableBuyAmountsChange}
+          disabled={disabled}
         />
       </Col>
     </Row>

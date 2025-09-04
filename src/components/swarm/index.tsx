@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, App as AntdApp } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css';
@@ -17,6 +17,7 @@ import {
   SwarmSellCommand,
   GetWalletBalanceCommand,
 } from '../../domain/commands';
+import { SwarmSellTillRunOutCommand } from '../../domain/commands/SwarmSellTillRunOutCommand';
 import ReturnSwarmModal from './ReturnSwarmModal';
 import bs58 from 'bs58';
 import { useConfiguration, useToken } from '@/hooks';
@@ -29,7 +30,15 @@ import {
   type BalanceFetchedData,
   type SwarmCreatedData,
   type SwarmClearedData,
+  type StopSignalData,
 } from '../../domain/infrastructure/events/types';
+
+/**
+ * Generate a unique component ID for tracking operations
+ */
+const generateComponentId = (): string => {
+  return `swarm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
 
 const Swarm: React.FC<SwarmProps> = ({
   name: initialName,
@@ -41,6 +50,15 @@ const Swarm: React.FC<SwarmProps> = ({
   const { tokenState } = useToken();
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);
+  
+  // Component ID for tracking operations
+  const componentId = useRef<string>(generateComponentId());
+  
+  // State to track running operations
+  const [runningOperations, setRunningOperations] = useState<{
+    buyTillRunOut: boolean;
+    sellTillRunOut: boolean;
+  }>({ buyTillRunOut: false, sellTillRunOut: false });
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
@@ -400,17 +418,18 @@ const Swarm: React.FC<SwarmProps> = ({
   const handleBuyAllInOne = async () => {
     if (!tokenState.currentToken) {
       message.error(t('swarm.noTokenSelected'));
-
       return;
     }
 
     if (!swarmConfig) {
       message.error(t('swarm.noConfigSet'));
-
       return;
     }
 
     try {
+      // Set operation as running
+      setRunningOperations(prev => ({ ...prev, buyTillRunOut: true }));
+      
       const buyTillRunOutCommand = new SwarmBuyTillRunOutCommand(
         walletList,
         tokenState.currentToken.mint,
@@ -419,16 +438,18 @@ const Swarm: React.FC<SwarmProps> = ({
         swarmConfig.slippageBasisPoints,
         swarmConfig.priorityFee,
         tokenState.buyComputeUnitsConsumed,
-        tokenState.buyCostUnits
+        tokenState.buyCostUnits,
+        componentId.current
       );
 
       await buyTillRunOutCommand.execute();
-
       message.success(t('swarm.buySuccess'));
     } catch (error) {
       message.error(t('swarm.buyError'));
-
       console.error('Buy All in One error:', error);
+    } finally {
+      // Reset operation state
+      setRunningOperations(prev => ({ ...prev, buyTillRunOut: false }));
     }
   };
 
@@ -465,6 +486,68 @@ const Swarm: React.FC<SwarmProps> = ({
 
       console.error('Sell error:', error);
     }
+  };
+
+  const handleSellTillRunOut = async () => {
+    if (!tokenState.currentToken) {
+      message.error(t('swarm.noTokenSelected'));
+      return;
+    }
+
+    if (!swarmConfig) {
+      message.error(t('swarm.noConfigSet'));
+      return;
+    }
+
+    try {
+      // Set operation as running
+      setRunningOperations(prev => ({ ...prev, sellTillRunOut: true }));
+      
+      const sellTillRunOutCommand = new SwarmSellTillRunOutCommand(
+        walletList,
+        tokenState.currentToken.mint,
+        swarmConfig.sellPercentages,
+        swarmConfig.sellDelay,
+        swarmConfig.slippageBasisPoints,
+        swarmConfig.priorityFee,
+        tokenState.sellComputeUnitsConsumed,
+        tokenState.sellCostUnits,
+        componentId.current
+      );
+
+      await sellTillRunOutCommand.execute();
+      message.success(t('swarm.sellTillRunOutSuccess'));
+    } catch (error) {
+      message.error(t('swarm.sellTillRunOutError'));
+      console.error('Sell Till Run Out error:', error);
+    } finally {
+      // Reset operation state
+      setRunningOperations(prev => ({ ...prev, sellTillRunOut: false }));
+    }
+  };
+
+  /**
+   * Handle stopping buy till run out operation
+   */
+  const handleStopBuyTillRunOut = () => {
+    const stopData: StopSignalData = {
+      componentId: componentId.current,
+      operation: 'buyTillRunOut'
+    };
+    globalEventEmitter.emit(EVENTS.StopSignal, stopData);
+    setRunningOperations(prev => ({ ...prev, buyTillRunOut: false }));
+  };
+
+  /**
+   * Handle stopping sell till run out operation
+   */
+  const handleStopSellTillRunOut = () => {
+    const stopData: StopSignalData = {
+      componentId: componentId.current,
+      operation: 'sellTillRunOut'
+    };
+    globalEventEmitter.emit(EVENTS.StopSignal, stopData);
+    setRunningOperations(prev => ({ ...prev, sellTillRunOut: false }));
   };
 
   const handleFlush = async () => {
@@ -531,6 +614,8 @@ const Swarm: React.FC<SwarmProps> = ({
         walletCount={walletList.length}
         totalSolBalance={totalSolBalance}
         totalTokenBalance={totalTokenBalance}
+        disabled={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
+        showMask={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
       />
       <SwarmWalletList
         wallets={walletList}
@@ -541,13 +626,19 @@ const Swarm: React.FC<SwarmProps> = ({
         onConfigChange={setSwarmConfig}
         availableBuyAmounts={availableBuyAmounts}
         onAvailableBuyAmountsChange={setAvailableBuyAmounts}
+        disabled={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
+        showMask={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
       />
       <SwarmFooter
         onBuy={handleBuy}
         onBuyAllSol={handleBuyAllSol}
         onBuyAllInOne={handleBuyAllInOne}
         onSell={handleSell}
+        onSellTillRunOut={handleSellTillRunOut}
         onFlush={handleFlush}
+        runningOperations={runningOperations}
+        onStopBuyTillRunOut={handleStopBuyTillRunOut}
+        onStopSellTillRunOut={handleStopSellTillRunOut}
       />
       <CreateSwarmModal
         open={isCreateModalOpen}

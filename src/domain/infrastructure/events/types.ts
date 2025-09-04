@@ -73,6 +73,11 @@ export interface TradeInfoFetchedData {
   tradeInfo: TradeEventData;
 }
 
+export interface StopSignalData {
+  componentId: string;
+  operation: 'buyTillRunOut' | 'sellTillRunOut';
+}
+
 export type EventData =
   | BalanceChangeData
   | BalanceFetchedData
@@ -83,7 +88,8 @@ export type EventData =
   | ErrorEventData
   | TransactionEventData
   | BondingCurveFetchedData
-  | TradeInfoFetchedData;
+  | TradeInfoFetchedData
+  | StopSignalData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -100,4 +106,5 @@ export const EVENTS = {
   TransactionCreated: 'transactionCreated',
   BondingCurveFetched: 'bondingCurveFetched',
   TradeInfoFetched: 'tradeInfoFetched',
+  StopSignal: 'stopSignal',
 } as const;
