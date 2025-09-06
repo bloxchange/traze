@@ -52,10 +52,14 @@ export class SwarmBuyAllSolCommand {
     const sellGasFeeBuffer = 0.00005; // DEFAULT_GAS_FEE in SOL
     const sellPriorityFeeBuffer = priorityFeeInSol; // Same priority fee for sell
     const additionalSafetyBuffer = 0.01; // Additional safety buffer
-    
-    const totalBuffer = priorityFeeInSol + sellGasFeeBuffer + sellPriorityFeeBuffer + additionalSafetyBuffer;
-    const availableSol = (wallet.solBalance / LAMPORTS_PER_SOL) - totalBuffer;
-    
+
+    const totalBuffer =
+      priorityFeeInSol +
+      sellGasFeeBuffer +
+      sellPriorityFeeBuffer +
+      additionalSafetyBuffer;
+    const availableSol = wallet.solBalance / LAMPORTS_PER_SOL - totalBuffer;
+
     return Math.max(0, availableSol);
   }
 
@@ -125,7 +129,9 @@ export class SwarmBuyAllSolCommand {
         );
 
         if (amountInSol <= 0) {
-          console.log(`Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient SOL balance`);
+          console.log(
+            `Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient SOL balance`
+          );
           continue;
         }
 
@@ -140,17 +146,29 @@ export class SwarmBuyAllSolCommand {
           costUnits: this.costUnits,
         };
 
-        broker.buy(buyParameters).then((signature) => {
-          console.log(`💰 Buy All SOL transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with signature:`, signature);
-        }).catch((error) => {
-          console.error(`❌ Buy All SOL transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
-        });
+        broker
+          .buy(buyParameters)
+          .then((signature) => {
+            console.log(
+              `💰 Buy All SOL transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with signature:`,
+              signature
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `❌ Buy All SOL transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`,
+              error
+            );
+          });
 
         if (this.buyDelay > 0) {
           await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds
         }
       } catch (error) {
-        console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+        console.error(
+          `❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`,
+          error
+        );
         // Continue to next wallet
       }
     }

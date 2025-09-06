@@ -135,18 +135,30 @@ export class SwarmBuyCommand {
           costUnits: this.costUnits,
         };
 
-        broker.buy(buyParameters).then((signature) => {
-          // Transaction signature is now handled by logs subscription in TokenContext
-          console.log('💰 Buy transaction completed with signature:', signature);
-        }).catch((error) => {
-          console.error(`❌ Buy transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
-        });
+        broker
+          .buy(buyParameters)
+          .then((signature) => {
+            // Transaction signature is now handled by logs subscription in TokenContext
+            console.log(
+              '💰 Buy transaction completed with signature:',
+              signature
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `❌ Buy transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`,
+              error
+            );
+          });
 
         if (this.buyDelay > 0) {
           await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds
         }
       } catch (error) {
-        console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+        console.error(
+          `❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`,
+          error
+        );
         // Continue to next wallet
       }
     }
