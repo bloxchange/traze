@@ -94,7 +94,7 @@ export class PumpFunSdk implements IBroker {
 
       const tokenMintPubkey = new PublicKey(tokenMint);
       const solAmount = new BN(amountInSol * LAMPORTS_PER_SOL);
-      const slippage = slippageBasisPoints / 10000; // Convert basis points to decimal
+      const slippage = slippageBasisPoints / 100; // Convert basis points to decimal
 
       // Fetch required state data from the SDK
       const global = await this.pumpSdk.fetchGlobal();
@@ -234,7 +234,7 @@ export class PumpFunSdk implements IBroker {
       } = pumpFunSellParams;
 
       const tokenAmount = new BN(sellTokenAmount.toString());
-      const slippage = Number(slippageBasisPoints) / 10000; // Convert basis points to decimal
+      const slippage = Number(slippageBasisPoints) / 100; // Convert basis points to decimal
 
       // Fetch required state data from the SDK
       const global = await this.pumpSdk.fetchGlobal();
@@ -430,7 +430,7 @@ export class PumpFunSdk implements IBroker {
           pumpFunSellParams;
 
         const tokenAmount = new BN(sellTokenAmount.toString());
-        const slippage = Number(slippageBasisPoints) / 10000;
+        const slippage = Number(slippageBasisPoints) / 100;
 
         // Fetch required state data from the SDK
         const global = await this.pumpSdk.fetchGlobal();
