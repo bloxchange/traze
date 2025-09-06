@@ -151,12 +151,21 @@ export class SwarmFlushCommand {
           costUnits: this.costUnits,
         };
 
-        broker.sell(sellParameters).then((signature) => {
-          // Transaction signature is handled by logs subscription in TokenContext
-          console.log(`💸 Flush transaction completed for wallet ${wallet.publicKey} with signature:`, signature);
-        }).catch((error) => {
-          console.error(`❌ Flush transaction failed for wallet ${wallet.publicKey}:`, error);
-        });
+        broker
+          .sell(sellParameters)
+          .then((signature) => {
+            // Transaction signature is handled by logs subscription in TokenContext
+            console.log(
+              `💸 Flush transaction completed for wallet ${wallet.publicKey} with signature:`,
+              signature
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `❌ Flush transaction failed for wallet ${wallet.publicKey}:`,
+              error
+            );
+          });
       } catch (error) {
         const { wallet } = walletsToSell[i];
         console.error(`❌ Error processing wallet ${wallet.publicKey}:`, error);

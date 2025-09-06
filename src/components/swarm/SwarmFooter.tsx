@@ -39,11 +39,16 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const [selectedBuyOption, setSelectedBuyOption] = useState<'buy' | 'buyAllSol' | 'buyAllInOne'>('buy');
-  const [selectedSellOption, setSelectedSellOption] = useState<'sell' | 'sellTillRunOut'>('sell');
+  const [selectedBuyOption, setSelectedBuyOption] = useState<
+    'buy' | 'buyAllSol' | 'buyAllInOne'
+  >('buy');
+  const [selectedSellOption, setSelectedSellOption] = useState<
+    'sell' | 'sellTillRunOut'
+  >('sell');
 
   // Check if any operation is running
-  const isAnyOperationRunning = runningOperations?.buyTillRunOut || runningOperations?.sellTillRunOut;
+  const isAnyOperationRunning =
+    runningOperations?.buyTillRunOut || runningOperations?.sellTillRunOut;
 
   /**
    * Get the current buy handler based on selected option
@@ -150,7 +155,8 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({
     >
       <Row gutter={8}>
         <Col span={8}>
-          {runningOperations?.buyTillRunOut && selectedBuyOption === 'buyAllInOne' ? (
+          {runningOperations?.buyTillRunOut &&
+          selectedBuyOption === 'buyAllInOne' ? (
             <Button
               type="primary"
               danger
@@ -167,7 +173,10 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({
                 icon={<ShoppingOutlined />}
                 style={{ width: 'calc(100% - 32px)' }}
                 onClick={getCurrentBuyHandler()}
-                disabled={disabled || (isAnyOperationRunning && !runningOperations?.buyTillRunOut)}
+                disabled={
+                  disabled ||
+                  (isAnyOperationRunning && !runningOperations?.buyTillRunOut)
+                }
               >
                 {getCurrentBuyLabel()}
               </Button>
@@ -187,7 +196,8 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({
           )}
         </Col>
         <Col span={8}>
-          {runningOperations?.sellTillRunOut && selectedSellOption === 'sellTillRunOut' ? (
+          {runningOperations?.sellTillRunOut &&
+          selectedSellOption === 'sellTillRunOut' ? (
             <Button
               type="primary"
               danger
@@ -205,7 +215,10 @@ const SwarmFooter: React.FC<SwarmFooterProps> = ({
                 icon={<ShoppingCartOutlined />}
                 style={{ width: 'calc(100% - 32px)' }}
                 onClick={getCurrentSellHandler()}
-                disabled={disabled || (isAnyOperationRunning && !runningOperations?.sellTillRunOut)}
+                disabled={
+                  disabled ||
+                  (isAnyOperationRunning && !runningOperations?.sellTillRunOut)
+                }
               >
                 {getCurrentSellLabel()}
               </Button>

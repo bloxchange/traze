@@ -131,12 +131,21 @@ export class SwarmSellCommand {
           costUnits: this.costUnits,
         };
 
-        broker.sell(sellParameters).then((signature) => {
-          // Transaction signature is now handled by logs subscription in TokenContext
-          console.log('💸 Sell transaction completed with signature:', signature);
-        }).catch((error) => {
-          console.error(`❌ Sell transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
-        });
+        broker
+          .sell(sellParameters)
+          .then((signature) => {
+            // Transaction signature is now handled by logs subscription in TokenContext
+            console.log(
+              '💸 Sell transaction completed with signature:',
+              signature
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `❌ Sell transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`,
+              error
+            );
+          });
 
         if (
           this.sellDelay > 0 &&
@@ -145,7 +154,10 @@ export class SwarmSellCommand {
           await this.delay(this.sellDelay * 1000); // Convert seconds to milliseconds
         }
       } catch (error) {
-        console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+        console.error(
+          `❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`,
+          error
+        );
         // Continue to next wallet
       }
     }

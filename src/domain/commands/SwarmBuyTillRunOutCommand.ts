@@ -51,7 +51,10 @@ export class SwarmBuyTillRunOutCommand {
 
     // Subscribe to stop events if componentId is provided
     if (this.componentId) {
-      globalEventEmitter.on(EVENTS.StopSignal, this.handleStopSignal.bind(this));
+      globalEventEmitter.on(
+        EVENTS.StopSignal,
+        this.handleStopSignal.bind(this)
+      );
     }
   }
 
@@ -59,11 +62,17 @@ export class SwarmBuyTillRunOutCommand {
    * Handle stop signal events
    */
   private handleStopSignal(data: StopSignalData): void {
-    if (data.componentId === this.componentId && data.operation === 'buyTillRunOut') {
+    if (
+      data.componentId === this.componentId &&
+      data.operation === 'buyTillRunOut'
+    ) {
       console.log('🛑 Stop signal received for buy till run out operation');
       this.stopped = true;
       // Clean up event listener
-      globalEventEmitter.off(EVENTS.StopSignal, this.handleStopSignal.bind(this));
+      globalEventEmitter.off(
+        EVENTS.StopSignal,
+        this.handleStopSignal.bind(this)
+      );
     }
   }
 
@@ -151,39 +160,45 @@ export class SwarmBuyTillRunOutCommand {
     let roundCount = 0;
     const maxRoundCount = 10;
     const runOutWallets = new Set<string>();
-    
+
     // Continue buying until all wallets run out of funds or max rounds reached
     while (true) {
       // Break if stop signal received
       if (this.stopped) {
-        console.log('🛑 Stop signal received. Stopping buy till run out execution.');
+        console.log(
+          '🛑 Stop signal received. Stopping buy till run out execution.'
+        );
         break;
       }
-      
+
       // Break if all wallets have run out of funds
       if (runOutWallets.size === selectedWallets.length) {
-        console.log(`🏁 All wallets have run out of funds. Stopping execution.`);
+        console.log(
+          `🏁 All wallets have run out of funds. Stopping execution.`
+        );
         break;
       }
-      
+
       // Break if max round count reached
       if (roundCount >= maxRoundCount) {
-        console.log(`🏁 Maximum round count (${maxRoundCount}) reached. Stopping execution.`);
+        console.log(
+          `🏁 Maximum round count (${maxRoundCount}) reached. Stopping execution.`
+        );
         break;
       }
-      
+
       roundCount++;
       console.log(`🔄 Starting buy round ${roundCount}`);
-      
+
       let transactionsInRound = 0;
-      
+
       for (const wallet of selectedWallets) {
         // Break if stop signal received during wallet processing
         if (this.stopped) {
           console.log('🛑 Stop signal received during wallet processing.');
           break;
         }
-        
+
         // Skip wallets that have already run out of funds
         if (runOutWallets.has(wallet.keypair.publicKey.toBase58())) {
           continue;
@@ -199,20 +214,25 @@ export class SwarmBuyTillRunOutCommand {
           }
 
           // Get current wallet balance and compare with required amount
-          const currentBalance = (await ConnectionManager.getInstance()
-            .getConnection()
-            .getBalance(wallet.keypair.publicKey, 'confirmed')) / LAMPORTS_PER_SOL;
-          
+          const currentBalance =
+            (await ConnectionManager.getInstance()
+              .getConnection()
+              .getBalance(wallet.keypair.publicKey, 'confirmed')) /
+            LAMPORTS_PER_SOL;
+
           const totalRequired = amountInSol + this.priorityFeeInSol;
-          
+
           if (currentBalance < totalRequired) {
-            console.log(`⚠️ Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient balance: ${currentBalance.toFixed(4)} SOL < ${totalRequired.toFixed(4)} SOL required`);
+            console.log(
+              `⚠️ Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient balance: ${currentBalance.toFixed(4)} SOL < ${totalRequired.toFixed(4)} SOL required`
+            );
             runOutWallets.add(wallet.keypair.publicKey.toBase58());
             continue;
           }
-          
-          console.log(`✅ Wallet ${wallet.keypair.publicKey.toBase58()} has sufficient balance: ${currentBalance.toFixed(4)} SOL >= ${totalRequired.toFixed(4)} SOL required`);
 
+          console.log(
+            `✅ Wallet ${wallet.keypair.publicKey.toBase58()} has sufficient balance: ${currentBalance.toFixed(4)} SOL >= ${totalRequired.toFixed(4)} SOL required`
+          );
 
           const buyParameters: IBuyParameters = {
             buyer: wallet.keypair,
@@ -225,31 +245,47 @@ export class SwarmBuyTillRunOutCommand {
             costUnits: this.costUnits,
           };
 
-          broker.buy(buyParameters).then((signature) => {
-            console.log(`💰 Buy Till Run Out transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with ${amountInSol.toFixed(4)} SOL, signature:`, signature);
-          }).catch((error) => {
-            console.error(`❌ Buy Till Run Out transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
-          });
-          
+          broker
+            .buy(buyParameters)
+            .then((signature) => {
+              console.log(
+                `💰 Buy Till Run Out transaction completed for wallet ${wallet.keypair.publicKey.toBase58()} with ${amountInSol.toFixed(4)} SOL, signature:`,
+                signature
+              );
+            })
+            .catch((error) => {
+              console.error(
+                `❌ Buy Till Run Out transaction failed for wallet ${wallet.keypair.publicKey.toBase58()}:`,
+                error
+              );
+            });
+
           transactionsInRound++;
 
           if (this.buyDelay > 0) {
             await this.delay(this.buyDelay * 1000); // Convert seconds to milliseconds
           }
         } catch (error) {
-          console.error(`❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`, error);
+          console.error(
+            `❌ Error processing wallet ${wallet.keypair.publicKey.toBase58()}:`,
+            error
+          );
           // Continue to next wallet
         }
       }
-      
+
       if (transactionsInRound === 0) {
-        console.log('🛑 No transactions could be executed in this round, stopping.');
+        console.log(
+          '🛑 No transactions could be executed in this round, stopping.'
+        );
         break;
       }
-      
-      console.log(`✅ Completed buy round ${roundCount} with ${transactionsInRound} transactions`);
+
+      console.log(
+        `✅ Completed buy round ${roundCount} with ${transactionsInRound} transactions`
+      );
     }
-    
+
     console.log(`🏁 Buy Till Run Out completed after ${roundCount} rounds`);
   }
 }

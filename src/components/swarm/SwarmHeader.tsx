@@ -197,7 +197,12 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
         <div style={{ flexShrink: 0 }}>
           <Space size="small">
             <Tooltip title={t('swarm.editName')}>
-              <Button icon={<EditOutlined />} onClick={showModal} type="text" disabled={disabled} />
+              <Button
+                icon={<EditOutlined />}
+                onClick={showModal}
+                type="text"
+                disabled={disabled}
+              />
             </Tooltip>
             <Tooltip title={t('swarm.feed')}>
               <Button
@@ -237,7 +242,12 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                   cancelText={t('common.cancel')}
                   onConfirm={onClear}
                 >
-                  <Button icon={<ClearOutlined />} type="text" danger disabled={disabled} />
+                  <Button
+                    icon={<ClearOutlined />}
+                    type="text"
+                    danger
+                    disabled={disabled}
+                  />
                 </Popconfirm>
               )}
             </Tooltip>

@@ -50,10 +50,10 @@ const Swarm: React.FC<SwarmProps> = ({
   const { tokenState } = useToken();
   const { t } = useTranslation();
   const [walletList, setWalletList] = useState<WalletInfo[]>(wallets);
-  
+
   // Component ID for tracking operations
   const componentId = useRef<string>(generateComponentId());
-  
+
   // State to track running operations
   const [runningOperations, setRunningOperations] = useState<{
     buyTillRunOut: boolean;
@@ -428,8 +428,8 @@ const Swarm: React.FC<SwarmProps> = ({
 
     try {
       // Set operation as running
-      setRunningOperations(prev => ({ ...prev, buyTillRunOut: true }));
-      
+      setRunningOperations((prev) => ({ ...prev, buyTillRunOut: true }));
+
       const buyTillRunOutCommand = new SwarmBuyTillRunOutCommand(
         walletList,
         tokenState.currentToken.mint,
@@ -449,7 +449,7 @@ const Swarm: React.FC<SwarmProps> = ({
       console.error('Buy All in One error:', error);
     } finally {
       // Reset operation state
-      setRunningOperations(prev => ({ ...prev, buyTillRunOut: false }));
+      setRunningOperations((prev) => ({ ...prev, buyTillRunOut: false }));
     }
   };
 
@@ -501,8 +501,8 @@ const Swarm: React.FC<SwarmProps> = ({
 
     try {
       // Set operation as running
-      setRunningOperations(prev => ({ ...prev, sellTillRunOut: true }));
-      
+      setRunningOperations((prev) => ({ ...prev, sellTillRunOut: true }));
+
       const sellTillRunOutCommand = new SwarmSellTillRunOutCommand(
         walletList,
         tokenState.currentToken.mint,
@@ -522,7 +522,7 @@ const Swarm: React.FC<SwarmProps> = ({
       console.error('Sell Till Run Out error:', error);
     } finally {
       // Reset operation state
-      setRunningOperations(prev => ({ ...prev, sellTillRunOut: false }));
+      setRunningOperations((prev) => ({ ...prev, sellTillRunOut: false }));
     }
   };
 
@@ -532,10 +532,10 @@ const Swarm: React.FC<SwarmProps> = ({
   const handleStopBuyTillRunOut = () => {
     const stopData: StopSignalData = {
       componentId: componentId.current,
-      operation: 'buyTillRunOut'
+      operation: 'buyTillRunOut',
     };
     globalEventEmitter.emit(EVENTS.StopSignal, stopData);
-    setRunningOperations(prev => ({ ...prev, buyTillRunOut: false }));
+    setRunningOperations((prev) => ({ ...prev, buyTillRunOut: false }));
   };
 
   /**
@@ -544,10 +544,10 @@ const Swarm: React.FC<SwarmProps> = ({
   const handleStopSellTillRunOut = () => {
     const stopData: StopSignalData = {
       componentId: componentId.current,
-      operation: 'sellTillRunOut'
+      operation: 'sellTillRunOut',
     };
     globalEventEmitter.emit(EVENTS.StopSignal, stopData);
-    setRunningOperations(prev => ({ ...prev, sellTillRunOut: false }));
+    setRunningOperations((prev) => ({ ...prev, sellTillRunOut: false }));
   };
 
   const handleFlush = async () => {
@@ -614,8 +614,12 @@ const Swarm: React.FC<SwarmProps> = ({
         walletCount={walletList.length}
         totalSolBalance={totalSolBalance}
         totalTokenBalance={totalTokenBalance}
-        disabled={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
-        showMask={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
+        disabled={
+          runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
+        }
+        showMask={
+          runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
+        }
       />
       <SwarmWalletList
         wallets={walletList}
@@ -626,8 +630,12 @@ const Swarm: React.FC<SwarmProps> = ({
         onConfigChange={setSwarmConfig}
         availableBuyAmounts={availableBuyAmounts}
         onAvailableBuyAmountsChange={setAvailableBuyAmounts}
-        disabled={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
-        showMask={runningOperations.buyTillRunOut || runningOperations.sellTillRunOut}
+        disabled={
+          runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
+        }
+        showMask={
+          runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
+        }
       />
       <SwarmFooter
         onBuy={handleBuy}

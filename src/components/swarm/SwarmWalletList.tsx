@@ -19,7 +19,10 @@ const SwarmWalletList: React.FC<ExtendedSwarmWalletListProps> = ({
   showMask = false,
 }) => {
   return (
-    <div className="swarm-wallets" style={{ padding: '12px 6px', position: 'relative' }}>
+    <div
+      className="swarm-wallets"
+      style={{ padding: '12px 6px', position: 'relative' }}
+    >
       {!showConfig ? (
         <SwarmBalanceLayout
           wallets={wallets}

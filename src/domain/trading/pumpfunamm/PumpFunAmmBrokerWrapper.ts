@@ -481,7 +481,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
       // Convert token amount to BN and use as base input
       const baseAmount = new BN(sellParameters.sellTokenAmount.toString());
 
-      const slippage = Number(sellParameters.slippageBasisPoints) / 10000; // Convert basis points to percentage
+      const slippage = Number(sellParameters.slippageBasisPoints) / 100; // Convert basis points to percentage
 
       // Use sellBaseInput to sell tokens for SOL
       const instructions = await this.pumpAmmSdk.sellBaseInput(
