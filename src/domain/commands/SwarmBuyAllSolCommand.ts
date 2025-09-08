@@ -58,10 +58,11 @@ export class SwarmBuyAllSolCommand {
       2 * gasFeeBuffer +
       sellPriorityFeeBuffer +
       additionalSafetyBuffer;
-  
+
     const availableSol = wallet.solBalance / LAMPORTS_PER_SOL - totalBuffer;
 
-    const amountWithSlippage = availableSol / (1 + this.slippageBasisPoints / 10000);
+    const amountWithSlippage =
+      availableSol / (1 + this.slippageBasisPoints / 10000);
 
     return Math.max(0, amountWithSlippage);
   }

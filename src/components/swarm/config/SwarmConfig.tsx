@@ -31,7 +31,8 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState('');
-  const [isPercentageModalVisible, setIsPercentageModalVisible] = useState(false);
+  const [isPercentageModalVisible, setIsPercentageModalVisible] =
+    useState(false);
   const [percentageInput, setPercentageInput] = useState('');
 
   const handleAmountEdit = () => {
@@ -57,7 +58,9 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
   };
 
   const handlePercentageSave = () => {
-    const percentages = percentageInput.split(',').map((percentage) => percentage.trim());
+    const percentages = percentageInput
+      .split(',')
+      .map((percentage) => percentage.trim());
 
     onAvailableSellPercentagesChange(percentages);
 

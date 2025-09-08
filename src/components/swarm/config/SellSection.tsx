@@ -32,7 +32,10 @@ const SellSection: React.FC<SellConfigProps> = ({
           style={{ height: 'unset' }}
         />
       </div>
-      <Form.Item name="sellPercentages" extra={t('swarm.percentageAmountDescription')}>
+      <Form.Item
+        name="sellPercentages"
+        extra={t('swarm.percentageAmountDescription')}
+      >
         <Checkbox.Group
           options={availablePercentages.map((percentage: string) => ({
             label: `${percentage}%`,

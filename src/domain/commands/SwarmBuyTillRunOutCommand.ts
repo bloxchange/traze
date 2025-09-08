@@ -94,7 +94,8 @@ export class SwarmBuyTillRunOutCommand {
 
     const availableBalance = balance - 2 * priorityFeeInSol - 0.0001 - 0.01;
 
-    const amountWithSlippage = availableBalance / (1 + this.slippageBasisPoints / 10000);
+    const amountWithSlippage =
+      availableBalance / (1 + this.slippageBasisPoints / 10000);
 
     return amountWithSlippage > estimatedAmount
       ? estimatedAmount
@@ -214,7 +215,7 @@ export class SwarmBuyTillRunOutCommand {
           if (amountInSol <= 0) {
             continue;
           }
-          
+
           const buyParameters: IBuyParameters = {
             buyer: wallet.keypair,
             tokenMint: this.tokenMint,
