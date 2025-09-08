@@ -26,6 +26,8 @@ interface SwarmConfigLayoutProps {
   onConfigChange: (values: SwarmConfigFormValues) => void;
   availableBuyAmounts: string[];
   onAvailableBuyAmountsChange: (amounts: string[]) => void;
+  availableSellPercentages: string[];
+  onAvailableSellPercentagesChange: (percentages: string[]) => void;
   disabled?: boolean;
 }
 
@@ -37,6 +39,8 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
   onConfigChange,
   availableBuyAmounts,
   onAvailableBuyAmountsChange,
+  availableSellPercentages,
+  onAvailableSellPercentagesChange,
   disabled = false,
 }) => {
   const { t } = useTranslation();
@@ -151,6 +155,8 @@ const SwarmConfigLayout: React.FC<SwarmConfigLayoutProps> = ({
           onConfigChange={onConfigChange}
           availableBuyAmounts={availableBuyAmounts}
           onAvailableBuyAmountsChange={onAvailableBuyAmountsChange}
+          availableSellPercentages={availableSellPercentages}
+          onAvailableSellPercentagesChange={onAvailableSellPercentagesChange}
           disabled={disabled}
         />
       </Col>

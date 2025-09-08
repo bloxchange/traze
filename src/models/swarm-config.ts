@@ -29,6 +29,7 @@ export interface GeneralConfigProps {
 export interface SellConfigProps {
   availablePercentages: string[];
   defaultUseJitoBundle?: boolean;
+  onPercentageEdit: () => void;
 }
 
 export interface BuyConfigProps {

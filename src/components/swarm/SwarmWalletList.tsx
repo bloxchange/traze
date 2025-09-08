@@ -15,6 +15,8 @@ const SwarmWalletList: React.FC<ExtendedSwarmWalletListProps> = ({
   onConfigChange,
   availableBuyAmounts,
   onAvailableBuyAmountsChange,
+  availableSellPercentages,
+  onAvailableSellPercentagesChange,
   disabled = false,
   showMask = false,
 }) => {
@@ -39,6 +41,8 @@ const SwarmWalletList: React.FC<ExtendedSwarmWalletListProps> = ({
           onConfigChange={onConfigChange}
           availableBuyAmounts={availableBuyAmounts}
           onAvailableBuyAmountsChange={onAvailableBuyAmountsChange}
+          availableSellPercentages={availableSellPercentages}
+          onAvailableSellPercentagesChange={onAvailableSellPercentagesChange}
           disabled={disabled}
         />
       )}

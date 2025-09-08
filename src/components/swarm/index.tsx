@@ -79,6 +79,12 @@ const Swarm: React.FC<SwarmProps> = ({
     '2',
     '5',
   ]);
+  const [availableSellPercentages, setAvailableSellPercentages] = useState([
+    '25',
+    '50',
+    '75',
+    '100',
+  ]);
   const [isFeedModalOpen, setIsFeedModalOpen] = useState(false);
   const [name, setName] = useState(initialName);
   const [totalSolBalance, setTotalSolBalance] = useState(0);
@@ -630,6 +636,8 @@ const Swarm: React.FC<SwarmProps> = ({
         onConfigChange={setSwarmConfig}
         availableBuyAmounts={availableBuyAmounts}
         onAvailableBuyAmountsChange={setAvailableBuyAmounts}
+        availableSellPercentages={availableSellPercentages}
+        onAvailableSellPercentagesChange={setAvailableSellPercentages}
         disabled={
           runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
         }
