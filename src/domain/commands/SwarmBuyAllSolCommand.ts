@@ -49,15 +49,16 @@ export class SwarmBuyAllSolCommand {
     priorityFeeInSol: number
   ): Promise<number> {
     // Buffer for future sell operation: gas fee (0.00005 SOL) + priority fee + additional safety buffer
-    const sellGasFeeBuffer = 0.00005; // DEFAULT_GAS_FEE in SOL
+    const gasFeeBuffer = 0.00005; // DEFAULT_GAS_FEE in SOL
     const sellPriorityFeeBuffer = priorityFeeInSol; // Same priority fee for sell
-    const additionalSafetyBuffer = 0.01; // Additional safety buffer
+    const additionalSafetyBuffer = 0.001; // Additional safety buffer
 
     const totalBuffer =
       priorityFeeInSol +
-      sellGasFeeBuffer +
+      2 * gasFeeBuffer +
       sellPriorityFeeBuffer +
       additionalSafetyBuffer;
+      
     const availableSol = wallet.solBalance / LAMPORTS_PER_SOL - totalBuffer;
 
     return Math.max(0, availableSol);

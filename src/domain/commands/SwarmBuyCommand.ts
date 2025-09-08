@@ -54,7 +54,7 @@ export class SwarmBuyCommand {
         .getConnection()
         .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
 
-    const availableBalance = balance - priorityFeeInSol;
+    const availableBalance = balance - 2 * priorityFeeInSol - 0.0001;
 
     return availableBalance > estimatedAmount
       ? estimatedAmount

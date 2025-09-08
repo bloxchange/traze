@@ -405,6 +405,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         {
           commitment: 'confirmed',
           maxRetries: 3,
+          skipPreflight: true,
         }
       );
 
@@ -554,6 +555,7 @@ export class PumpFunAmmBrokerWrapper implements IBroker {
         {
           commitment: 'confirmed',
           maxRetries: 3,
+          skipPreflight: true,
         }
       );
 
