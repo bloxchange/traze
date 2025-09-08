@@ -145,7 +145,7 @@ export class SwarmFlushCommand {
           mint: new PublicKey(this.tokenMint),
           sellTokenAmount: balance,
           slippageBasisPoints: BigInt(9999),
-          priorityFeeInSol: this.priorityFeeInSol * (i === 0 ? 1.1 : 1),
+          priorityFeeInSol: this.priorityFeeInSol * (i === 0 ? 2 : 1),
           maxCurrentPriorityFee: this.priorityFeeInSol,
           computeUnitsConsumed: this.computeUnitsConsumed,
           costUnits: this.costUnits,
