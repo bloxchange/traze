@@ -92,11 +92,14 @@ export class SwarmBuyTillRunOutCommand {
         .getConnection()
         .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
 
-    const availableBalance = balance - priorityFeeInSol;
+    const availableBalance = balance - 2 * priorityFeeInSol - 0.0001 - 0.01;
 
-    return availableBalance > estimatedAmount
+    const amountWithSlippage =
+      availableBalance / (1 + this.slippageBasisPoints / 10000);
+
+    return amountWithSlippage > estimatedAmount
       ? estimatedAmount
-      : availableBalance;
+      : amountWithSlippage;
   }
 
   /**
@@ -212,27 +215,6 @@ export class SwarmBuyTillRunOutCommand {
           if (amountInSol <= 0) {
             continue;
           }
-
-          // Get current wallet balance and compare with required amount
-          const currentBalance =
-            (await ConnectionManager.getInstance()
-              .getConnection()
-              .getBalance(wallet.keypair.publicKey, 'confirmed')) /
-            LAMPORTS_PER_SOL;
-
-          const totalRequired = amountInSol + this.priorityFeeInSol;
-
-          if (currentBalance < totalRequired) {
-            console.log(
-              `⚠️ Wallet ${wallet.keypair.publicKey.toBase58()} has insufficient balance: ${currentBalance.toFixed(4)} SOL < ${totalRequired.toFixed(4)} SOL required`
-            );
-            runOutWallets.add(wallet.keypair.publicKey.toBase58());
-            continue;
-          }
-
-          console.log(
-            `✅ Wallet ${wallet.keypair.publicKey.toBase58()} has sufficient balance: ${currentBalance.toFixed(4)} SOL >= ${totalRequired.toFixed(4)} SOL required`
-          );
 
           const buyParameters: IBuyParameters = {
             buyer: wallet.keypair,

@@ -13,6 +13,8 @@ interface SwarmConfigProps {
   initialConfig: SwarmConfigFormValues;
   availableBuyAmounts: string[];
   onAvailableBuyAmountsChange: (amounts: string[]) => void;
+  availableSellPercentages: string[];
+  onAvailableSellPercentagesChange: (percentages: string[]) => void;
   disabled?: boolean;
 }
 
@@ -21,14 +23,17 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
   initialConfig,
   availableBuyAmounts,
   onAvailableBuyAmountsChange,
+  availableSellPercentages,
+  onAvailableSellPercentagesChange,
   disabled = false,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [isAmountModalVisible, setIsAmountModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState('');
-
-  const availableSellPercentages = ['25', '50', '75', '100'];
+  const [isPercentageModalVisible, setIsPercentageModalVisible] =
+    useState(false);
+  const [percentageInput, setPercentageInput] = useState('');
 
   const handleAmountEdit = () => {
     setAmountInput(form.getFieldValue('buyAmounts')?.join(', ') || '');
@@ -44,6 +49,24 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
     form.setFieldsValue({ buyAmounts: [] });
 
     setIsAmountModalVisible(false);
+  };
+
+  const handlePercentageEdit = () => {
+    setPercentageInput(form.getFieldValue('sellPercentages')?.join(', ') || '');
+
+    setIsPercentageModalVisible(true);
+  };
+
+  const handlePercentageSave = () => {
+    const percentages = percentageInput
+      .split(',')
+      .map((percentage) => percentage.trim());
+
+    onAvailableSellPercentagesChange(percentages);
+
+    form.setFieldsValue({ sellPercentages: [] });
+
+    setIsPercentageModalVisible(false);
   };
 
   const handleValuesChange = (
@@ -92,7 +115,10 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
               key: 'sell',
               label: t('swarm.sellTab'),
               children: (
-                <SellSection availablePercentages={availableSellPercentages} />
+                <SellSection
+                  availablePercentages={availableSellPercentages}
+                  onPercentageEdit={handlePercentageEdit}
+                />
               ),
             },
           ]}
@@ -109,6 +135,19 @@ const SwarmConfig: React.FC<SwarmConfigProps> = ({
           value={amountInput}
           onChange={(e) => setAmountInput(e.target.value)}
           placeholder={t('swarm.enterAmountsSeparatedByCommas')}
+        />
+      </Modal>
+
+      <Modal
+        title={t('swarm.editPercentages')}
+        open={isPercentageModalVisible}
+        onOk={handlePercentageSave}
+        onCancel={() => setIsPercentageModalVisible(false)}
+      >
+        <Input
+          value={percentageInput}
+          onChange={(e) => setPercentageInput(e.target.value)}
+          placeholder={t('swarm.enterPercentagesSeparatedByCommas')}
         />
       </Modal>
     </Card>

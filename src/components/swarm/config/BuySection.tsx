@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox, Space } from 'antd';
+import { Form, Input, InputNumber, Button, Checkbox, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { EditOutlined } from '@ant-design/icons';
 
@@ -7,6 +7,7 @@ import type { BuyConfigProps } from '@/models';
 
 const BuySection: React.FC<BuyConfigProps> = ({
   availableAmounts,
+  defaultBuySlippage,
   onAmountEdit,
 }) => {
   const { t } = useTranslation();
@@ -41,6 +42,23 @@ const BuySection: React.FC<BuyConfigProps> = ({
       </Form.Item>
       <Form.Item label={t('swarm.delayInSeconds')} name="buyDelay">
         <Input type="number" min={0} />
+      </Form.Item>
+      <Form.Item
+        label={`${t('swarm.slippage')} (%)`}
+        name="buySlippage"
+        initialValue={defaultBuySlippage}
+      >
+        <InputNumber
+          min={0}
+          precision={2}
+          style={{ width: '100%' }}
+          formatter={(value: number | undefined) =>
+            `${value ? value / 100 : '0'}`
+          }
+          parser={(displayValue: string | undefined) =>
+            parseFloat(displayValue || '0') * 100
+          }
+        />
       </Form.Item>
     </Space>
   );
