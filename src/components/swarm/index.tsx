@@ -67,7 +67,8 @@ const Swarm: React.FC<SwarmProps> = ({
     sellPercentages: [],
     buyDelay: 0,
     sellDelay: 0,
-    slippageBasisPoints: 4900,
+    buySlippage: 500,
+    sellSlippage: 4900,
     priorityFee: 0.0001,
     jitoTipAmount: 0.0001,
     useJitoBundle: false,
@@ -371,7 +372,7 @@ const Swarm: React.FC<SwarmProps> = ({
         tokenState.currentToken.mint,
         swarmConfig.buyAmounts,
         swarmConfig.buyDelay,
-        swarmConfig.slippageBasisPoints,
+        swarmConfig.buySlippage,
         swarmConfig.priorityFee,
         tokenState.buyComputeUnitsConsumed,
         tokenState.buyCostUnits
@@ -405,7 +406,7 @@ const Swarm: React.FC<SwarmProps> = ({
         walletList,
         tokenState.currentToken.mint,
         swarmConfig.buyDelay,
-        swarmConfig.slippageBasisPoints,
+        swarmConfig.buySlippage,
         swarmConfig.priorityFee,
         tokenState.buyComputeUnitsConsumed,
         tokenState.buyCostUnits
@@ -441,7 +442,7 @@ const Swarm: React.FC<SwarmProps> = ({
         tokenState.currentToken.mint,
         swarmConfig.buyAmounts,
         swarmConfig.buyDelay,
-        swarmConfig.slippageBasisPoints,
+        swarmConfig.buySlippage,
         swarmConfig.priorityFee,
         tokenState.buyComputeUnitsConsumed,
         tokenState.buyCostUnits,
@@ -478,7 +479,7 @@ const Swarm: React.FC<SwarmProps> = ({
         tokenState.currentToken.mint,
         swarmConfig.sellPercentages,
         swarmConfig.sellDelay,
-        swarmConfig.slippageBasisPoints,
+        swarmConfig.sellSlippage,
         swarmConfig.priorityFee,
         tokenState.sellComputeUnitsConsumed,
         tokenState.sellCostUnits
@@ -514,7 +515,7 @@ const Swarm: React.FC<SwarmProps> = ({
         tokenState.currentToken.mint,
         swarmConfig.sellPercentages,
         swarmConfig.sellDelay,
-        swarmConfig.slippageBasisPoints,
+        swarmConfig.sellSlippage,
         swarmConfig.priorityFee,
         tokenState.sellComputeUnitsConsumed,
         tokenState.sellCostUnits,
@@ -567,7 +568,7 @@ const Swarm: React.FC<SwarmProps> = ({
         const command = new SwarmJitoFlushCommand(
           walletList,
           tokenState.currentToken.mint,
-          BigInt(swarmConfig.slippageBasisPoints),
+          BigInt(swarmConfig.sellSlippage),
           swarmConfig.jitoTipAmount,
           swarmConfig.priorityFee,
           configuration
@@ -578,7 +579,7 @@ const Swarm: React.FC<SwarmProps> = ({
         const command = new SwarmFlushCommand(
           walletList,
           tokenState.currentToken.mint,
-          BigInt(swarmConfig.slippageBasisPoints),
+          BigInt(swarmConfig.sellSlippage),
           swarmConfig.priorityFee,
           tokenState.sellComputeUnitsConsumed,
           tokenState.sellCostUnits

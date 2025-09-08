@@ -1,16 +1,17 @@
 export interface SellConfigValues {
   sellPercentages: string[];
   sellDelay: number;
+  sellSlippage: number;
   useJitoBundle: boolean;
 }
 
 export interface BuyConfigValues {
   buyAmounts: string[];
   buyDelay: number;
+  buySlippage: number;
 }
 
 export interface GeneralConfigValues {
-  slippageBasisPoints: number;
   priorityFee: number;
   jitoTipAmount: number;
 }
@@ -21,18 +22,19 @@ export interface SwarmConfigFormValues
     GeneralConfigValues {}
 
 export interface GeneralConfigProps {
-  defaultSlippage?: number;
   defaultPriorityFee?: number;
   defaultJitoTipAmount?: number;
 }
 
 export interface SellConfigProps {
   availablePercentages: string[];
+  defaultSellSlippage?: number;
   defaultUseJitoBundle?: boolean;
   onPercentageEdit: () => void;
 }
 
 export interface BuyConfigProps {
   availableAmounts: string[];
+  defaultBuySlippage?: number;
   onAmountEdit: () => void;
 }

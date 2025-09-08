@@ -92,11 +92,13 @@ export class SwarmBuyTillRunOutCommand {
         .getConnection()
         .getBalance(wallet, 'confirmed')) / LAMPORTS_PER_SOL;
 
-    const availableBalance = balance - 2 * priorityFeeInSol - 0.0001;
+    const availableBalance = balance - 2 * priorityFeeInSol - 0.0001 - 0.01;
 
-    return availableBalance > estimatedAmount
+    const amountWithSlippage = availableBalance / (1 + this.slippageBasisPoints / 10000);
+
+    return amountWithSlippage > estimatedAmount
       ? estimatedAmount
-      : availableBalance;
+      : amountWithSlippage;
   }
 
   /**
