@@ -172,17 +172,31 @@
   },
   "transactions": {
     "title": "Transactions",
-    "timestamp": "Time",
+    "timestamp": "Timestamp",
     "type": "Type",
     "amount": "Amount",
     "tokenAmount": "Token Amount",
+    "wallet": "Wallet",
     "status": "Status",
     "signature": "Signature",
     "buy": "Buy",
     "sell": "Sell",
     "description": "This component only gets transaction updates from opening swarms."
   },
-  "search": {
+  "outsideTransactions": {
+    "title": "Outside Transactions",
+    "timestamp": "Timestamp",
+    "type": "Type",
+    "amount": "Amount",
+    "tokenAmount": "Token Amount",
+    "wallet": "Wallet",
+    "status": "Status",
+    "signature": "Signature",
+    "buy": "Buy",
+    "sell": "Sell",
+    "description": "This component shows transactions from wallets that are not part of any active swarms."
+   },
+   "search": {
     "title": "Search",
     "placeholder": "Enter public key or transaction hash"
   },

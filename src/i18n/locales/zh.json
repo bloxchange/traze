@@ -172,17 +172,31 @@
   },
   "transactions": {
     "title": "交易",
-    "timestamp": "时间",
+    "timestamp": "时间戳",
     "type": "类型",
     "amount": "数量",
     "tokenAmount": "代币数量",
+    "wallet": "钱包",
     "status": "状态",
     "signature": "签名",
     "buy": "买入",
     "sell": "卖出",
-    "description": "此组件仅接收来自打开的群组的交易更新。"
+    "description": "此组件仅从打开的群体获取交易更新。"
   },
-  "search": {
+  "outsideTransactions": {
+    "title": "外部交易",
+    "timestamp": "时间戳",
+    "type": "类型",
+    "amount": "数量",
+    "tokenAmount": "代币数量",
+    "wallet": "钱包",
+    "status": "状态",
+    "signature": "签名",
+    "buy": "买入",
+    "sell": "卖出",
+    "description": "此组件显示来自不属于任何活跃群体的钱包的交易。"
+  },
+   "search": {
     "title": "搜索",
     "placeholder": "输入公钥或交易ID"
   },
