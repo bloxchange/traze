@@ -2,7 +2,6 @@ import { PublicKey } from '@solana/web3.js';
 import { ConnectionManager } from '../infrastructure/ConnectionManager';
 import type { TokenInformation } from '../../models/token';
 import { getAsset } from '../rpc';
-import type { AssetResponsePayload } from '../models/rpc/AssetResponsePayload';
 import { TokenInformationCache } from '../infrastructure/TokenInformationCache';
 import {
   fetchDigitalAsset,
@@ -54,8 +53,8 @@ export class GetTokenInformationCommand {
         mint: this.tokenMint,
         name: 'Unknown',
         symbol: 'UNK',
-        decimals: 0,
-        totalSupply: 0,
+        decimals: DEFAULT_DECIMALS,
+        totalSupply: 1_000_000_000,
         icon: '',
         externalUrl: '',
         authority: undefined,

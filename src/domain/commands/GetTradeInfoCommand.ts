@@ -46,9 +46,11 @@ export class GetTradeInfoCommand {
     const fromTokenAmount = Math.abs(solBalanceBefore - solBalanceAfter);
 
     // find owner
-    const owner = transaction.transaction.message.accountKeys
+    const ownerPubkey = transaction.transaction.message.accountKeys
       .find((a) => a.signer)
-      ?.pubkey.toBase58();
+      ?.pubkey;
+
+    const owner = ownerPubkey?.toBase58();
 
     // Calculate token amount received/sold (toTokenAmount)
     // Index 1 is typically the token account
@@ -68,8 +70,8 @@ export class GetTradeInfoCommand {
     return {
       fromTokenMint: '',
       toTokenMint: '',
-      fromAccount: new PublicKey('11111111111111111111111111111111'),
-      toAccount: new PublicKey('11111111111111111111111111111111'),
+      fromAccount: ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
+      toAccount: ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
       fromTokenAmount: fromTokenAmount,
       toTokenAmount: toTokenAmount,
       timestamp: transaction.blockTime

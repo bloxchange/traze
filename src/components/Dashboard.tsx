@@ -6,6 +6,7 @@ import TokenInformation from './token-information';
 import LiquidityPools from './liquidity-pools';
 import Transactions from './transactions';
 import PumpState from './pump-state';
+import OutsideTransactions from './outside-transactions';
 import 'flexlayout-react/style/dark.css';
 import './Dashboard.css';
 
@@ -103,6 +104,9 @@ const Dashboard: React.FC<{ flexLayoutRef: React.RefObject<Layout> }> = ({
 
       case 'pumpState':
         return <PumpState />;
+
+      case 'outsideTransactions':
+        return <OutsideTransactions name={config.name} />;
 
       default:
         return config.content;

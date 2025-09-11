@@ -176,13 +176,27 @@
     "type": "Loại",
     "amount": "Số lượng",
     "tokenAmount": "Số lượng Token",
+    "wallet": "Ví",
     "status": "Trạng thái",
     "signature": "Chữ ký",
     "buy": "Mua",
     "sell": "Bán",
     "description": "Thành phần này chỉ nhận cập nhật giao dịch từ các nhóm đang mở."
   },
-  "search": {
+  "outsideTransactions": {
+    "title": "Giao dịch bên ngoài",
+    "timestamp": "Thời gian",
+    "type": "Loại",
+    "amount": "Số lượng",
+    "tokenAmount": "Số lượng Token",
+    "wallet": "Ví",
+    "status": "Trạng thái",
+    "signature": "Chữ ký",
+    "buy": "Mua",
+    "sell": "Bán",
+    "description": "Thành phần này hiển thị các giao dịch từ ví không thuộc về bất kỳ nhóm hoạt động nào."
+   },
+   "search": {
     "title": "Tìm kiếm",
     "placeholder": "Nhập khóa công khai hoặc mã giao dịch"
   },
