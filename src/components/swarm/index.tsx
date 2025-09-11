@@ -90,6 +90,7 @@ const Swarm: React.FC<SwarmProps> = ({
   const [name, setName] = useState(initialName);
   const [totalSolBalance, setTotalSolBalance] = useState(0);
   const [totalTokenBalance, setTotalTokenBalance] = useState(0);
+  const [targetWallet, setTargetWallet] = useState('');
 
   // Calculate total balances from wallet list
   const calculateTotalBalances = (wallets: WalletInfo[]) => {
@@ -235,6 +236,13 @@ const Swarm: React.FC<SwarmProps> = ({
     setName(newName);
 
     onNameChange(newName);
+  };
+
+  /**
+   * Handle target wallet change for snipping functionality
+   */
+  const handleTargetWalletChange = (wallet: string) => {
+    setTargetWallet(wallet);
   };
 
   const handleRefresh = async () => {
@@ -627,6 +635,10 @@ const Swarm: React.FC<SwarmProps> = ({
         showMask={
           runningOperations.buyTillRunOut || runningOperations.sellTillRunOut
         }
+        targetWallet={targetWallet}
+        onTargetWalletChange={handleTargetWalletChange}
+        wallets={walletList}
+        swarmConfig={swarmConfig}
       />
       <SwarmWalletList
         wallets={walletList}
