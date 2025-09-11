@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Table } from 'antd';
+import { Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
@@ -9,12 +9,8 @@ import {
   type TradeInfoFetchedData,
 } from '../../domain/infrastructure/events/types';
 import { formatBalance } from '../../utils/formatBalance';
-import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
 import { DEFAULT_DECIMALS } from '../../domain/infrastructure/consts';
 import { useToken } from '../../hooks/useToken';
-import type { TokenInformation } from '../../models/token';
-
-const { Paragraph } = Typography;
 
 interface OutsideTransactionsProps {
   name: string;
@@ -28,10 +24,6 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
   const { t } = useTranslation();
   const { tokenState } = useToken();
   const [transactions, setTransactions] = useState<TradeEventData[]>([]);
-  const [tokenDecimals, setTokenDecimals] = useState<Record<string, number>>(
-    {}
-  );
-  const [tokenInfos, setTokenInfos] = useState<Record<string, TokenInformation>>({});
 
   useEffect(() => {
     /**
@@ -46,31 +38,6 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
       
       // Only add transaction if the wallet is not part of any swarm and transaction is successful
       if (!swarmWalletKeys.has(walletPublicKey) && tradeInfo.status === 'success') {
-        const tokenMint = tradeInfo.toTokenMint;
-
-        // Fetch token information if not already cached
-        if (tokenMint && !tokenDecimals[tokenMint]) {
-          try {
-            const tokenInfo = await new GetTokenInformationCommand(
-              tokenMint
-            ).execute();
-            setTokenDecimals((prev) => ({
-              ...prev,
-              [tokenMint]: tokenInfo.decimals,
-            }));
-            setTokenInfos((prev) => ({
-              ...prev,
-              [tokenMint]: tokenInfo,
-            }));
-          } catch (error) {
-            console.warn('Failed to get token information, using default:', error);
-            setTokenDecimals((prev) => ({
-              ...prev,
-              [tokenMint]: DEFAULT_DECIMALS,
-            }));
-          }
-        }
-
         setTransactions((prev) => {
           const newTransactions = [tradeInfo, ...prev];
           return newTransactions;
@@ -87,7 +54,7 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
     return () => {
       globalEventEmitter.off(EVENTS.TradeInfoFetched, handleTradeInfoEvent);
     };
-  }, [tokenDecimals, tokenInfos, tokenState.wallets]);
+  }, [tokenState.wallets]);
 
   // Filter existing transactions when wallets change
   useEffect(() => {
@@ -111,39 +78,52 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
     {
       title: t('outsideTransactions.type'),
       key: 'type',
-      render: (_: unknown, record: TradeEventData) =>
-        record.type === 'buy' ? t('outsideTransactions.buy') : t('outsideTransactions.sell'),
+      render: (_: unknown, record: TradeEventData) => (
+        <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          {record.type === 'buy' ? t('outsideTransactions.buy') : t('outsideTransactions.sell')}
+        </span>
+      ),
     },
     {
       title: t('outsideTransactions.amount') + ' (SOL)',
       key: 'solAmount',
       render: (_: unknown, record: TradeEventData) => {
         const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
-        return formatBalance(solAmount, true);
+        return (
+          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+            {formatBalance(solAmount, true)}
+          </span>
+        );
       },
     },
     {
       title: t('outsideTransactions.tokenAmount'),
       key: 'tokenAmount',
       render: (_: unknown, record: TradeEventData) => {
-        const decimals = tokenDecimals[record.toTokenMint] || DEFAULT_DECIMALS;
+        const decimals = tokenState.currentToken?.decimals || DEFAULT_DECIMALS;
         const tokenAmount =
           Math.abs(record.toTokenAmount) / Math.pow(10, decimals);
-        return formatBalance(tokenAmount, false);
+        return (
+          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+            {formatBalance(tokenAmount, false)}
+          </span>
+        );
       },
     },
     {
       title: t('tokenInformation.marketCap'),
       key: 'marketCap',
       render: (_: unknown, record: TradeEventData) => {
-        const tokenInfo = tokenInfos[record.toTokenMint];
+        const tokenInfo = tokenState.currentToken;
         if (!tokenInfo || !tokenState.currentPrice || tokenInfo.totalSupply === 0) {
           return 'N/A';
         }
         
         // Calculate market cap: current price * total supply
-        const marketCap = tokenState.currentPrice * tokenInfo.totalSupply;
-        return `$${formatBalance(marketCap, true)}`;
+        // x 180: sol/usd
+        const marketCap = tokenState.currentPrice * 180 * tokenInfo.totalSupply;
+
+        return `${formatBalance(marketCap, true)}`;
       },
     },
     {
@@ -205,14 +185,45 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
     },
   ];
 
+  /**
+   * Calculate the total SOL amount (buy amounts - sell amounts)
+   */
+  const calculateTotalSol = () => {
+    let buyTotal = 0;
+    let sellTotal = 0;
+    
+    transactions.forEach(transaction => {
+      const solAmount = Math.abs(transaction.fromTokenAmount) / LAMPORTS_PER_SOL;
+      if (transaction.type === 'buy') {
+        buyTotal += solAmount;
+      } else {
+        sellTotal += solAmount;
+      }
+    });
+    
+    return buyTotal - sellTotal;
+  };
+
+  const totalSol = calculateTotalSol();
+
   return (
     <div>
-      <Paragraph>
-        {t(
-          'outsideTransactions.description',
-          'This component shows transactions from wallets that are not part of any active swarms.'
-        )}
-      </Paragraph>
+      {/* Total SOL Display */}
+      <div style={{ padding: '12px' }}>
+        <span style={{ fontSize: '16px', fontWeight: 'bold', marginRight: '8px' }}>
+          Total SOL:
+        </span>
+        <span 
+          style={{ 
+            fontSize: '18px', 
+            fontWeight: 'bold',
+            color: totalSol > 0 ? '#52c41a' : '#ff4d4f'
+          }}
+        >
+          {totalSol > 0 ? '+' : ''}{formatBalance(totalSol, true)}
+        </span>
+      </div>
+      
       <Table
         dataSource={transactions}
         columns={columns}

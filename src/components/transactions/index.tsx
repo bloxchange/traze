@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Table } from 'antd';
+import { Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
@@ -11,8 +11,6 @@ import {
 import { formatBalance } from '../../utils/formatBalance';
 import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
 import { DEFAULT_DECIMALS } from '../../domain/infrastructure/consts';
-
-const { Paragraph } = Typography;
 
 interface TransactionsProps {
   name: string;
@@ -74,15 +72,22 @@ const Transactions: React.FC<TransactionsProps> = () => {
     {
       title: t('transactions.type'),
       key: 'type',
-      render: (_: unknown, record: TradeEventData) =>
-        record.type === 'buy' ? t('transactions.buy') : t('transactions.sell'),
+      render: (_: unknown, record: TradeEventData) => (
+        <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          {record.type === 'buy' ? t('transactions.buy') : t('transactions.sell')}
+        </span>
+      ),
     },
     {
       title: t('transactions.amount') + ' (SOL)',
       key: 'solAmount',
       render: (_: unknown, record: TradeEventData) => {
         const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
-        return formatBalance(solAmount, true);
+        return (
+          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+            {formatBalance(solAmount, true)}
+          </span>
+        );
       },
     },
     {
@@ -92,7 +97,11 @@ const Transactions: React.FC<TransactionsProps> = () => {
         const decimals = tokenDecimals[record.toTokenMint] || DEFAULT_DECIMALS;
         const tokenAmount =
           Math.abs(record.toTokenAmount) / Math.pow(10, decimals);
-        return formatBalance(tokenAmount, false);
+        return (
+          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+            {formatBalance(tokenAmount, false)}
+          </span>
+        );
       },
     },
     {
@@ -143,12 +152,6 @@ const Transactions: React.FC<TransactionsProps> = () => {
 
   return (
     <div>
-      <Paragraph>
-        {t(
-          'transactions.description',
-          'This component only gets transaction updates from opening swarms.'
-        )}
-      </Paragraph>
       <Table
         dataSource={transactions}
         columns={columns}
