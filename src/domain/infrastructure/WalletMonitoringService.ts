@@ -3,10 +3,11 @@ import {
   PublicKey,
   type Logs,
 } from '@solana/web3.js';
-import bs58 from 'bs58';
 import { ConnectionManager } from './ConnectionManager';
 import { globalEventEmitter } from './events/EventEmitter';
 import { EVENTS, type MintTokenDetectedData } from './events/types';
+import { BorshCoder } from '@coral-xyz/anchor';
+import { IDL, type PumpFun } from '../trading/pumpfun/idl';
 
 /**
  * Service for monitoring wallet addresses and detecting mint token events
@@ -15,6 +16,7 @@ export class WalletMonitoringService {
   private static instance: WalletMonitoringService;
   private monitoredWallets: Map<string, number> = new Map(); // wallet -> subscriptionId
   private connection: Connection;
+  private coder: any;
 
   private constructor() {
     this.connection = ConnectionManager.getInstance().getConnection();
@@ -137,7 +139,7 @@ export class WalletMonitoringService {
 
       // Extract and decode the program data
       const base64Data = programDataLog.replace('Program data: ', '');
-      const mintAddress = await this.decodePumpFunProgramData(base64Data);
+      const mintAddress = await this.decodePumpFunProgramData(base64Data, walletAddress);
 
       if (mintAddress) {
         console.log(
@@ -163,36 +165,35 @@ export class WalletMonitoringService {
   }
 
   /**
-   * Decodes PumpFun program data to extract mint address
+   * Decodes PumpFun program data to extract mint address using Borsch decoder
    */
-  private async decodePumpFunProgramData(base64Data: string): Promise<string | null> {
+  private async decodePumpFunProgramData(base64Data: string, walletAddress: string): Promise<string | null> {
     try {
-      // Decode base64 program data
-      const buffer = Buffer.from(base64Data, 'base64');
-
-      // Check if this is a create instruction (discriminator: [24, 30, 200, 40, 5, 28, 7, 119])
-      const PUMPFUN_CREATE_DISCRIMINATOR = [24, 30, 200, 40, 5, 28, 7, 119];
-
-      if (buffer.length >= 8) {
-        const discriminator = Array.from(buffer.slice(0, 8));
-        const isCreateInstruction = PUMPFUN_CREATE_DISCRIMINATOR.every(
-          (byte: number, index: number) => discriminator[index] === byte
-        );
-
-        if (isCreateInstruction) {
-          // For PumpFun create instruction, the mint address is typically at offset 8
-          // Extract 32 bytes starting from offset 8 for the mint public key
-          if (buffer.length >= 40) {
-            const mintBytes = buffer.slice(8, 40);
-            const mintAddress = bs58.encode(mintBytes);
-            return mintAddress;
-          }
+      // Import the coder if not already available
+      if (!this.coder) {
+        this.coder = new BorshCoder(IDL as PumpFun);
+      }
+      
+      // Try to decode as CreateEvent using Borsch decoder
+      const createEvent = this.coder.events.decode(base64Data);
+      
+      if (createEvent && createEvent.data) {
+        const data = createEvent.data;
+        
+        // Extract mint address from the decoded event data
+        const mintAddress = data.mint?.toString();
+        const creatorAddress = data.creator?.toString() || data.user?.toString();
+        
+        // Verify that the creator matches the monitored wallet
+        if (mintAddress && creatorAddress === walletAddress) {
+          console.log(`🪙 PumpFun token created: ${data.symbol || 'Unknown'} (${mintAddress}) by wallet: ${walletAddress}`);
+          return mintAddress;
         }
       }
-
+      
       return null;
     } catch (error) {
-      console.error('Error decoding PumpFun program data:', error);
+      console.warn('Failed to decode PumpFun program data with Borsch decoder:', error);
       return null;
     }
   }
