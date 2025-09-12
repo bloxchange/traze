@@ -73,8 +73,15 @@ const Transactions: React.FC<TransactionsProps> = () => {
       title: t('transactions.type'),
       key: 'type',
       render: (_: unknown, record: TradeEventData) => (
-        <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
-          {record.type === 'buy' ? t('transactions.buy') : t('transactions.sell')}
+        <span
+          style={{
+            color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+            fontWeight: 'bold',
+          }}
+        >
+          {record.type === 'buy'
+            ? t('transactions.buy')
+            : t('transactions.sell')}
         </span>
       ),
     },
@@ -84,7 +91,12 @@ const Transactions: React.FC<TransactionsProps> = () => {
       render: (_: unknown, record: TradeEventData) => {
         const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
         return (
-          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          <span
+            style={{
+              color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+              fontWeight: 'bold',
+            }}
+          >
             {formatBalance(solAmount, true)}
           </span>
         );
@@ -98,7 +110,12 @@ const Transactions: React.FC<TransactionsProps> = () => {
         const tokenAmount =
           Math.abs(record.toTokenAmount) / Math.pow(10, decimals);
         return (
-          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          <span
+            style={{
+              color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+              fontWeight: 'bold',
+            }}
+          >
             {formatBalance(tokenAmount, false)}
           </span>
         );

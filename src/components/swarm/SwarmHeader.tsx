@@ -17,6 +17,7 @@ import {
   EditOutlined,
   ReloadOutlined,
   InfoCircleOutlined,
+  AimOutlined,
 } from '@ant-design/icons';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { CoinOutlined, CoinBackOutlined } from '../icons';
@@ -24,6 +25,14 @@ import { useTranslation } from 'react-i18next';
 import { formatBalance } from '../../utils/formatBalance';
 import { GetTokenInformationCommand } from '../../domain/commands/GetTokenInformationCommand';
 import { useToken } from '../../hooks/useToken';
+import { WalletMonitoringService } from '../../domain/infrastructure/WalletMonitoringService';
+import { globalEventEmitter } from '../../domain/infrastructure/events/EventEmitter';
+import {
+  EVENTS,
+  type MintTokenDetectedData,
+} from '../../domain/infrastructure/events/types';
+import { SwarmBuyCommand } from '../../domain/commands/SwarmBuyCommand';
+import { message } from 'antd';
 
 const { Text } = Typography;
 
@@ -42,6 +51,10 @@ interface SwarmHeaderProps {
   totalTokenBalance: number;
   disabled?: boolean;
   showMask?: boolean;
+  targetWallet?: string;
+  onTargetWalletChange?: (wallet: string) => void;
+  wallets?: Array<any>;
+  swarmConfig?: any;
 }
 
 const SwarmHeader: React.FC<SwarmHeaderProps> = ({
@@ -59,6 +72,10 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   totalTokenBalance,
   disabled = false,
   showMask = false,
+  targetWallet = '',
+  onTargetWalletChange,
+  wallets = [],
+  swarmConfig,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -66,6 +83,9 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newName, setNewName] = useState(initialName);
   const [tokenDecimals, setTokenDecimals] = useState<number>(6); // Default to 6 decimals
+  const [isSnippingModalVisible, setIsSnippingModalVisible] = useState(false);
+  const [walletAddress, setWalletAddress] = useState(targetWallet);
+  const [isMonitoring, setIsMonitoring] = useState(false);
 
   // Fetch token decimals when current token changes
   useEffect(() => {
@@ -85,6 +105,105 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
 
     fetchTokenDecimals();
   }, [tokenState.currentToken?.mint]);
+
+  // Handle wallet monitoring when target wallet changes
+  useEffect(() => {
+    const monitoringService = WalletMonitoringService.getInstance();
+
+    const startMonitoring = async () => {
+      if (targetWallet && targetWallet.trim()) {
+        try {
+          await monitoringService.startMonitoring(targetWallet.trim());
+          setIsMonitoring(true);
+          console.log(`🎯 Started monitoring target wallet: ${targetWallet}`);
+        } catch (error) {
+          console.error('Failed to start wallet monitoring:', error);
+          setIsMonitoring(false);
+        }
+      } else {
+        await monitoringService.stopAllMonitoring();
+        setIsMonitoring(false);
+        console.log('🛑 Stopped wallet monitoring');
+      }
+    };
+
+    startMonitoring();
+
+    // Cleanup function
+    return () => {
+      monitoringService.stopAllMonitoring();
+      setIsMonitoring(false);
+    };
+  }, [targetWallet]);
+
+  // Function to trigger automatic swarm buy for detected token
+  const triggerAutomaticSwarmBuy = async (tokenMint: string) => {
+    if (!wallets || wallets.length === 0) {
+      console.warn('⚠️ No wallets available for automatic swarm buy');
+      return;
+    }
+
+    if (!swarmConfig) {
+      console.warn(
+        '⚠️ No swarm configuration available for automatic swarm buy'
+      );
+      return;
+    }
+
+    try {
+      console.log(`🚀 Triggering automatic swarm buy for token: ${tokenMint}`);
+
+      const buyCommand = new SwarmBuyCommand(
+        wallets,
+        tokenMint,
+        swarmConfig.buyAmounts,
+        swarmConfig.buyDelay,
+        swarmConfig.buySlippage,
+        swarmConfig.priorityFee,
+        tokenState.buyComputeUnitsConsumed,
+        tokenState.buyCostUnits
+      );
+
+      await buyCommand.execute();
+
+      message.success(
+        `🎯 Automatic swarm buy executed for token: ${tokenMint.slice(0, 8)}...`
+      );
+      console.log(`✅ Automatic swarm buy completed for token: ${tokenMint}`);
+    } catch (error) {
+      message.error(
+        `❌ Automatic swarm buy failed for token: ${tokenMint.slice(0, 8)}...`
+      );
+      console.error('Automatic swarm buy error:', error);
+    }
+  };
+
+  // Listen for mint token detection events
+  useEffect(() => {
+    const handleMintTokenDetected = (data: MintTokenDetectedData) => {
+      console.log('🪙 Mint token detected in SwarmHeader:', data);
+
+      // Only trigger automatic buy if we're monitoring the wallet that detected the mint
+      if (data.walletAddress === targetWallet?.trim()) {
+        console.log(
+          `🎯 Target wallet ${data.walletAddress} detected mint token: ${data.tokenMint}`
+        );
+        triggerAutomaticSwarmBuy(data.tokenMint);
+      }
+    };
+
+    globalEventEmitter.on(EVENTS.MintTokenDetected, handleMintTokenDetected);
+
+    return () => {
+      globalEventEmitter.off(EVENTS.MintTokenDetected, handleMintTokenDetected);
+    };
+  }, [
+    targetWallet,
+    wallets,
+    swarmConfig,
+    tokenState.buyComputeUnitsConsumed,
+    tokenState.buyCostUnits,
+  ]);
 
   // Helper function to format raw token balance
   const formatTokenBalance = (rawBalance: number) => {
@@ -110,6 +229,38 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewName(e.target.value);
+  };
+
+  /**
+   * Handle snipping modal operations
+   */
+  const showSnippingModal = () => {
+    setWalletAddress(targetWallet);
+    setIsSnippingModalVisible(true);
+  };
+
+  const handleSnippingOk = () => {
+    if (onTargetWalletChange) {
+      onTargetWalletChange(walletAddress.trim());
+    }
+    setIsSnippingModalVisible(false);
+  };
+
+  const handleSnippingCancel = () => {
+    setIsSnippingModalVisible(false);
+  };
+
+  const handleWalletAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setWalletAddress(e.target.value);
+  };
+
+  const handleClearWallet = () => {
+    setWalletAddress('');
+    if (onTargetWalletChange) {
+      onTargetWalletChange('');
+    }
   };
 
   const balanceTooltip = (
@@ -270,6 +421,23 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
                     disabled={disabled}
                   />
                 </Tooltip>
+                <Tooltip title={t('swarm.snipping', 'Target Wallet')}>
+                  <Button
+                    icon={
+                      <AimOutlined
+                        style={{
+                          color: targetWallet ? token.colorPrimary : undefined,
+                          animation: targetWallet
+                            ? 'blink 1s infinite'
+                            : 'none',
+                        }}
+                      />
+                    }
+                    onClick={showSnippingModal}
+                    type="text"
+                    disabled={disabled}
+                  />
+                </Tooltip>
                 <Tooltip title={t('settings.configuration')}>
                   <Button
                     icon={<SettingOutlined />}
@@ -302,6 +470,56 @@ const SwarmHeader: React.FC<SwarmHeaderProps> = ({
           }}
         />
       </Modal>
+
+      {/* Snipping Modal */}
+      <Modal
+        title={t('swarm.targetWallet', 'Target Wallet')}
+        open={isSnippingModalVisible}
+        onOk={handleSnippingOk}
+        onCancel={handleSnippingCancel}
+        okText={t('common.confirm')}
+        cancelText={t('common.cancel')}
+      >
+        <div style={{ marginBottom: '16px' }}>
+          <Input
+            value={walletAddress}
+            onChange={handleWalletAddressChange}
+            placeholder={t('swarm.enterWalletAddress', 'Enter wallet address')}
+            readOnly={!!targetWallet}
+            autoFocus={!targetWallet}
+            suffix={
+              <Button
+                type="text"
+                size="small"
+                icon={<ClearOutlined />}
+                onClick={handleClearWallet}
+                disabled={!walletAddress.trim()}
+                style={{
+                  padding: '0 4px',
+                  height: '20px',
+                  minWidth: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              />
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !targetWallet) {
+                handleSnippingOk();
+              }
+            }}
+          />
+        </div>
+      </Modal>
+
+      {/* CSS for blink animation */}
+      <style>{`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0.3; }
+        }
+      `}</style>
     </>
   );
 };

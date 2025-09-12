@@ -32,12 +32,15 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
     const handleTradeInfoEvent = async (data: TradeInfoFetchedData) => {
       const tradeInfo = data.tradeInfo;
       const walletPublicKey = tradeInfo.fromAccount.toBase58();
-      
+
       // Get all swarm wallet public keys from TokenContext
       const swarmWalletKeys = new Set(Object.keys(tokenState.wallets));
-      
+
       // Only add transaction if the wallet is not part of any swarm and transaction is successful
-      if (!swarmWalletKeys.has(walletPublicKey) && tradeInfo.status === 'success') {
+      if (
+        !swarmWalletKeys.has(walletPublicKey) &&
+        tradeInfo.status === 'success'
+      ) {
         setTransactions((prev) => {
           const newTransactions = [tradeInfo, ...prev];
           return newTransactions;
@@ -59,11 +62,12 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
   // Filter existing transactions when wallets change
   useEffect(() => {
     const swarmWalletKeys = new Set(Object.keys(tokenState.wallets));
-    
-    setTransactions((prev) => 
-      prev.filter(tx => 
-        !swarmWalletKeys.has(tx.fromAccount.toBase58()) && 
-        tx.status === 'success'
+
+    setTransactions((prev) =>
+      prev.filter(
+        (tx) =>
+          !swarmWalletKeys.has(tx.fromAccount.toBase58()) &&
+          tx.status === 'success'
       )
     );
   }, [tokenState.wallets]);
@@ -79,8 +83,15 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
       title: t('outsideTransactions.type'),
       key: 'type',
       render: (_: unknown, record: TradeEventData) => (
-        <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
-          {record.type === 'buy' ? t('outsideTransactions.buy') : t('outsideTransactions.sell')}
+        <span
+          style={{
+            color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+            fontWeight: 'bold',
+          }}
+        >
+          {record.type === 'buy'
+            ? t('outsideTransactions.buy')
+            : t('outsideTransactions.sell')}
         </span>
       ),
     },
@@ -90,7 +101,12 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
       render: (_: unknown, record: TradeEventData) => {
         const solAmount = Math.abs(record.fromTokenAmount) / LAMPORTS_PER_SOL;
         return (
-          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          <span
+            style={{
+              color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+              fontWeight: 'bold',
+            }}
+          >
             {formatBalance(solAmount, true)}
           </span>
         );
@@ -104,7 +120,12 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
         const tokenAmount =
           Math.abs(record.toTokenAmount) / Math.pow(10, decimals);
         return (
-          <span style={{ color: record.type === 'buy' ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+          <span
+            style={{
+              color: record.type === 'buy' ? '#52c41a' : '#ff4d4f',
+              fontWeight: 'bold',
+            }}
+          >
             {formatBalance(tokenAmount, false)}
           </span>
         );
@@ -115,10 +136,14 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
       key: 'marketCap',
       render: (_: unknown, record: TradeEventData) => {
         const tokenInfo = tokenState.currentToken;
-        if (!tokenInfo || !tokenState.currentPrice || tokenInfo.totalSupply === 0) {
+        if (
+          !tokenInfo ||
+          !tokenState.currentPrice ||
+          tokenInfo.totalSupply === 0
+        ) {
           return 'N/A';
         }
-        
+
         // Calculate market cap: current price * total supply
         // x 180: sol/usd
         const marketCap = tokenState.currentPrice * 180 * tokenInfo.totalSupply;
@@ -147,7 +172,12 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
                 alignItems: 'center',
               }}
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
                 <path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
               </svg>
             </a>
@@ -191,16 +221,17 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
   const calculateTotalSol = () => {
     let buyTotal = 0;
     let sellTotal = 0;
-    
-    transactions.forEach(transaction => {
-      const solAmount = Math.abs(transaction.fromTokenAmount) / LAMPORTS_PER_SOL;
+
+    transactions.forEach((transaction) => {
+      const solAmount =
+        Math.abs(transaction.fromTokenAmount) / LAMPORTS_PER_SOL;
       if (transaction.type === 'buy') {
         buyTotal += solAmount;
       } else {
         sellTotal += solAmount;
       }
     });
-    
+
     return buyTotal - sellTotal;
   };
 
@@ -210,20 +241,23 @@ const OutsideTransactions: React.FC<OutsideTransactionsProps> = () => {
     <div>
       {/* Total SOL Display */}
       <div style={{ padding: '12px' }}>
-        <span style={{ fontSize: '16px', fontWeight: 'bold', marginRight: '8px' }}>
+        <span
+          style={{ fontSize: '16px', fontWeight: 'bold', marginRight: '8px' }}
+        >
           Total SOL:
         </span>
-        <span 
-          style={{ 
-            fontSize: '18px', 
+        <span
+          style={{
+            fontSize: '18px',
             fontWeight: 'bold',
-            color: totalSol > 0 ? '#52c41a' : '#ff4d4f'
+            color: totalSol > 0 ? '#52c41a' : '#ff4d4f',
           }}
         >
-          {totalSol > 0 ? '+' : ''}{formatBalance(totalSol, true)}
+          {totalSol > 0 ? '+' : ''}
+          {formatBalance(totalSol, true)}
         </span>
       </div>
-      
+
       <Table
         dataSource={transactions}
         columns={columns}

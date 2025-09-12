@@ -46,9 +46,9 @@ export class GetTradeInfoCommand {
     const fromTokenAmount = Math.abs(solBalanceBefore - solBalanceAfter);
 
     // find owner
-    const ownerPubkey = transaction.transaction.message.accountKeys
-      .find((a) => a.signer)
-      ?.pubkey;
+    const ownerPubkey = transaction.transaction.message.accountKeys.find(
+      (a) => a.signer
+    )?.pubkey;
 
     const owner = ownerPubkey?.toBase58();
 
@@ -70,8 +70,10 @@ export class GetTradeInfoCommand {
     return {
       fromTokenMint: '',
       toTokenMint: '',
-      fromAccount: ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
-      toAccount: ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
+      fromAccount:
+        ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
+      toAccount:
+        ownerPubkey ?? new PublicKey('11111111111111111111111111111111'),
       fromTokenAmount: fromTokenAmount,
       toTokenAmount: toTokenAmount,
       timestamp: transaction.blockTime

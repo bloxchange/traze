@@ -78,6 +78,13 @@ export interface StopSignalData {
   operation: 'buyTillRunOut' | 'sellTillRunOut';
 }
 
+export interface MintTokenDetectedData {
+  walletAddress: string;
+  tokenMint: string;
+  signature: string;
+  timestamp: number;
+}
+
 export type EventData =
   | BalanceChangeData
   | BalanceFetchedData
@@ -89,7 +96,8 @@ export type EventData =
   | TransactionEventData
   | BondingCurveFetchedData
   | TradeInfoFetchedData
-  | StopSignalData;
+  | StopSignalData
+  | MintTokenDetectedData;
 export type EventCallback<T extends EventData> = (data: T) => void;
 
 export const EVENTS = {
@@ -107,4 +115,5 @@ export const EVENTS = {
   BondingCurveFetched: 'bondingCurveFetched',
   TradeInfoFetched: 'tradeInfoFetched',
   StopSignal: 'stopSignal',
+  MintTokenDetected: 'mintTokenDetected',
 } as const;
