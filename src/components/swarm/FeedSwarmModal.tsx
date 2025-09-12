@@ -31,6 +31,7 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [useMiddleWallets, setUseMiddleWallets] = useState(false);
   const [useRandomAmount, setUseRandomAmount] = useState(false);
+  const [selectedSourceWallet, setSelectedSourceWallet] = useState<string>('phantom');
 
   // Reset all inputs when modal opens
   useEffect(() => {
@@ -38,8 +39,14 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
       form.resetFields();
       setUseMiddleWallets(false);
       setUseRandomAmount(false);
+      setSelectedSourceWallet('phantom');
     }
   }, [open, form]);
+
+  // Get available destination wallets (exclude source wallet)
+  const getAvailableDestinationWallets = () => {
+    return wallets.filter(wallet => wallet.publicKey !== selectedSourceWallet);
+  };
 
   const handleSubmit = async () => {
     try {
@@ -47,18 +54,28 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
 
       setLoading(true);
 
+      // Get destination wallets - if none selected, use all available wallets
+      const destinationWallets = values.destinationWallets && values.destinationWallets.length > 0
+        ? values.destinationWallets
+        : getAvailableDestinationWallets().map(wallet => wallet.publicKey);
+
+      // Filter wallets to include only source and selected destinations
+      const sourceWallet = wallets.find(w => w.publicKey === values.sourceWallet);
+      const destinationWalletInfos = wallets.filter(w => destinationWallets.includes(w.publicKey));
+      const filteredWallets = sourceWallet ? [sourceWallet, ...destinationWalletInfos] : destinationWalletInfos;
+
       const feedCommand = useMiddleWallets
         ? new FeedSwarmByStepsCommand(
             values.sourceWallet,
             values.amount,
-            wallets,
+            filteredWallets,
             values.middleWalletCount,
             values.useRandomAmount
           )
         : new FeedSwarmCommand(
             values.sourceWallet,
             values.amount,
-            wallets,
+            filteredWallets,
             values.useRandomAmount
           );
 
@@ -107,11 +124,28 @@ const FeedSwarmModal: React.FC<FeedSwarmModalProps> = ({
           label={t('swarm.feedModal.sourceWallet')}
           rules={[{ required: true, message: t('common.required') }]}
         >
-          <Select>
+          <Select onChange={(value) => setSelectedSourceWallet(value)}>
             <Select.Option value="phantom">
               {t('swarm.feedModal.phantomWallet')}
             </Select.Option>
             {wallets.map((wallet) => (
+              <Select.Option key={wallet.publicKey} value={wallet.publicKey}>
+                {wallet.publicKey}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="destinationWallets"
+          label={t('swarm.feedModal.destinationWallets')}
+          extra={t('swarm.feedModal.destinationWalletsDescription')}
+        >
+          <Select
+            mode="multiple"
+            placeholder={t('swarm.feedModal.destinationWalletsPlaceholder')}
+            allowClear
+          >
+            {getAvailableDestinationWallets().map((wallet) => (
               <Select.Option key={wallet.publicKey} value={wallet.publicKey}>
                 {wallet.publicKey}
               </Select.Option>

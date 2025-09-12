@@ -78,6 +78,8 @@
     "stop": "停止",
     "stopBuyTillRunOut": "停止买入直到耗尽",
     "stopSellTillRunOut": "停止卖出直到耗尽",
+    "feedSuccess": "SOL 供给完成成功",
+    "feedError": "SOL 供给失败",
     "createModal": {
       "title": "创建蜂群",
       "privateKeys": "私钥",
@@ -98,6 +100,9 @@
       "title": "注入SOL",
       "sourceWallet": "源钱包",
       "phantomWallet": "Phantom钱包",
+      "destinationWallets": "目标钱包",
+      "destinationWalletsDescription": "选择接收SOL的钱包。如果未选择，将使用所有可用钱包。",
+      "destinationWalletsPlaceholder": "选择目标钱包",
       "amount": "数量",
       "amountPlaceholder": "输入注入数量",
       "amountDescription": "这是总数量。它将在蜂群中的所有钱包之间平均分配。",

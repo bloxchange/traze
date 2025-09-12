@@ -78,6 +78,8 @@
     "stop": "Stop",
     "stopBuyTillRunOut": "Stop Buy Till Run Out",
     "stopSellTillRunOut": "Stop Sell Till Run Out",
+    "feedSuccess": "SOL feed completed successfully",
+    "feedError": "Failed to feed SOL",
     "createModal": {
       "title": "Create Swarm",
       "privateKeys": "Private Keys",
@@ -98,6 +100,9 @@
       "title": "Feed SOL",
       "sourceWallet": "Source Wallet",
       "phantomWallet": "Phantom Wallet",
+      "destinationWallets": "Destination Wallets",
+      "destinationWalletsDescription": "Select wallets to receive SOL. If none selected, all available wallets will be used.",
+      "destinationWalletsPlaceholder": "Select destination wallets",
       "amount": "Amount",
       "amountPlaceholder": "Enter amount to feed",
       "amountDescription": "This is total amount. It will divide the amount evenly among all wallets in the swarm.",
