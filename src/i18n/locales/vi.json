@@ -78,6 +78,8 @@
     "stop": "Dừng",
     "stopBuyTillRunOut": "Dừng mua đến khi hết",
     "stopSellTillRunOut": "Dừng bán đến khi hết",
+    "feedSuccess": "Cung cấp SOL hoàn thành thành công",
+    "feedError": "Thất bại khi cung cấp SOL",
     "createModal": {
       "title": "Tạo bầy đàn",
       "privateKeys": "Khóa riêng tư",
@@ -98,6 +100,9 @@
       "title": "Nạp SOL",
       "sourceWallet": "Ví nguồn",
       "phantomWallet": "Ví Phantom",
+      "destinationWallets": "Ví đích",
+      "destinationWalletsDescription": "Chọn ví để nhận SOL. Nếu không chọn, tất cả ví có sẵn sẽ được sử dụng.",
+      "destinationWalletsPlaceholder": "Chọn ví đích",
       "amount": "Số lượng",
       "amountPlaceholder": "Nhập số lượng cần nạp",
       "amountDescription": "Đây là tổng số lượng. Nó sẽ được chia đều cho tất cả các ví trong bầy đàn.",
